@@ -18,6 +18,7 @@
 #include "Nextion.h"
 #include <Wifi.h>
 #include <PubSubClient.h>
+#include <ArduinoOTA.h>
 
 //#include "BluetoothSerial.h"
 
@@ -150,6 +151,54 @@ NexButton btnNightTempDec = NexButton(PG_NIGHT_TEMP, BTN_NIGHT_TEMP_DEC_ID, "btn
 
 /*Strona 3*/
 NexButton btnNextOnPg3	= NexButton(PAGE_3, BTN_PG3_NEXT_PAGE_ID, "btnNextOnPg3");
+
+NexDSButton btnProg01 = NexDSButton(PAGE_3, 4, "bt0");
+NexDSButton btnProg02 = NexDSButton(PAGE_3, 5, "bt1");
+NexDSButton btnProg03 = NexDSButton(PAGE_3, 6, "btnProg03");
+NexDSButton btnProg04 = NexDSButton(PAGE_3, 5, "btnProg04");
+NexDSButton btnProg05 = NexDSButton(PAGE_3, 5, "btnProg05");
+NexDSButton btnProg06 = NexDSButton(PAGE_3, 5, "btnProg06");
+NexDSButton btnProg07 = NexDSButton(PAGE_3, 5, "btnProg07");
+NexDSButton btnProg08 = NexDSButton(PAGE_3, 5, "btnProg08");
+NexDSButton btnProg09 = NexDSButton(PAGE_3, 5, "btnProg09");
+NexDSButton btnProg10 = NexDSButton(PAGE_3, 5, "btnProg10");
+NexDSButton btnProg11 = NexDSButton(PAGE_3, 5, "btnProg11");
+NexDSButton btnProg12 = NexDSButton(PAGE_3, 5, "btnProg12");
+NexDSButton btnProg13 = NexDSButton(PAGE_3, 5, "btnProg13");
+NexDSButton btnProg14 = NexDSButton(PAGE_3, 5, "btnProg14");
+NexDSButton btnProg15 = NexDSButton(PAGE_3, 5, "btnProg15");
+NexDSButton btnProg16 = NexDSButton(PAGE_3, 5, "btnProg16");
+NexDSButton btnProg17 = NexDSButton(PAGE_3, 5, "btnProg17");
+NexDSButton btnProg18 = NexDSButton(PAGE_3, 5, "btnProg18");
+NexDSButton btnProg19 = NexDSButton(PAGE_3, 5, "btnProg19");
+NexDSButton btnProg20 = NexDSButton(PAGE_3, 5, "btnProg20");
+NexDSButton btnProg21 = NexDSButton(PAGE_3, 5, "btnProg21");
+NexDSButton btnProg22 = NexDSButton(PAGE_3, 5, "btnProg22");
+NexDSButton btnProg23 = NexDSButton(PAGE_3, 5, "btnProg23");
+NexDSButton btnProg24 = NexDSButton(PAGE_3, 5, "btnProg24");
+NexDSButton btnProg25 = NexDSButton(PAGE_3, 5, "btnProg25");
+NexDSButton btnProg26 = NexDSButton(PAGE_3, 5, "btnProg26");
+NexDSButton btnProg27 = NexDSButton(PAGE_3, 5, "btnProg27");
+NexDSButton btnProg28 = NexDSButton(PAGE_3, 5, "btnProg28");
+NexDSButton btnProg29 = NexDSButton(PAGE_3, 5, "btnProg29");
+NexDSButton btnProg30 = NexDSButton(PAGE_3, 5, "btnProg30");
+NexDSButton btnProg31 = NexDSButton(PAGE_3, 5, "btnProg31");
+NexDSButton btnProg33 = NexDSButton(PAGE_3, 5, "btnProg33");
+NexDSButton btnProg34 = NexDSButton(PAGE_3, 5, "btnProg34");
+NexDSButton btnProg35 = NexDSButton(PAGE_3, 5, "btnProg35");
+NexDSButton btnProg36 = NexDSButton(PAGE_3, 5, "btnProg36");
+NexDSButton btnProg37 = NexDSButton(PAGE_3, 5, "btnProg37");
+NexDSButton btnProg38 = NexDSButton(PAGE_3, 5, "btnProg38");
+NexDSButton btnProg39 = NexDSButton(PAGE_3, 5, "btnProg39");
+NexDSButton btnProg40 = NexDSButton(PAGE_3, 5, "btnProg40");
+NexDSButton btnProg41 = NexDSButton(PAGE_3, 5, "btnProg41");
+NexDSButton btnProg42 = NexDSButton(PAGE_3, 5, "btnProg42");
+NexDSButton btnProg43 = NexDSButton(PAGE_3, 5, "btnProg43");
+NexDSButton btnProg44 = NexDSButton(PAGE_3, 5, "btnProg44");
+NexDSButton btnProg45 = NexDSButton(PAGE_3, 5, "btnProg45");
+NexDSButton btnProg46 = NexDSButton(PAGE_3, 5, "btnProg46");
+NexDSButton btnProg47 = NexDSButton(PAGE_3, 5, "btnProg47");
+NexDSButton btnProg48 = NexDSButton(PAGE_3, 5, "btnProg48");
 
 /*Ustawianie czasu*/
 NexPage page1 = NexPage(PG_TIME, BTN_TIME_MAIN_PAGE_ID, "btnPageMain");
@@ -292,6 +341,57 @@ void onBtnNextOnPg3(void *ptr)
 	sprintf(buf, "%02d", rtc.minute());
 	tMinute.setText(buf);
 	tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
+
+	uint32_t state;
+	bool prog[48];
+
+	for (uint8_t i = 0; i < 48; i++) {
+		prog[i] = 0;
+	}
+
+	btnProg01.getValue(&state);	prog[0] = state;
+	/*
+	btnProg02.getValue(&state);	prog[1] = state;
+	btnProg03.getValue(&state);	prog[2] = state;
+	btnProg04.getValue(&state);	prog[3] = state;
+	btnProg05.getValue(&state);	prog[4] = state;
+	btnProg06.getValue(&state);	prog[5] = state;
+	btnProg07.getValue(&state);	prog[6] = state;
+	btnProg08.getValue(&state);	prog[7] = state;
+	btnProg09.getValue(&state);	prog[8] = state;
+	btnProg10.getValue(&state);	prog[9] = state;
+	btnProg11.getValue(&state);	prog[10] = state;
+	btnProg12.getValue(&state);	prog[11] = state;
+	btnProg13.getValue(&state);	prog[12] = state;
+	btnProg14.getValue(&state);	prog[13] = state;
+	btnProg15.getValue(&state);	prog[14] = state;
+	btnProg16.getValue(&state);	prog[15] = state;
+	btnProg17.getValue(&state);	prog[16] = state;
+	btnProg18.getValue(&state);	prog[17] = state;
+	btnProg19.getValue(&state);	prog[18] = state;
+	btnProg20.getValue(&state);	prog[19] = state;
+	btnProg21.getValue(&state);	prog[20] = state;
+	btnProg22.getValue(&state);	prog[21] = state;
+	btnProg23.getValue(&state);	prog[22] = state;
+	btnProg24.getValue(&state);	prog[23] = state;
+	btnProg25.getValue(&state);	prog[24] = state;
+	btnProg26.getValue(&state);	prog[25] = state;
+	btnProg27.getValue(&state);	prog[26] = state;
+	btnProg28.getValue(&state);	prog[27] = state;
+	btnProg29.getValue(&state);	prog[28] = state;
+	btnProg30.getValue(&state);	prog[29] = state;
+	*/
+	char aaa[20];
+	memset(aaa, 0, sizeof(aaa));
+	btnProg01.getText(aaa, sizeof(aaa));
+	dbSerialPrintln("btnProg01Text " + String(aaa) );
+	dbSerialPrintln("getObjName " + String(btnProg01.getObjName()));
+
+	//for (uint8_t i = 0; i < 48; i++) {
+	//	dbSerialPrintln("btnProg " + String(i) + " = " + String(prog[i]));
+	//}
+
+
 }
 
 void onBtnbDateTimeNext(void *ptr)
@@ -469,7 +569,7 @@ void ds18b20Init()
   Serial.print("Locating DS18B20 devices...");
   sensors.begin();
   Serial.print("Found ");
-  Serial.print(sensors.getDeviceCount(), DEC);
+  Serial.print(sensors.getDeviceCount()+1, DEC);
   Serial.println(" devices.");
 
   // report parasite power requirements
@@ -547,6 +647,7 @@ void Task1code(void * pvParameters) {
 void Task2code(void * pvParameters) {
   while (true) {
 		nexLoop(nex_listen_list);
+		ArduinoOTA.handle();
 	}
 }
 
@@ -618,6 +719,38 @@ void setup() {
   ds18b20Init();
 
   setup_wifi();
+
+
+
+  ArduinoOTA
+	  .onStart([]() {
+	  String type;
+	  if (ArduinoOTA.getCommand() == U_FLASH)
+		  type = "sketch";
+	  else // U_SPIFFS
+		  type = "filesystem";
+
+	  // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+	  Serial.println("Start updating " + type);
+  })
+	  .onEnd([]() {
+	  Serial.println("\nEnd");
+  })
+	  .onProgress([](unsigned int progress, unsigned int total) {
+	  Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  })
+	  .onError([](ota_error_t error) {
+	  Serial.printf("Error[%u]: ", error);
+	  if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+	  else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+	  else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+	  else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+	  else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+
+  ArduinoOTA.begin();
+
+
 }
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
