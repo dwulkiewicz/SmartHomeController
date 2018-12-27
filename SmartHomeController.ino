@@ -1,14 +1,13 @@
 /************************************************************************/
 /*                                                                      */
-/*              Testy ESP32 WiFi Lora - DS1307 Nextion                  */
+/*              ESP32 WiFi Lora - DS1307 Nextion                  */
 /*              Hardware: ESP32 (Heltec Wifi-Lora-32)                   */
 /*                                                                      */
 /*              Author: Dariusz Wulkiewicz                              */
 /*                      d.wulkiewicz@gmail.com                          */
 /*                                                                      */
-/*              Date: 09.2018                                           */
+/*              Date: 12.2018                                           */
 /************************************************************************/
-
 #include "Arduino.h"
 #include "Wire.h"
 #include "uRTCLib.h"
@@ -16,7 +15,7 @@
 #include <DallasTemperature.h>
 #include <math.h>
 #include "Nextion.h"
-#include <Wifi.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoOTA.h>
 
@@ -72,16 +71,11 @@ TaskHandle_t Task2;
 WiFiClient espClient;
 PubSubClient client(espClient);
 //const char* prefixClientID = "ESP32Client";
-#define HOSTNAME_PREFIX "ESP32-OTA-" ///< Hostename. The setup function adds the Chip ID at the end.
+#define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
 /*
  * Declare a object [page id:0,component id:1, component name: "t0"]. 
  */
-
-/*Strona główna*/
-#define PG_MAIN						0
-#define BTN_MAIN_NEXT_PG_ID			7
-#define PIC_WIFI_STATUS				8
 
 /*Ustawienie temp na dzień*/
 #define PG_DAY_TEMP					1
@@ -132,11 +126,24 @@ PubSubClient client(espClient);
 #define PIC_WIFI_ON_ID				2
 
 /*Strona główna*/
-NexText tCurrDateTime	= NexText(PG_MAIN, 2, "tCurrDateTime");
-NexText tCurrDayOfWeek	= NexText(PG_MAIN, 7, "tCurrDayOfWeek");
-NexText tTemperature	= NexText(PG_MAIN, 3, "tTemperature");
+#define PG_MAIN                         0
+#define BTN_MAIN_NEXT_PG_ID             7
+#define PIC_WIFI_STATUS                 8
+#define PIC_SWITCH_BATHROOM_MAIN_LIGHT 13
+#define LBL_DAY_OF_MONTH_ID             2
+#define LBL_DAY_OF_WEEK_ID              7
+#define LBL_TIME_ID                    12
+#define LBL_DAY_OF_MONTH_ID             2
+#define LBL_INTERNAL_TEMP_ID            1
+
+NexText tDayOfMonth	= NexText(PG_MAIN, LBL_DAY_OF_MONTH_ID, "tDayOfMonth");
+NexText tDayOfWeek	= NexText(PG_MAIN, LBL_DAY_OF_WEEK_ID, "tDayOfWeek");
+NexText tTime  = NexText(PG_MAIN, LBL_TIME_ID, "tTime");
+NexText tInernalTemp	= NexText(PG_MAIN, LBL_INTERNAL_TEMP_ID, "tInernalTemp");
 NexButton btnMainNextPage  = NexButton(PG_MAIN, BTN_MAIN_NEXT_PG_ID, "bMainNextPage");
 NexPicture picWiFiStatus = NexPicture(PG_MAIN, PIC_WIFI_STATUS, "picWiFi");
+
+NexPicture switchBathroomMainLight = NexPicture(PG_MAIN, PIC_SWITCH_BATHROOM_MAIN_LIGHT, "picSwitchMain");
 
 /*Temperatura w dzień*/
 NexText lblDayTempValue  = NexText(PG_DAY_TEMP, LBL_DAY_TEMP_VALUE_ID, "lDayTempVal");
@@ -206,7 +213,7 @@ NexPage page1 = NexPage(PG_TIME, BTN_TIME_MAIN_PAGE_ID, "btnPageMain");
 NexText tYear	= NexText(PG_TIME, LBL_TIME_YEAR, "lblYear");
 NexText tMonth	= NexText(PG_TIME, LBL_TIME_MONTH, "lblMonth");
 NexText tDay	= NexText(PG_TIME, LBL_TIME_DAY, "lblDay");
-NexText tDayOfWeek = NexText(PG_TIME, LBL_TIME_DAY_OF_WEEK, "lblDayOfWeek");
+NexText tDayW = NexText(PG_TIME, LBL_TIME_DAY_OF_WEEK, "lblDayW");
 NexText tHour	= NexText(PG_TIME, LBL_TIME_HOUR, "lblHour");
 NexText tMinute	= NexText(PG_TIME, LBL_TIME_MINUTE, "lblMinute");
 
@@ -219,6 +226,7 @@ NexButton bDateTimeSet = NexButton(PG_TIME, BTN_TIME_SET_ID, "btnTimeSet");
 NexTouch *nex_listen_list[] =
 {
 	&page1,
+  &switchBathroomMainLight,
 	&btnMainNextPage,
 	&btnDayTempInc,
 	&btnDayTempDec,
@@ -254,6 +262,33 @@ String dayOfWeekName(uint8_t dayOfWeek) {
 	case 6: return "sobota";
 	case 7: return "niedziela";
 	}
+  return "undefined";
+}
+
+String monthName(uint8_t month) {
+  switch (month) {
+  case 1: return "styczen";
+  case 2: return "luty";
+  case 3: return "marzec";
+  case 4: return "kwiecień";
+  case 5: return "maj";
+  case 6: return "czerwiec";
+  case 7: return "lipiec";
+  case 8: return "sierpień";
+  case 9: return "wrzesień";
+  case 10: return "październik";
+  case 11: return "listopad";
+  case 12: return "grudzien";  
+  }
+  return "undefined";
+}
+
+bool switchBathroomMainLightState = false;
+void onSwitchBathroomMainLightPop(void *ptr)
+{
+  dbSerialPrintln("onSwitchBathroomMainLightPop");
+  switchBathroomMainLightState = !switchBathroomMainLightState;
+  switchBathroomMainLight.setPic(switchBathroomMainLightState ? 8 : 7);  
 }
 
 void page1PopCallback(void *ptr)
@@ -534,7 +569,14 @@ void setup_wifi() {
 	// We start by connecting to a WiFi network
 	Serial.printf("\r\nConnecting to %s\r\n", configuration.wifiSSID.c_str());
 
+  // Set Hostname.
+  char buf[15];
+  uint64_t chipid = ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
+  sprintf(buf, "%04x%08x", (uint16_t)(chipid >> 32) /*High 2 bytes*/, (uint32_t)chipid /*Low 4bytes*/);
+  String hostname = HOSTNAME_PREFIX + String(buf); 
+
 	WiFi.begin(configuration.wifiSSID.c_str(), configuration.wifiPassword.c_str());
+  WiFi.setHostname(hostname.c_str());
 
 	// Wait for connection
 	while (WiFi.status() != WL_CONNECTED) {
@@ -547,13 +589,7 @@ void setup_wifi() {
 
 	picWiFiStatus.setPic(PIC_WIFI_ON_ID);
 
-	// Set Hostname.
-	char buf[15];
-	uint64_t chipid = ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
-	sprintf(buf, "%04x%08x", (uint16_t)(chipid >> 32) /*High 2 bytes*/, (uint32_t)chipid /*Low 4bytes*/);
 
-	String hostname = HOSTNAME_PREFIX + String(buf);
-	WiFi.setHostname(hostname.c_str());
 
 	Serial.println("");
 	Serial.println("WiFi connected");
@@ -625,21 +661,26 @@ void Task1code(void * pvParameters) {
 	while (true) {
 		sensors.requestTemperatures(); // Send the command to get temperatures
 		delay(1000);
-
+    rtc.refresh();
+    
 		//Serial.printf("Task1code() running on core %d\r\n", xPortGetCoreID());
 		char buf[25];
-
+   
+    /*Intermal temperatur*/
 		String temperature = dtostrf(round(sensors.getTempC(insideThermometer)*10.0) / 10.0, 2, 1/*2*/, buf);
-		//Serial.printf("Temp: %sC\r\n", buf);
-		temperature += "C";
+		tInernalTemp.setText(temperature.c_str());
 
-		tTemperature.setText(temperature.c_str());
+    /*Day of month*/
+    String monthNameStr = monthName(rtc.month());    
+		sprintf(buf, "%02d %s", rtc.day(), monthNameStr.c_str());
+    tDayOfMonth.setText(buf);
+    
+    /*Time*/
+    sprintf(buf, "%02d:%02d", rtc.hour(), rtc.minute());
+		tTime.setText(buf);
 
-		rtc.refresh();
-		sprintf(buf, "20%02d.%02d.%02d %02d:%02d:%02d\r\n", rtc.year(), rtc.month(), rtc.day(), rtc.hour(), rtc.minute(), rtc.second());
-
-		tCurrDateTime.setText(buf);
-		tCurrDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
+    /*Day of Week*/
+		tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
 	}
 }
 
@@ -696,6 +737,7 @@ void setup() {
 	//Serial.printf("Loaded password: %s\r\n", configuration.wifiPassword.c_str());
 	//Serial.printf("Loaded mqtt_server: %s\r\n", configuration.mqttServer.c_str());
 
+  switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop,&switchBathroomMainLight);
 
 	/* Register the pop event callback function of the current button component. */
   btnMainNextPage.attachPop(onBtnMainNextPagePop, &btnMainNextPage);
