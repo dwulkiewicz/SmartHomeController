@@ -73,40 +73,19 @@ PubSubClient client(espClient);
 //const char* prefixClientID = "ESP32Client";
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
+
+#define PICTURE_WIFI_ON  5
+#define PICTURE_WIFI_OFF 4
+#define PICTURE_SWITCH_ON  7
+#define PICTURE_SWITCH_OFF 6
+
+
 /*
  * Declare a object [page id:0,component id:1, component name: "t0"]. 
  */
 
-/*Ustawienie temp na dzień*/
-#define PG_DAY_TEMP					1
-#define BTN_DAY_TEMP_INC_ID			3
-#define BTN_DAY_TEMP_DEC_ID			4
-#define BTN_DAY_TEMP_MAIN_PG_ID		5
-#define BTN_DAY_TEMP_NEXT_PG_ID		6
-#define LBL_DAY_TEMP_TITLE_ID		1
-#define LBL_DAY_TEMP_VALUE_ID		2	    
-
-/*Ustawienie temp noc*/
-#define PG_NIGHT_TEMP				2
-#define BTN_NIGHT_TEMP_INC_ID		3
-#define BTN_NIGHT_TEMP_DEC_ID		4
-#define BTN_NIGHT_TEMP_PREV_PG_ID	6
-#define BTN_NIGHT_TEMP_MAIN_PG_ID	5
-#define BTN_NIGHT_TEMP_NEXT_PG_ID	7
-#define LBL_NIGHT_TEMP_TITLE_ID		1
-#define LBL_NIGHT_TEMP_VALUE_ID		2
-
-/*Program 1*/
-#define PAGE_3						3
-#define BTN_PG3_NEXT_PAGE_ID		3
-#define BTN_PG3_MAIN_PAGE_ID		1
-#define BTN_PG3_PREV_PAGE_ID		2
-
-/*Program 2*/
-
-
 /*Strona ustawiania czasu*/
-#define PG_TIME						4
+#define PG_TIME						3
 #define BTN_TIME_SET_ID				6
 #define BTN_TIME_NEXT_ID			7
 #define BTN_TIME_MAIN_PAGE_ID		1
@@ -122,93 +101,80 @@ PubSubClient client(espClient);
 #define COLOR_RED 63488
 #define COLOR_YELLOW 65504
 
-#define PIC_WIFI_OFF_ID				1
-#define PIC_WIFI_ON_ID				2
-
-/*Strona główna*/
+//------------/*Strona główna*/------------
 #define PG_MAIN                         0
-#define BTN_MAIN_NEXT_PG_ID             7
-#define PIC_WIFI_STATUS                 8
-#define PIC_SWITCH_BATHROOM_MAIN_LIGHT 13
-#define LBL_DAY_OF_MONTH_ID             2
-#define LBL_DAY_OF_WEEK_ID              7
-#define LBL_TIME_ID                    12
-#define LBL_DAY_OF_MONTH_ID             2
-#define LBL_INTERNAL_TEMP_ID            1
+
+#define BTN_GO_LIGHT_PG_ID              3
+#define BTN_GO_LIGHT_PG_NAME            "bLights"
+#define BTN_GO_HEATING_PG_ID            8
+#define BTN_GO_HEATING_PG_NAME          "bHeating"
+#define BTN_GO_TIME_PG_ID               24
+#define BTN_GO_TIME_PG_NAME             "bTime"
+
+#define PIC_WIFI_STATUS_ID              4
+#define PIC_WIFI_STATUS_NAME            "picWiFi"
+
+#define PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID              7
+#define PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME            "picSwitchMain"
+
+#define LBL_DAY_OF_MONTH_ID             23
+#define LBL_DAY_OF_WEEK_ID              20
+
+//#define LBL_DAY_OF_MONTH_ID             2
+#define LBL_INDOOR_TEMP1_ID             16
+#define LBL_INDOOR_TEMP1_NAME           "tInTemp1"
+#define LBL_INDOOR_TEMP2_ID             17
+#define LBL_INDOOR_TEMP2_NAME           "tInTemp2"
+#define LBL_TIME1_ID                    6
+#define LBL_TIME1_NAME                  "tTime1"
+#define LBL_TIME2_ID                    19
+#define LBL_TIME2_NAME                  "tTime2"
 
 NexText tDayOfMonth	= NexText(PG_MAIN, LBL_DAY_OF_MONTH_ID, "tDayOfMonth");
 NexText tDayOfWeek	= NexText(PG_MAIN, LBL_DAY_OF_WEEK_ID, "tDayOfWeek");
-NexText tTime  = NexText(PG_MAIN, LBL_TIME_ID, "tTime");
-NexText tInernalTemp	= NexText(PG_MAIN, LBL_INTERNAL_TEMP_ID, "tInernalTemp");
-NexButton btnMainNextPage  = NexButton(PG_MAIN, BTN_MAIN_NEXT_PG_ID, "bMainNextPage");
-NexPicture picWiFiStatus = NexPicture(PG_MAIN, PIC_WIFI_STATUS, "picWiFi");
 
-NexPicture switchBathroomMainLight = NexPicture(PG_MAIN, PIC_SWITCH_BATHROOM_MAIN_LIGHT, "picSwitchMain");
+NexText tTime1  = NexText(PG_MAIN, LBL_TIME1_ID, LBL_TIME1_NAME);
+NexText tTime2  = NexText(PG_MAIN, LBL_TIME2_ID, LBL_TIME2_NAME);
+NexText tIndoorTemp1	= NexText(PG_MAIN, LBL_INDOOR_TEMP1_ID, LBL_INDOOR_TEMP1_NAME);
+NexText tIndoorTemp2  = NexText(PG_MAIN, LBL_INDOOR_TEMP2_ID, LBL_INDOOR_TEMP2_NAME);
 
+NexButton btnGoHeatingPage  = NexButton(PG_MAIN, BTN_GO_HEATING_PG_ID, BTN_GO_HEATING_PG_NAME);
+NexButton btnGoLightsPage = NexButton(PG_MAIN, BTN_GO_LIGHT_PG_ID, BTN_GO_LIGHT_PG_NAME);
+NexButton btnGoTimePage  = NexButton(PG_MAIN, BTN_GO_TIME_PG_ID, BTN_GO_TIME_PG_NAME);
+
+NexPicture picWiFiStatus = NexPicture(PG_MAIN, PIC_WIFI_STATUS_ID, PIC_WIFI_STATUS_NAME);
+
+NexPicture switchBathroomMainLight = NexPicture(PG_MAIN, PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME);
+
+//------------/*Ogrzewanie*/------------
 /*Temperatura w dzień*/
-NexText lblDayTempValue  = NexText(PG_DAY_TEMP, LBL_DAY_TEMP_VALUE_ID, "lDayTempVal");
-NexButton btnDayTempInc = NexButton(PG_DAY_TEMP, BTN_DAY_TEMP_INC_ID, "bDayTempPlus");
-NexButton btnDayTempDec = NexButton(PG_DAY_TEMP, BTN_DAY_TEMP_DEC_ID, "btnDayTempDec");
-NexButton btnDayTempNextPage = NexButton(PG_DAY_TEMP, BTN_DAY_TEMP_NEXT_PG_ID, "bDayTempNextPg");
+#define PG_DAY_TEMP          1
+#define BTN_DAY_TEMP_DEC_ID       16
+#define BTN_DAY_TEMP_DEC_NAME   "b18"
+#define BTN_DAY_TEMP_INC_ID       17
+#define BTN_DAY_TEMP_INC_NAME   "b19"
+#define LBL_DAY_TEMP_VALUE_ID     18      
+#define LBL_DAY_TEMP_VALUE_NAME  "t9"
+
+NexText lblDayTempValue  = NexText(PG_DAY_TEMP, LBL_DAY_TEMP_VALUE_ID, LBL_DAY_TEMP_VALUE_NAME);
+NexButton btnDayTempDec = NexButton(PG_DAY_TEMP, BTN_DAY_TEMP_DEC_ID, BTN_DAY_TEMP_DEC_NAME);
+NexButton btnDayTempInc = NexButton(PG_DAY_TEMP, BTN_DAY_TEMP_INC_ID, BTN_DAY_TEMP_INC_NAME);
 
 /*Temperatura w noc*/
-NexText lblNightTempValue = NexText(PG_NIGHT_TEMP, LBL_NIGHT_TEMP_VALUE_ID, "lNightTempVal");
-NexButton btnNightTempInc = NexButton(PG_NIGHT_TEMP, BTN_NIGHT_TEMP_INC_ID, "btnNightTempInc");
-NexButton btnNightTempDec = NexButton(PG_NIGHT_TEMP, BTN_NIGHT_TEMP_DEC_ID, "btnNightTempDec");
+#define PG_NIGHT_TEMP       1
+#define BTN_NIGHT_TEMP_DEC_ID    32
+#define BTN_NIGHT_TEMP_DEC_NAME  "b17"
+#define BTN_NIGHT_TEMP_INC_ID   31
+#define BTN_NIGHT_TEMP_INC_NAME  "b16"
+#define LBL_NIGHT_TEMP_VALUE_ID   33
+#define LBL_NIGHT_TEMP_VALUE_NAME "t8"
 
-/*Strona 3*/
-NexButton btnNextOnPg3	= NexButton(PAGE_3, BTN_PG3_NEXT_PAGE_ID, "btnNextOnPg3");
+NexText lblNightTempValue = NexText(PG_NIGHT_TEMP, LBL_NIGHT_TEMP_VALUE_ID, LBL_NIGHT_TEMP_VALUE_NAME);
+NexButton btnNightTempDec = NexButton(PG_NIGHT_TEMP, BTN_NIGHT_TEMP_DEC_ID, BTN_NIGHT_TEMP_DEC_NAME);
+NexButton btnNightTempInc = NexButton(PG_NIGHT_TEMP, BTN_NIGHT_TEMP_INC_ID, BTN_NIGHT_TEMP_INC_NAME);
 
-NexDSButton btnProg01 = NexDSButton(PAGE_3, 4, "bt0");
-NexDSButton btnProg02 = NexDSButton(PAGE_3, 5, "bt1");
-NexDSButton btnProg03 = NexDSButton(PAGE_3, 6, "btnProg03");
-NexDSButton btnProg04 = NexDSButton(PAGE_3, 5, "btnProg04");
-NexDSButton btnProg05 = NexDSButton(PAGE_3, 5, "btnProg05");
-NexDSButton btnProg06 = NexDSButton(PAGE_3, 5, "btnProg06");
-NexDSButton btnProg07 = NexDSButton(PAGE_3, 5, "btnProg07");
-NexDSButton btnProg08 = NexDSButton(PAGE_3, 5, "btnProg08");
-NexDSButton btnProg09 = NexDSButton(PAGE_3, 5, "btnProg09");
-NexDSButton btnProg10 = NexDSButton(PAGE_3, 5, "btnProg10");
-NexDSButton btnProg11 = NexDSButton(PAGE_3, 5, "btnProg11");
-NexDSButton btnProg12 = NexDSButton(PAGE_3, 5, "btnProg12");
-NexDSButton btnProg13 = NexDSButton(PAGE_3, 5, "btnProg13");
-NexDSButton btnProg14 = NexDSButton(PAGE_3, 5, "btnProg14");
-NexDSButton btnProg15 = NexDSButton(PAGE_3, 5, "btnProg15");
-NexDSButton btnProg16 = NexDSButton(PAGE_3, 5, "btnProg16");
-NexDSButton btnProg17 = NexDSButton(PAGE_3, 5, "btnProg17");
-NexDSButton btnProg18 = NexDSButton(PAGE_3, 5, "btnProg18");
-NexDSButton btnProg19 = NexDSButton(PAGE_3, 5, "btnProg19");
-NexDSButton btnProg20 = NexDSButton(PAGE_3, 5, "btnProg20");
-NexDSButton btnProg21 = NexDSButton(PAGE_3, 5, "btnProg21");
-NexDSButton btnProg22 = NexDSButton(PAGE_3, 5, "btnProg22");
-NexDSButton btnProg23 = NexDSButton(PAGE_3, 5, "btnProg23");
-NexDSButton btnProg24 = NexDSButton(PAGE_3, 5, "btnProg24");
-NexDSButton btnProg25 = NexDSButton(PAGE_3, 5, "btnProg25");
-NexDSButton btnProg26 = NexDSButton(PAGE_3, 5, "btnProg26");
-NexDSButton btnProg27 = NexDSButton(PAGE_3, 5, "btnProg27");
-NexDSButton btnProg28 = NexDSButton(PAGE_3, 5, "btnProg28");
-NexDSButton btnProg29 = NexDSButton(PAGE_3, 5, "btnProg29");
-NexDSButton btnProg30 = NexDSButton(PAGE_3, 5, "btnProg30");
-NexDSButton btnProg31 = NexDSButton(PAGE_3, 5, "btnProg31");
-NexDSButton btnProg33 = NexDSButton(PAGE_3, 5, "btnProg33");
-NexDSButton btnProg34 = NexDSButton(PAGE_3, 5, "btnProg34");
-NexDSButton btnProg35 = NexDSButton(PAGE_3, 5, "btnProg35");
-NexDSButton btnProg36 = NexDSButton(PAGE_3, 5, "btnProg36");
-NexDSButton btnProg37 = NexDSButton(PAGE_3, 5, "btnProg37");
-NexDSButton btnProg38 = NexDSButton(PAGE_3, 5, "btnProg38");
-NexDSButton btnProg39 = NexDSButton(PAGE_3, 5, "btnProg39");
-NexDSButton btnProg40 = NexDSButton(PAGE_3, 5, "btnProg40");
-NexDSButton btnProg41 = NexDSButton(PAGE_3, 5, "btnProg41");
-NexDSButton btnProg42 = NexDSButton(PAGE_3, 5, "btnProg42");
-NexDSButton btnProg43 = NexDSButton(PAGE_3, 5, "btnProg43");
-NexDSButton btnProg44 = NexDSButton(PAGE_3, 5, "btnProg44");
-NexDSButton btnProg45 = NexDSButton(PAGE_3, 5, "btnProg45");
-NexDSButton btnProg46 = NexDSButton(PAGE_3, 5, "btnProg46");
-NexDSButton btnProg47 = NexDSButton(PAGE_3, 5, "btnProg47");
-NexDSButton btnProg48 = NexDSButton(PAGE_3, 5, "btnProg48");
 
 /*Ustawianie czasu*/
-NexPage page1 = NexPage(PG_TIME, BTN_TIME_MAIN_PAGE_ID, "btnPageMain");
 
 NexText tYear	= NexText(PG_TIME, LBL_TIME_YEAR, "lblYear");
 NexText tMonth	= NexText(PG_TIME, LBL_TIME_MONTH, "lblMonth");
@@ -225,15 +191,14 @@ NexButton bDateTimeSet = NexButton(PG_TIME, BTN_TIME_SET_ID, "btnTimeSet");
 */
 NexTouch *nex_listen_list[] =
 {
-	&page1,
   &switchBathroomMainLight,
-	&btnMainNextPage,
+	&btnGoHeatingPage, 
+  &btnGoLightsPage, 
+  &btnGoTimePage, 
 	&btnDayTempInc,
 	&btnDayTempDec,
-	&btnDayTempNextPage,
 	&btnNightTempInc,
 	&btnNightTempDec,
-	&btnNextOnPg3,
 	&bDateTimeNext,
 	&bDateTimeSet,
 	NULL
@@ -254,13 +219,13 @@ uint8_t setup_datetime_current = SETUP_DATETIME_YEAR;
 
 String dayOfWeekName(uint8_t dayOfWeek) {
 	switch (dayOfWeek) {
-	case 1: return "poniedzialek";
-	case 2: return "wtorek";
-	case 3: return "sroda";
-	case 4: return "czwartek";
-	case 5: return "piatek";
-	case 6: return "sobota";
-	case 7: return "niedziela";
+	case 1: return "Pn";
+	case 2: return "Wt";
+	case 3: return "Śr";
+	case 4: return "Czw";
+	case 5: return "Pt";
+	case 6: return "Sb";
+	case 7: return "Nd";
 	}
   return "undefined";
 }
@@ -288,44 +253,27 @@ void onSwitchBathroomMainLightPop(void *ptr)
 {
   dbSerialPrintln("onSwitchBathroomMainLightPop");
   switchBathroomMainLightState = !switchBathroomMainLightState;
-  switchBathroomMainLight.setPic(switchBathroomMainLightState ? 8 : 7);  
+  switchBathroomMainLight.setPic(switchBathroomMainLightState ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);  
 }
 
-void page1PopCallback(void *ptr)
-{
-	dbSerialPrintln("page1PopCallback");
-	setup_datetime_current = SETUP_DATETIME_YEAR;
-}
-
-void onBtnMainNextPagePop(void *ptr)
+void onBtnGoHeatingPagePop(void *ptr)
 {
   NexButton *btn = (NexButton *)ptr;
 
-  dbSerialPrintln("onBtnMainNextPagePop");
+  dbSerialPrintln("onBtnGoHeatingPagePop");
   dbSerialPrint("ptr=");
   dbSerialPrintln((uint32_t)ptr);
 
   lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
-}
-
-void onBtnDayTempNextPagePop(void *ptr)
-{
-	NexButton *btn = (NexButton *)ptr;
-
-	dbSerialPrintln("onBtnMainNextPagePop");
-	dbSerialPrint("ptr=");
-	dbSerialPrintln((uint32_t)ptr);
-
-	lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
+  lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());  
 }
 
 void onBtnTempPop(void *ptr) {
 	NexButton *btn = (NexButton *)ptr;
 	
 	dbSerialPrintln("onBtnTempPop: pageId=" + String(btn->getObjPid()) + " componentId="+ String(btn->getObjCid()) + " name=" + btn->getObjName());
-	switch(btn->getObjPid()){
-	case PG_DAY_TEMP:
-		switch (btn->getObjCid()) {
+
+	switch (btn->getObjCid()) {
 		case BTN_DAY_TEMP_INC_ID:
 			if (configuration.incrementDayTemperature()) {
 				lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
@@ -336,10 +284,6 @@ void onBtnTempPop(void *ptr) {
 				lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
 			}
 			break;
-		}
-		break;
-	case PG_NIGHT_TEMP:
-		switch (btn->getObjCid()) {
 		case BTN_NIGHT_TEMP_INC_ID:
 			if (configuration.incrementNightTemperature()) {
 				lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
@@ -351,11 +295,18 @@ void onBtnTempPop(void *ptr) {
 			}
 			break;
 		}
-		break;
-	}
 }
 
-void onBtnNextOnPg3(void *ptr)
+void onBtnGoLightsPagePop(void *ptr)
+{
+  NexButton *btn = (NexButton *)ptr;
+
+  dbSerialPrintln("onBtnGoLightsPagePop");
+  dbSerialPrint("ptr=");
+  dbSerialPrintln((uint32_t)ptr);
+}  
+
+void onBtnGoTimePagePop(void *ptr)
 {
 	NexButton *btn = (NexButton *)ptr;
 
@@ -376,57 +327,6 @@ void onBtnNextOnPg3(void *ptr)
 	sprintf(buf, "%02d", rtc.minute());
 	tMinute.setText(buf);
 	tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
-
-	uint32_t state;
-	bool prog[48];
-
-	for (uint8_t i = 0; i < 48; i++) {
-		prog[i] = 0;
-	}
-
-	btnProg01.getValue(&state);	prog[0] = state;
-	/*
-	btnProg02.getValue(&state);	prog[1] = state;
-	btnProg03.getValue(&state);	prog[2] = state;
-	btnProg04.getValue(&state);	prog[3] = state;
-	btnProg05.getValue(&state);	prog[4] = state;
-	btnProg06.getValue(&state);	prog[5] = state;
-	btnProg07.getValue(&state);	prog[6] = state;
-	btnProg08.getValue(&state);	prog[7] = state;
-	btnProg09.getValue(&state);	prog[8] = state;
-	btnProg10.getValue(&state);	prog[9] = state;
-	btnProg11.getValue(&state);	prog[10] = state;
-	btnProg12.getValue(&state);	prog[11] = state;
-	btnProg13.getValue(&state);	prog[12] = state;
-	btnProg14.getValue(&state);	prog[13] = state;
-	btnProg15.getValue(&state);	prog[14] = state;
-	btnProg16.getValue(&state);	prog[15] = state;
-	btnProg17.getValue(&state);	prog[16] = state;
-	btnProg18.getValue(&state);	prog[17] = state;
-	btnProg19.getValue(&state);	prog[18] = state;
-	btnProg20.getValue(&state);	prog[19] = state;
-	btnProg21.getValue(&state);	prog[20] = state;
-	btnProg22.getValue(&state);	prog[21] = state;
-	btnProg23.getValue(&state);	prog[22] = state;
-	btnProg24.getValue(&state);	prog[23] = state;
-	btnProg25.getValue(&state);	prog[24] = state;
-	btnProg26.getValue(&state);	prog[25] = state;
-	btnProg27.getValue(&state);	prog[26] = state;
-	btnProg28.getValue(&state);	prog[27] = state;
-	btnProg29.getValue(&state);	prog[28] = state;
-	btnProg30.getValue(&state);	prog[29] = state;
-	*/
-	char aaa[20];
-	memset(aaa, 0, sizeof(aaa));
-	btnProg01.getText(aaa, sizeof(aaa));
-	dbSerialPrintln("btnProg01Text " + String(aaa) );
-	dbSerialPrintln("getObjName " + String(btnProg01.getObjName()));
-
-	//for (uint8_t i = 0; i < 48; i++) {
-	//	dbSerialPrintln("btnProg " + String(i) + " = " + String(prog[i]));
-	//}
-
-
 }
 
 void onBtnbDateTimeNext(void *ptr)
@@ -580,16 +480,13 @@ void setup_wifi() {
 
 	// Wait for connection
 	while (WiFi.status() != WL_CONNECTED) {
-		picWiFiStatus.setPic(PIC_WIFI_ON_ID);
+		picWiFiStatus.setPic(PICTURE_WIFI_ON);
 		delay(250);
-		picWiFiStatus.setPic(PIC_WIFI_OFF_ID);
+		picWiFiStatus.setPic(PICTURE_WIFI_OFF);
 		delay(250);
 		Serial.print(".");
 	}
-
-	picWiFiStatus.setPic(PIC_WIFI_ON_ID);
-
-
+	picWiFiStatus.setPic(PICTURE_WIFI_ON);
 
 	Serial.println("");
 	Serial.println("WiFi connected");
@@ -666,9 +563,13 @@ void Task1code(void * pvParameters) {
 		//Serial.printf("Task1code() running on core %d\r\n", xPortGetCoreID());
 		char buf[25];
    
-    /*Intermal temperatur*/
-		String temperature = dtostrf(round(sensors.getTempC(insideThermometer)*10.0) / 10.0, 2, 1/*2*/, buf);
-		tInernalTemp.setText(temperature.c_str());
+    /*Indoor temperature*/
+    uint16_t t = round(sensors.getTempC(insideThermometer)*10.0);
+		//String temperature = dtostrf(t, 2, 1/*2*/, buf);
+    String t1 = String(t/10);    
+		tIndoorTemp1.setText(t1.c_str());
+    String t2 = String(t%10); 
+    tIndoorTemp2.setText(t2.c_str());
 
     /*Day of month*/
     String monthNameStr = monthName(rtc.month());    
@@ -676,9 +577,11 @@ void Task1code(void * pvParameters) {
     tDayOfMonth.setText(buf);
     
     /*Time*/
-    sprintf(buf, "%02d:%02d", rtc.hour(), rtc.minute());
-		tTime.setText(buf);
-
+    sprintf(buf, "%02d:", rtc.hour());
+		tTime1.setText(buf);
+    sprintf(buf, "%02d", rtc.minute());
+    tTime2.setText(buf);
+    
     /*Day of Week*/
 		tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
 	}
@@ -740,19 +643,19 @@ void setup() {
   switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop,&switchBathroomMainLight);
 
 	/* Register the pop event callback function of the current button component. */
-  btnMainNextPage.attachPop(onBtnMainNextPagePop, &btnMainNextPage);
-  
+  btnGoHeatingPage.attachPop(onBtnGoHeatingPagePop, &btnGoHeatingPage);
+  btnGoLightsPage.attachPop(onBtnGoLightsPagePop, &btnGoLightsPage);
+  btnGoTimePage.attachPop(onBtnGoTimePagePop, &btnGoTimePage);
+
   btnDayTempInc.attachPop(onBtnTempPop, &btnDayTempInc);
   btnDayTempDec.attachPop(onBtnTempPop, &btnDayTempDec);
-  btnDayTempNextPage.attachPop(onBtnDayTempNextPagePop,&btnDayTempNextPage);
 
   btnNightTempInc.attachPop(onBtnTempPop, &btnNightTempInc);
   btnNightTempDec.attachPop(onBtnTempPop, &btnNightTempDec);
 
-  btnNextOnPg3.attachPop(onBtnNextOnPg3, &btnNextOnPg3);
   bDateTimeNext.attachPop(onBtnbDateTimeNext, &bDateTimeNext);
   bDateTimeSet.attachPop(onBtnbDateTimeSet, &bDateTimeSet);
-  page1.attachPop(page1PopCallback);
+
   
   pinMode(BUILT_LED, OUTPUT);
 
@@ -761,7 +664,6 @@ void setup() {
   ds18b20Init();
 
   setup_wifi();
-
 
 
   ArduinoOTA
