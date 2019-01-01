@@ -25,8 +25,6 @@
 #define OFFSET_TEMP  100  //10.0*C
 
 
-
-
 /* You only need to format SPIFFS the first time you run a
 test or else use the SPIFFS plugin to create a partition
 https://github.com/me-no-dev/arduino-esp32fs-plugin */
@@ -76,8 +74,8 @@ Configuration::~Configuration()
 }
 
 bool Configuration::init() {
-
-	listDir(SPIFFS, "/", 0);
+  Serial.printf("Configuration ******************\r\n");
+	//listDir(SPIFFS, "/", 0);
 
 	if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
 		Serial.println("SPIFFS Mount Failed");
@@ -123,11 +121,6 @@ bool Configuration::init() {
 	// Real world application would store these values in some variables for
 	// later use.
 
-	Serial.printf("Loaded wifiSSID: %s\r\n", wifiSSID.c_str());
-	Serial.printf("Loaded password: %s\r\n", wifiPassword.c_str());
-	Serial.printf("Loaded mqtt_server: %s\r\n", mqttServer.c_str());
-
-
 	if (!EEPROM.begin(EEPROM_SIZE))
 	{
 		Serial.println("failed to initialise EEPROM");
@@ -137,6 +130,8 @@ bool Configuration::init() {
 	nightTemp = EEPROM.read(EEPROM_ADDR_NIGHT_TEMP);
 	hysteresisTemp = EEPROM.read(EEPROM_ADDR_HYSTERESIS_TEMP);
 
+  print();
+  Serial.printf("End Configuration ******************\r\n");
 	return true;
 }
 
@@ -217,4 +212,13 @@ bool Configuration::decrementHisteresisTemperature() {
 		return true;
 	}
 	return false;
+}
+
+void Configuration::print(){ 
+  Serial.printf("wifiSSID: %s\r\n", wifiSSID.c_str());
+  Serial.printf("wifiPassword: %s\r\n", wifiPassword.c_str());
+  Serial.printf("mqttServer: %s\r\n", mqttServer.c_str());
+  Serial.printf("dayTemp: %.1f\r\n", getDayTemperature());
+  Serial.printf("nightTemp: %.1f\r\n", getNightTemperature());
+  Serial.printf("hysteresisTemp: %.1f\r\n", getHisteresisTemp());
 }

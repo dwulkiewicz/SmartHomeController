@@ -9,26 +9,24 @@
 /*              Date: 12.2018                                           */
 /************************************************************************/
 #include "Arduino.h"
+#include <math.h>
+
+#include <ArduinoOTA.h>
+#include "Nextion.h"
+
 #include "Wire.h"
 #include "uRTCLib.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <math.h>
-#include "Nextion.h"
-#include <WiFi.h>
-#include <PubSubClient.h>
-#include <ArduinoOTA.h>
-
-//#include "BluetoothSerial.h"
 
 #include "Configuration.h"
 
+#include "Constants.h"
+#include "DisplayControler.h"
+#include "NetworkControler.h"
 
-//#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-//#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-//#endif
-
-//BluetoothSerial SerialBT;
+#define CORE_1 0
+#define CORE_2 1
 
 #define I2C_ADDRESS_SSD1306 0x3C
 #define I2C_ADDRESS_D1307   0x68
@@ -49,8 +47,6 @@
 
 uRTCLib rtc(I2C_ADDRESS_D1307, I2C_ADDRESS_AT24C32);
 
-//HardwareSerial Serial2(2);
-
 #define ONE_WIRE_BUS DS18B20_PIN
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -62,73 +58,6 @@ DallasTemperature sensors(&oneWire);
 // arrays to hold device address
 DeviceAddress insideThermometer;
 
-unsigned long entry;
-
-TaskHandle_t Task1;
-TaskHandle_t Task2;
-
-
-WiFiClient espClient;
-PubSubClient client(espClient);
-//const char* prefixClientID = "ESP32Client";
-#define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
-
-
-#define PICTURE_WIFI_ON  5
-#define PICTURE_WIFI_OFF 4
-#define PICTURE_SWITCH_ON  7
-#define PICTURE_SWITCH_OFF 6
-
-
-/*
- * Declare a object [page id:0,component id:1, component name: "t0"]. 
- */
-
-/*Strona ustawiania czasu*/
-#define PG_TIME						3
-#define BTN_TIME_SET_ID				6
-#define BTN_TIME_NEXT_ID			7
-#define BTN_TIME_MAIN_PAGE_ID		1
-#define BTN_TIME_PREV_PAGE_ID		2
-#define LBL_TIME_TITLE				14
-#define LBL_TIME_YEAR				8
-#define LBL_TIME_MONTH				10
-#define LBL_TIME_DAY				12
-#define LBL_TIME_DAY_OF_WEEK		13
-#define LBL_TIME_HOUR				3
-#define LBL_TIME_MINUTE				5	     
-
-#define COLOR_RED 63488
-#define COLOR_YELLOW 65504
-
-//------------/*Strona główna*/------------
-#define PG_MAIN                         0
-
-#define BTN_GO_LIGHT_PG_ID              3
-#define BTN_GO_LIGHT_PG_NAME            "bLights"
-#define BTN_GO_HEATING_PG_ID            8
-#define BTN_GO_HEATING_PG_NAME          "bHeating"
-#define BTN_GO_TIME_PG_ID               24
-#define BTN_GO_TIME_PG_NAME             "bTime"
-
-#define PIC_WIFI_STATUS_ID              4
-#define PIC_WIFI_STATUS_NAME            "picWiFi"
-
-#define PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID              7
-#define PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME            "picSwitchMain"
-
-#define LBL_DAY_OF_MONTH_ID             23
-#define LBL_DAY_OF_WEEK_ID              20
-
-//#define LBL_DAY_OF_MONTH_ID             2
-#define LBL_INDOOR_TEMP1_ID             16
-#define LBL_INDOOR_TEMP1_NAME           "tInTemp1"
-#define LBL_INDOOR_TEMP2_ID             17
-#define LBL_INDOOR_TEMP2_NAME           "tInTemp2"
-#define LBL_TIME1_ID                    6
-#define LBL_TIME1_NAME                  "tTime1"
-#define LBL_TIME2_ID                    19
-#define LBL_TIME2_NAME                  "tTime2"
 
 NexText tDayOfMonth	= NexText(PG_MAIN, LBL_DAY_OF_MONTH_ID, "tDayOfMonth");
 NexText tDayOfWeek	= NexText(PG_MAIN, LBL_DAY_OF_WEEK_ID, "tDayOfWeek");
@@ -142,40 +71,21 @@ NexButton btnGoHeatingPage  = NexButton(PG_MAIN, BTN_GO_HEATING_PG_ID, BTN_GO_HE
 NexButton btnGoLightsPage = NexButton(PG_MAIN, BTN_GO_LIGHT_PG_ID, BTN_GO_LIGHT_PG_NAME);
 NexButton btnGoTimePage  = NexButton(PG_MAIN, BTN_GO_TIME_PG_ID, BTN_GO_TIME_PG_NAME);
 
-NexPicture picWiFiStatus = NexPicture(PG_MAIN, PIC_WIFI_STATUS_ID, PIC_WIFI_STATUS_NAME);
+
 
 NexPicture switchBathroomMainLight = NexPicture(PG_MAIN, PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME);
 
 //------------/*Ogrzewanie*/------------
 /*Temperatura w dzień*/
-#define PG_DAY_TEMP          1
-#define BTN_DAY_TEMP_DEC_ID       16
-#define BTN_DAY_TEMP_DEC_NAME   "b18"
-#define BTN_DAY_TEMP_INC_ID       17
-#define BTN_DAY_TEMP_INC_NAME   "b19"
-#define LBL_DAY_TEMP_VALUE_ID     18      
-#define LBL_DAY_TEMP_VALUE_NAME  "t9"
-
-NexText lblDayTempValue  = NexText(PG_DAY_TEMP, LBL_DAY_TEMP_VALUE_ID, LBL_DAY_TEMP_VALUE_NAME);
-NexButton btnDayTempDec = NexButton(PG_DAY_TEMP, BTN_DAY_TEMP_DEC_ID, BTN_DAY_TEMP_DEC_NAME);
-NexButton btnDayTempInc = NexButton(PG_DAY_TEMP, BTN_DAY_TEMP_INC_ID, BTN_DAY_TEMP_INC_NAME);
-
+NexText lblDayTempValue  = NexText(PG_HEATING_SETTING, LBL_DAY_TEMP_VALUE_ID, LBL_DAY_TEMP_VALUE_NAME);
+NexButton btnDayTempDec = NexButton(PG_HEATING_SETTING, BTN_DAY_TEMP_DEC_ID, BTN_DAY_TEMP_DEC_NAME);
+NexButton btnDayTempInc = NexButton(PG_HEATING_SETTING, BTN_DAY_TEMP_INC_ID, BTN_DAY_TEMP_INC_NAME);
 /*Temperatura w noc*/
-#define PG_NIGHT_TEMP       1
-#define BTN_NIGHT_TEMP_DEC_ID    32
-#define BTN_NIGHT_TEMP_DEC_NAME  "b17"
-#define BTN_NIGHT_TEMP_INC_ID   31
-#define BTN_NIGHT_TEMP_INC_NAME  "b16"
-#define LBL_NIGHT_TEMP_VALUE_ID   33
-#define LBL_NIGHT_TEMP_VALUE_NAME "t8"
-
-NexText lblNightTempValue = NexText(PG_NIGHT_TEMP, LBL_NIGHT_TEMP_VALUE_ID, LBL_NIGHT_TEMP_VALUE_NAME);
-NexButton btnNightTempDec = NexButton(PG_NIGHT_TEMP, BTN_NIGHT_TEMP_DEC_ID, BTN_NIGHT_TEMP_DEC_NAME);
-NexButton btnNightTempInc = NexButton(PG_NIGHT_TEMP, BTN_NIGHT_TEMP_INC_ID, BTN_NIGHT_TEMP_INC_NAME);
-
+NexText lblNightTempValue = NexText(PG_HEATING_SETTING, LBL_NIGHT_TEMP_VALUE_ID, LBL_NIGHT_TEMP_VALUE_NAME);
+NexButton btnNightTempDec = NexButton(PG_HEATING_SETTING, BTN_NIGHT_TEMP_DEC_ID, BTN_NIGHT_TEMP_DEC_NAME);
+NexButton btnNightTempInc = NexButton(PG_HEATING_SETTING, BTN_NIGHT_TEMP_INC_ID, BTN_NIGHT_TEMP_INC_NAME);
 
 /*Ustawianie czasu*/
-
 NexText tYear	= NexText(PG_TIME, LBL_TIME_YEAR, "lblYear");
 NexText tMonth	= NexText(PG_TIME, LBL_TIME_MONTH, "lblMonth");
 NexText tDay	= NexText(PG_TIME, LBL_TIME_DAY, "lblDay");
@@ -191,10 +101,10 @@ NexButton bDateTimeSet = NexButton(PG_TIME, BTN_TIME_SET_ID, "btnTimeSet");
 */
 NexTouch *nex_listen_list[] =
 {
-  &switchBathroomMainLight,
+	&switchBathroomMainLight,
 	&btnGoHeatingPage, 
-  &btnGoLightsPage, 
-  &btnGoTimePage, 
+	&btnGoLightsPage, 
+	&btnGoTimePage, 
 	&btnDayTempInc,
 	&btnDayTempDec,
 	&btnNightTempInc,
@@ -206,6 +116,8 @@ NexTouch *nex_listen_list[] =
 
 
 Configuration configuration;
+DisplayControler displayControler(&configuration);
+NetworkControler networkControler(&configuration,&displayControler);
 
 
 #define SETUP_DATETIME_YEAR         0
@@ -463,35 +375,6 @@ void onBtnbDateTimeSet(void *ptr)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-void setup_wifi() {
-	delay(10);
-	// We start by connecting to a WiFi network
-	Serial.printf("\r\nConnecting to %s\r\n", configuration.wifiSSID.c_str());
-
-  // Set Hostname.
-  char buf[15];
-  uint64_t chipid = ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
-  sprintf(buf, "%04x%08x", (uint16_t)(chipid >> 32) /*High 2 bytes*/, (uint32_t)chipid /*Low 4bytes*/);
-  String hostname = HOSTNAME_PREFIX + String(buf); 
-
-	WiFi.begin(configuration.wifiSSID.c_str(), configuration.wifiPassword.c_str());
-  WiFi.setHostname(hostname.c_str());
-
-	// Wait for connection
-	while (WiFi.status() != WL_CONNECTED) {
-		picWiFiStatus.setPic(PICTURE_WIFI_ON);
-		delay(250);
-		picWiFiStatus.setPic(PICTURE_WIFI_OFF);
-		delay(250);
-		Serial.print(".");
-	}
-	picWiFiStatus.setPic(PICTURE_WIFI_ON);
-
-	Serial.println("");
-	Serial.println("WiFi connected");
-	Serial.printf("IP address: %s Hostname: %s\r\n", WiFi.localIP().toString().c_str(), hostname.c_str());
-}
 
 
 //----------------------------------------------------------------------------------------
@@ -553,96 +436,93 @@ void printDS18B20Address(DeviceAddress deviceAddress)
 }
 
 //-----------------------------------------------------------------------------------------
-//Task1code: Core 1
-void Task1code(void * pvParameters) {
+void TaskTempSensorLoop(void * pvParameters) {
+  Serial.printf("TaskTempSensorLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		sensors.requestTemperatures(); // Send the command to get temperatures
 		delay(1000);
-    rtc.refresh();
-    
-		//Serial.printf("Task1code() running on core %d\r\n", xPortGetCoreID());
-		char buf[25];
-   
-    /*Indoor temperature*/
+    char buf[25];
+      /*Indoor temperature*/
     uint16_t t = round(sensors.getTempC(insideThermometer)*10.0);
-		//String temperature = dtostrf(t, 2, 1/*2*/, buf);
     String t1 = String(t/10);    
-		tIndoorTemp1.setText(t1.c_str());
-    String t2 = String(t%10); 
+    String t2 = String(t % 10);
+    tIndoorTemp1.setText(t1.c_str());
     tIndoorTemp2.setText(t2.c_str());
+	}
+}
+//-----------------------------------------------------------------------------------------
+void TaskTimeLoop(void * pvParameters) {
+  Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
+  while (true) {    
 
+  //Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
+    
+    rtc.refresh();
+    char buf[25];
     /*Day of month*/
     String monthNameStr = monthName(rtc.month());    
-		sprintf(buf, "%02d %s", rtc.day(), monthNameStr.c_str());
-    tDayOfMonth.setText(buf);
-    
+    sprintf(buf, "%02d %s", rtc.day(), monthNameStr.c_str());
+    tDayOfMonth.setText(buf);    
+    /*Day of week*/
+    tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
     /*Time*/
-    sprintf(buf, "%02d:", rtc.hour());
-		tTime1.setText(buf);
+    sprintf(buf, "%02d", rtc.hour());
+    tTime1.setText(buf);
     sprintf(buf, "%02d", rtc.minute());
     tTime2.setText(buf);
-    
-    /*Day of Week*/
-		tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
-	}
+    delay(1000);      
+  }
 }
-
-//Task2code: Core 2
-void Task2code(void * pvParameters) {
-  while (true) {
+//-----------------------------------------------------------------------------------------
+void TaskNextionLoop(void * pvParameters) {
+  Serial.printf("TaskNextionLoop() running on core %d\r\n", xPortGetCoreID());    
+	while (true) { 
 		nexLoop(nex_listen_list);
-		ArduinoOTA.handle();
+    vTaskDelay(10);       
 	}
 }
+//-----------------------------------------------------------------------------------------
+void TaskOTALoop(void * pvParameters) {
+  Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());    
+  while (true) {
+    ArduinoOTA.handle();
+    vTaskDelay(10);  
+  }
+}
 
+//-----------------------------------------------------------------------------------------
+void TaskNetworkControlerLoop(void * pvParameters) {
+  Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());    
+  while (true) {
+    networkControler.loop();
+    vTaskDelay(10);  
+  }
+}
 
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 void setup() {
 	delay(2000);
-	//SerialBT.begin("ESP32HmiNextionController"); //Bluetooth device name
+  Serial.printf("setup() running on core %d\r\n", xPortGetCoreID());
+  configuration.init();
+
+  xTaskCreatePinnedToCore(TaskOTALoop,"TaskOTALoop", 4096, NULL, 1, NULL, CORE_1);
+  xTaskCreatePinnedToCore(TaskNextionLoop,"TaskNextionLoop", 4096, NULL, 1, NULL, CORE_2);
+  xTaskCreatePinnedToCore(TaskTimeLoop,"TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
+  xTaskCreatePinnedToCore(TaskTempSensorLoop,"TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
+  xTaskCreatePinnedToCore(TaskNetworkControlerLoop,"TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_1);
   
-	//create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
-	xTaskCreatePinnedToCore(
-		Task1code,   /* Task function. */
-		"Task1",     /* name of task. */
-		10000,       /* Stack size of task */
-		NULL,        /* parameter of the task */
-		1,           /* priority of the task */
-		&Task1,      /* Task handle to keep track of created task */
-		0);          /* pin task to core 0 */
-	//delay(500);
-
-	//create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
-
-	xTaskCreatePinnedToCore(
-		Task2code,   /* Task function. */
-		"Task2",     /* name of task. */
-		10000,       /* Stack size of task */
-		NULL,        /* parameter of the task */
-		1,           /* priority of the task */
-		&Task2,      /* Task handle to keep track of created task */
-		1);          /* pin task to core 1 */
-	//delay(500);
-
 
 	//Serial2.begin(9600, SERIAL_8N1, UART1_RX, UART1_TX);
 
 	/* Set the baudrate which is for debug and communicate with Nextion screen. */
 	nexInit(115200, UART1_BAUND, SERIAL_8N1, UART1_RX, UART1_TX);
 
-	Serial.printf("setup() running on core %d\r\n", xPortGetCoreID());
-
-	configuration.init();
-
-	//Serial.printf("Loaded wifiSSID: %s\r\n", configuration.wifiSSID.c_str());
-	//Serial.printf("Loaded password: %s\r\n", configuration.wifiPassword.c_str());
-	//Serial.printf("Loaded mqtt_server: %s\r\n", configuration.mqttServer.c_str());
-
-  switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop,&switchBathroomMainLight);
 
 	/* Register the pop event callback function of the current button component. */
+  switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop,&switchBathroomMainLight);
+  
   btnGoHeatingPage.attachPop(onBtnGoHeatingPagePop, &btnGoHeatingPage);
   btnGoLightsPage.attachPop(onBtnGoLightsPagePop, &btnGoLightsPage);
   btnGoTimePage.attachPop(onBtnGoTimePagePop, &btnGoTimePage);
@@ -663,7 +543,7 @@ void setup() {
 
   ds18b20Init();
 
-  setup_wifi();
+  networkControler.setup();
 
 
   ArduinoOTA
@@ -693,10 +573,12 @@ void setup() {
   });
 
   ArduinoOTA.begin();
-
-
+  
 }
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
-void loop() {}
+void loop(){
+  //nope, do nothing here
+  vTaskDelay(portMAX_DELAY); 
+}

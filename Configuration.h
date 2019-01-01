@@ -14,6 +14,7 @@ public:
 	~Configuration();
 public:
 	bool init();
+  void print();
 public:
 	float getDayTemperature();
 	bool incrementDayTemperature();
