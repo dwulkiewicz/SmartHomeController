@@ -7,6 +7,12 @@
 #include "NetworkControler.h"
 #include "Constants.h"
 
+const char* switchesReqChannel01 = "switches/req/channel01";
+const char* switchesReqChannel02 = "switches/req/channel02";
+
+const char* switchesRespChannel01 = "switches/resp/channel01";
+const char* switchesRespChannel02 = "switches/resp/channel02";
+
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -59,7 +65,7 @@ void NetworkControler::reconnect() {
     // Attempt to connect
     if (client.connect(hostname.c_str())) {
       displayControler->picWiFiStatus->setPic(PICTURE_WIFI_ON);  
-      Serial.printf("connected as %s\r\n", hostname);
+      Serial.printf("connected as %s\r\n", hostname.c_str());
 
       // Po ponownym podłączeniu wysyłam ostatni kolor LEDów na MQTT
 //      client.publish(lightingConfirmTopic, &lastColour[0]);
@@ -72,7 +78,7 @@ void NetworkControler::reconnect() {
 //      client.subscribe(sensorsDS18B20CommandTopic);
 //      client.subscribe(sensorsDHT11CommandTopic);
 //      client.subscribe(lightingCommandTopic);
-//      client.subscribe(switchesReqChannel01);
+      client.subscribe(switchesReqChannel01);
 //      client.subscribe(switchesReqChannel02);
     }
     else {
@@ -93,6 +99,8 @@ void NetworkControler::loop() {
   client.loop();
 }
 
+extern NetworkControler networkControler;
+
 //----------------------------------------------------------------------------------------
 void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int length) {
 
@@ -102,4 +110,28 @@ void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int len
   String mqttMessage = (char*)payload;
 
   Serial.printf("MQTT received topic:[%s], msg: %s\r\n", topic, mqttMessage.c_str());
+  
+  if (mqttTopic.equals(switchesReqChannel01)) {
+    networkControler.setSwitch(0, mqttMessage);
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", switchesReqChannel01, mqttMessage.c_str());
+    client.publish(switchesRespChannel01, mqttMessage.c_str());
+  }
+  else if (mqttTopic.equals(switchesReqChannel02)) {
+    networkControler.setSwitch(1, mqttMessage);
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", switchesReqChannel02, mqttMessage.c_str());
+    client.publish(switchesRespChannel02, mqttMessage.c_str());
+  }  
+}
+
+extern NexPicture switchBathroomMainLight;
+
+//----------------------------------------------------------------------------------------
+void NetworkControler::setSwitch(uint8_t item, String value) {
+  Serial.printf("Switch: %2d state: %s\r\n", item, value.c_str());
+  if (value.equals("on")) {
+    switchBathroomMainLight.setPic(PICTURE_SWITCH_ON); 
+  }
+  else {
+    switchBathroomMainLight.setPic(PICTURE_SWITCH_OFF); 
+  }
 }

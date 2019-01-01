@@ -6,6 +6,7 @@
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
 
+
 #define COLOR_RED 63488
 #define COLOR_YELLOW 65504
 

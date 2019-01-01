@@ -20,6 +20,7 @@ private:
 private:
   void reconnect(); 
   static void mqttCallback(char* topic, byte* payload, unsigned int length);  
+  void setSwitch(uint8_t item, String value);  
 };
 
 #endif /* #ifndef __NetworkControler_H__ */
