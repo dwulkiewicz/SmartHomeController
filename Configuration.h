@@ -11,7 +11,6 @@ public:
 	static String temperatureAsString(float temp);
 public:
 	Configuration();
-	~Configuration();
 public:
 	bool init();
   void print();

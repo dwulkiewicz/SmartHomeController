@@ -52,7 +52,7 @@ uRTCLib rtc(I2C_ADDRESS_D1307, I2C_ADDRESS_AT24C32);
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
-// Pass our oneWire reference to Dallas Temperature. 
+// Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
 
 // arrays to hold device address
@@ -93,69 +93,71 @@ NexText tDayW = NexText(PG_TIME, LBL_TIME_DAY_OF_WEEK, "lblDayW");
 NexText tHour	= NexText(PG_TIME, LBL_TIME_HOUR, "lblHour");
 NexText tMinute	= NexText(PG_TIME, LBL_TIME_MINUTE, "lblMinute");
 
-NexButton bDateTimeNext = NexButton(PG_TIME, BTN_TIME_NEXT_ID, "btnTimeNext");
-NexButton bDateTimeSet = NexButton(PG_TIME, BTN_TIME_SET_ID, "btnTimeSet");
+NexButton bDateTimeNext = NexButton(PG_TIME, BTN_TIME_NEXT_ID, BTN_TIME_NEXT_NAME);
+NexButton bDateTimeSet = NexButton(PG_TIME, BTN_TIME_SET_ID, BTN_TIME_SET_NAME);
 
 /*
-* Register a button object to the touch event list.
+  Register a button object to the touch event list.
 */
 NexTouch *nex_listen_list[] =
 {
-	&switchBathroomMainLight,
-	&btnGoHeatingPage, 
-	&btnGoLightsPage, 
-	&btnGoTimePage, 
-	&btnDayTempInc,
-	&btnDayTempDec,
-	&btnNightTempInc,
-	&btnNightTempDec,
-	&bDateTimeNext,
-	&bDateTimeSet,
-	NULL
+  &switchBathroomMainLight,
+  &btnGoHeatingPage,
+  &btnGoLightsPage,
+  &btnGoTimePage,
+  &btnDayTempInc,
+  &btnDayTempDec,
+  &btnNightTempInc,
+  &btnNightTempDec,
+  &bDateTimeNext,
+  &bDateTimeSet,
+  NULL
 };
 
 
 Configuration configuration;
 DisplayControler displayControler(&configuration);
-NetworkControler networkControler(&configuration,&displayControler);
+NetworkControler networkControler(&configuration, &displayControler);
 
 
 #define SETUP_DATETIME_YEAR         0
 #define SETUP_DATETIME_MONTH        1
-#define SETUP_DATETIME_DAY          2 
-#define SETUP_DATETIME_DAY_OF_WEEK  3 
+#define SETUP_DATETIME_DAY          2
+#define SETUP_DATETIME_DAY_OF_WEEK  3
 #define SETUP_DATETIME_HOUR         4
 #define SETUP_DATETIME_MINUTE       5
 
 uint8_t setup_datetime_current = SETUP_DATETIME_YEAR;
 
-String dayOfWeekName(uint8_t dayOfWeek) {
-	switch (dayOfWeek) {
-	case 1: return "Pn";
-	case 2: return "Wt";
-	case 3: return "Śr";
-	case 4: return "Czw";
-	case 5: return "Pt";
-	case 6: return "Sb";
-	case 7: return "Nd";
-	}
-  return "undefined";
+
+
+void dayOfWeekName(char* buf, uint8_t dayOfWeek) {
+  switch (dayOfWeek) {
+    case 1: buf[0] = 'P'; buf[1] = 'n'; buf[2] = NULL; break;
+    case 2: buf[0] = 'W'; buf[1] = 't'; buf[2] = NULL; break;
+    case 3: buf[0] = 0xA6; buf[1] = 'r'; buf[2] = NULL; break;
+    case 4: buf[0] = 'C'; buf[1] = 'z'; buf[2] = 'w'; buf[3] = NULL; break;
+    case 5: buf[0] = 'P'; buf[1] = 't'; buf[2] = NULL; break;
+    case 6: buf[0] = 'S'; buf[1] = 'b'; buf[2] = NULL; break;
+    case 7: buf[0] = 'N'; buf[1] = 'd'; buf[2] = NULL; break;
+    default: buf[0] = 'U'; buf[1] = 'n'; buf[2] = 'd'; buf[3] = 'e'; buf[4] = 'f'; buf[5] = NULL; break;
+  }
 }
 
 String monthName(uint8_t month) {
   switch (month) {
-  case 1: return "styczen";
-  case 2: return "luty";
-  case 3: return "marzec";
-  case 4: return "kwiecień";
-  case 5: return "maj";
-  case 6: return "czerwiec";
-  case 7: return "lipiec";
-  case 8: return "sierpień";
-  case 9: return "wrzesień";
-  case 10: return "październik";
-  case 11: return "listopad";
-  case 12: return "grudzien";  
+    case 1: return "styczen";
+    case 2: return "luty";
+    case 3: return "marzec";
+    case 4: return "kwiecień";
+    case 5: return "maj";
+    case 6: return "czerwiec";
+    case 7: return "lipiec";
+    case 8: return "sierpień";
+    case 9: return "wrzesień";
+    case 10: return "październik";
+    case 11: return "listopad";
+    case 12: return "grudzien";
   }
   return "undefined";
 }
@@ -165,7 +167,7 @@ void onSwitchBathroomMainLightPop(void *ptr)
 {
   dbSerialPrintln("onSwitchBathroomMainLightPop");
   switchBathroomMainLightState = !switchBathroomMainLightState;
-  switchBathroomMainLight.setPic(switchBathroomMainLightState ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);  
+  switchBathroomMainLight.setPic(switchBathroomMainLightState ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);
 }
 
 void onBtnGoHeatingPagePop(void *ptr)
@@ -177,36 +179,36 @@ void onBtnGoHeatingPagePop(void *ptr)
   dbSerialPrintln((uint32_t)ptr);
 
   lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
-  lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());  
+  lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 }
 
 void onBtnTempPop(void *ptr) {
-	NexButton *btn = (NexButton *)ptr;
-	
-	dbSerialPrintln("onBtnTempPop: pageId=" + String(btn->getObjPid()) + " componentId="+ String(btn->getObjCid()) + " name=" + btn->getObjName());
+  NexButton *btn = (NexButton *)ptr;
 
-	switch (btn->getObjCid()) {
-		case BTN_DAY_TEMP_INC_ID:
-			if (configuration.incrementDayTemperature()) {
-				lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
-			}
-			break;
-		case BTN_DAY_TEMP_DEC_ID:
-			if (configuration.decrementDayTemperature()) {
-				lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
-			}
-			break;
-		case BTN_NIGHT_TEMP_INC_ID:
-			if (configuration.incrementNightTemperature()) {
-				lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
-			}
-			break;
-		case BTN_NIGHT_TEMP_DEC_ID:
-			if (configuration.decrementNightTemperature()) {
-				lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
-			}
-			break;
-		}
+  dbSerialPrintln("onBtnTempPop: pageId=" + String(btn->getObjPid()) + " componentId=" + String(btn->getObjCid()) + " name=" + btn->getObjName());
+
+  switch (btn->getObjCid()) {
+    case BTN_DAY_TEMP_INC_ID:
+      if (configuration.incrementDayTemperature()) {
+        lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
+      }
+      break;
+    case BTN_DAY_TEMP_DEC_ID:
+      if (configuration.decrementDayTemperature()) {
+        lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
+      }
+      break;
+    case BTN_NIGHT_TEMP_INC_ID:
+      if (configuration.incrementNightTemperature()) {
+        lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
+      }
+      break;
+    case BTN_NIGHT_TEMP_DEC_ID:
+      if (configuration.decrementNightTemperature()) {
+        lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
+      }
+      break;
+  }
 }
 
 void onBtnGoLightsPagePop(void *ptr)
@@ -216,41 +218,42 @@ void onBtnGoLightsPagePop(void *ptr)
   dbSerialPrintln("onBtnGoLightsPagePop");
   dbSerialPrint("ptr=");
   dbSerialPrintln((uint32_t)ptr);
-}  
+}
 
 void onBtnGoTimePagePop(void *ptr)
 {
-	NexButton *btn = (NexButton *)ptr;
+  NexButton *btn = (NexButton *)ptr;
 
-	dbSerialPrintln("onBtnbDateTimeNext");
-	dbSerialPrint("ptr=");
-	dbSerialPrintln((uint32_t)ptr);
-	setup_datetime_current = SETUP_DATETIME_YEAR;
+  dbSerialPrintln("onBtnbDateTimeNext");
+  dbSerialPrint("ptr=");
+  dbSerialPrintln((uint32_t)ptr);
+  setup_datetime_current = SETUP_DATETIME_YEAR;
 
-	char buf[5];
-	sprintf(buf, "%02d", rtc.year());
-	tYear.setText(buf);
-	sprintf(buf, "%02d", rtc.month());
-	tMonth.setText(buf);
-	sprintf(buf, "%02d", rtc.day());
-	tDay.setText(buf);
-	sprintf(buf, "%02d", rtc.hour());
-	tHour.setText(buf);
-	sprintf(buf, "%02d", rtc.minute());
-	tMinute.setText(buf);
-	tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
+  char buf[5];
+  sprintf(buf, "%02d", rtc.year());
+  tYear.setText(buf);
+  sprintf(buf, "%02d", rtc.month());
+  tMonth.setText(buf);
+  sprintf(buf, "%02d", rtc.day());
+  tDay.setText(buf);
+  sprintf(buf, "%02d", rtc.hour());
+  tHour.setText(buf);
+  sprintf(buf, "%02d", rtc.minute());
+  tMinute.setText(buf);
+  dayOfWeekName(buf, rtc.dayOfWeek());
+  tDayW.setText(buf);
 }
 
 void onBtnbDateTimeNext(void *ptr)
 {
-	NexButton *btn = (NexButton *)ptr;	
+  NexButton *btn = (NexButton *)ptr;
 
-	dbSerialPrintln("onBtnbDateTimeNext");
-	dbSerialPrint("ptr=");
-	dbSerialPrintln((uint32_t)ptr);
+  dbSerialPrintln("onBtnbDateTimeNext");
+  dbSerialPrint("ptr=");
+  dbSerialPrintln((uint32_t)ptr);
 
-  switch (setup_datetime_current) {   
-    case SETUP_DATETIME_YEAR:     
+  switch (setup_datetime_current) {
+    case SETUP_DATETIME_YEAR:
       tYear.Set_font_color_pco(COLOR_YELLOW);
       tMonth.Set_font_color_pco(COLOR_RED);
       setup_datetime_current = SETUP_DATETIME_MONTH;
@@ -262,11 +265,11 @@ void onBtnbDateTimeNext(void *ptr)
       break;
     case SETUP_DATETIME_DAY:
       tDay.Set_font_color_pco(COLOR_YELLOW);
-      tDayOfWeek.Set_font_color_pco(COLOR_RED);
+      tDayW.Set_font_color_pco(COLOR_RED);
       setup_datetime_current = SETUP_DATETIME_DAY_OF_WEEK;
       break;
     case SETUP_DATETIME_DAY_OF_WEEK:
-      tDayOfWeek.Set_font_color_pco(COLOR_YELLOW);
+      tDayW.Set_font_color_pco(COLOR_YELLOW);
       tHour.Set_font_color_pco(COLOR_RED);
       setup_datetime_current = SETUP_DATETIME_HOUR;
       break;
@@ -289,90 +292,86 @@ void onBtnbDateTimeNext(void *ptr)
 
 void onBtnbDateTimeSet(void *ptr)
 {
-	NexButton *btn = (NexButton *)ptr;
+  NexButton *btn = (NexButton *)ptr;
 
-	dbSerialPrintln("onBtnbDateTimeSet");
-	dbSerialPrint("ptr=");
-	dbSerialPrintln((uint32_t)ptr);
+  dbSerialPrintln("onBtnbDateTimeSet");
+  dbSerialPrint("ptr=");
+  dbSerialPrintln((uint32_t)ptr);
 
-	rtc.refresh();
+  rtc.refresh();
+  char buf[10];
+  if (setup_datetime_current == SETUP_DATETIME_YEAR) {
+    uint8_t year = rtc.year();
+    if (year == 99)
+      year = 0;
+    else
+      year++;
 
-	if (setup_datetime_current == SETUP_DATETIME_YEAR) {
-		uint8_t year = rtc.year();
-		if (year == 99)
-			year = 0;
-		else
-			year++;
+    rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), year);
 
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), year);
+    sprintf(buf, "%02d", year);
+    tYear.setText(buf);
+  }
+  if (setup_datetime_current == SETUP_DATETIME_MONTH) {
+    uint8_t month = rtc.month();
+    if (month == 12)
+      month = 1;
+    else
+      month++;
 
-		char buf[5];
-		sprintf(buf, "%02d", year);
-		tYear.setText(buf);
-	}
-	if (setup_datetime_current == SETUP_DATETIME_MONTH) {
-		uint8_t month = rtc.month();
-		if (month == 12)
-			month = 1;
-		else
-			month++;
+    rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), month, rtc.year());
 
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), month, rtc.year());
+    sprintf(buf, "%02d", month);
+    tMonth.setText(buf);
+  }
+  if (setup_datetime_current == SETUP_DATETIME_DAY) {
+    uint8_t day = rtc.day();
+    if (day == 31)
+      day = 1;
+    else
+      day++;
 
-		char buf[5];
-		sprintf(buf, "%02d", month);
-		tMonth.setText(buf);
-	}
-	if (setup_datetime_current == SETUP_DATETIME_DAY) {
-		uint8_t day = rtc.day();
-		if (day == 31)
-			day = 1;
-		else
-			day++;
+    rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), day, rtc.month(), rtc.year());
 
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), day, rtc.month(), rtc.year());
+    sprintf(buf, "%02d", day);
+    tDay.setText(buf);
+  }
+  if (setup_datetime_current == SETUP_DATETIME_DAY_OF_WEEK) {
+    uint8_t dayOfWeek = rtc.dayOfWeek();
+    if (dayOfWeek == 7)
+      dayOfWeek = 1;
+    else
+      dayOfWeek++;
 
-		char buf[5];
-		sprintf(buf, "%02d", day);
-		tDay.setText(buf);
-	}
-	if (setup_datetime_current == SETUP_DATETIME_DAY_OF_WEEK) {
-		uint8_t dayOfWeek = rtc.dayOfWeek();
-		if (dayOfWeek == 7)
-			dayOfWeek = 1;
-		else
-			dayOfWeek++;
+    rtc.set(rtc.second(), rtc.minute(), rtc.hour(), dayOfWeek, rtc.day(), rtc.month(), rtc.year());
 
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), dayOfWeek, rtc.day(), rtc.month(), rtc.year());
+    dayOfWeekName(buf, dayOfWeek);
+    tDayW.setText(buf);
+  }
+  if (setup_datetime_current == SETUP_DATETIME_HOUR) {
+    uint8_t hour = rtc.hour();
+    if (hour == 23)
+      hour = 0;
+    else
+      hour++;
 
-		tDayOfWeek.setText(dayOfWeekName(dayOfWeek).c_str());
-	}
-	if (setup_datetime_current == SETUP_DATETIME_HOUR) {
-		uint8_t hour = rtc.hour();
-		if (hour == 23)
-			hour = 0;
-		else
-			hour++;
+    rtc.set(rtc.second(), rtc.minute(), hour, rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
 
-		rtc.set(rtc.second(), rtc.minute(), hour, rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
+    sprintf(buf, "%02d", hour);
+    tHour.setText(buf);
+  }
+  if (setup_datetime_current == SETUP_DATETIME_MINUTE) {
+    uint8_t minute = rtc.minute();
+    if (minute == 59)
+      minute = 0;
+    else
+      minute++;
 
-		char buf[5];
-		sprintf(buf, "%02d", hour);
-		tHour.setText(buf);
-	}
-	if (setup_datetime_current == SETUP_DATETIME_MINUTE) {
-		uint8_t minute = rtc.minute();
-		if (minute == 59)
-			minute = 0;
-		else
-			minute++;
+    rtc.set(0, minute, rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
 
-		rtc.set(0, minute, rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
-
-		char buf[5];
-		sprintf(buf, "%02d", minute);
-		tMinute.setText(buf);
-	}
+    sprintf(buf, "%02d", minute);
+    tMinute.setText(buf);
+  }
 }
 
 
@@ -385,17 +384,17 @@ void ds18b20Init()
   Serial.print("Locating DS18B20 devices...");
   sensors.begin();
   Serial.print("Found ");
-  Serial.print(sensors.getDeviceCount()+1, DEC);
+  Serial.print(sensors.getDeviceCount() + 1, DEC);
   Serial.println(" devices.");
 
   // report parasite power requirements
   Serial.print("Parasite power is: ");
-  if (sensors.isParasitePowerMode()) 
+  if (sensors.isParasitePowerMode())
     Serial.println("ON");
-  else 
+  else
     Serial.println("OFF");
 
-  if (!sensors.getAddress(insideThermometer, 0)) 
+  if (!sensors.getAddress(insideThermometer, 0))
   {
     Serial.println("Unable to find address for Device 0");
   }
@@ -412,90 +411,91 @@ void ds18b20Init()
   Serial.println();
 
   sensors.setWaitForConversion(false);
-  Serial.println("DONE");  
+  Serial.println("DONE");
 }
 
 //----------------------------------------------------------------------------------------
 // function to print the temperature for a device
 void printDS18B20Temperature(DeviceAddress deviceAddress)
 {
-	float tempC = sensors.getTempC(deviceAddress);
-	Serial.print("Temp C: ");
-	Serial.print(tempC);
+  float tempC = sensors.getTempC(deviceAddress);
+  Serial.print("Temp C: ");
+  Serial.print(tempC);
 }
 
 //----------------------------------------------------------------------------------------
 // function to print a device address
 void printDS18B20Address(DeviceAddress deviceAddress)
 {
-	for (uint8_t i = 0; i < 8; i++)
-	{
-		if (deviceAddress[i] < 16) Serial.print("0");
-		Serial.print(deviceAddress[i], HEX);
-	}
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    if (deviceAddress[i] < 16) Serial.print("0");
+    Serial.print(deviceAddress[i], HEX);
+  }
 }
 
 //-----------------------------------------------------------------------------------------
 void TaskTempSensorLoop(void * pvParameters) {
   Serial.printf("TaskTempSensorLoop() running on core %d\r\n", xPortGetCoreID());
-	while (true) {
-		sensors.requestTemperatures(); // Send the command to get temperatures
-		delay(1000);
+  while (true) {
+    sensors.requestTemperatures(); // Send the command to get temperatures
+    delay(1000);
     char buf[25];
-      /*Indoor temperature*/
-    uint16_t t = round(sensors.getTempC(insideThermometer)*10.0);
-    String t1 = String(t/10);    
+    /*Indoor temperature*/
+    uint16_t t = round(sensors.getTempC(insideThermometer) * 10.0);
+    String t1 = String(t / 10);
     String t2 = String(t % 10);
     tIndoorTemp1.setText(t1.c_str());
     tIndoorTemp2.setText(t2.c_str());
-	}
+  }
 }
 //-----------------------------------------------------------------------------------------
 void TaskTimeLoop(void * pvParameters) {
   Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
-  while (true) {    
+  while (true) {
 
-  //Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
-    
+    //Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
+
     rtc.refresh();
     char buf[25];
     /*Day of month*/
-    String monthNameStr = monthName(rtc.month());    
+    String monthNameStr = monthName(rtc.month());
     sprintf(buf, "%02d %s", rtc.day(), monthNameStr.c_str());
-    tDayOfMonth.setText(buf);    
+    tDayOfMonth.setText(buf);
     /*Day of week*/
-    tDayOfWeek.setText(dayOfWeekName(rtc.dayOfWeek()).c_str());
+    dayOfWeekName(buf, rtc.dayOfWeek());
+    tDayOfWeek.setText(buf);
     /*Time*/
     sprintf(buf, "%02d", rtc.hour());
     tTime1.setText(buf);
     sprintf(buf, "%02d", rtc.minute());
     tTime2.setText(buf);
-    delay(1000);      
+    delay(1000);
   }
 }
 //-----------------------------------------------------------------------------------------
 void TaskNextionLoop(void * pvParameters) {
-  Serial.printf("TaskNextionLoop() running on core %d\r\n", xPortGetCoreID());    
-	while (true) { 
-		nexLoop(nex_listen_list);
-    vTaskDelay(10);       
-	}
+  Serial.printf("TaskNextionLoop() running on core %d\r\n", xPortGetCoreID());
+  while (true) {
+    nexLoop(nex_listen_list);
+    vTaskDelay(10);
+  }
 }
 //-----------------------------------------------------------------------------------------
 void TaskOTALoop(void * pvParameters) {
-  Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());    
+  Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
   while (true) {
     ArduinoOTA.handle();
-    vTaskDelay(10);  
+    vTaskDelay(10);
   }
 }
 
 //-----------------------------------------------------------------------------------------
 void TaskNetworkControlerLoop(void * pvParameters) {
-  Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());    
+  Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
   while (true) {
     networkControler.loop();
-    vTaskDelay(10);  
+    vTaskDelay(10);
   }
 }
 
@@ -503,26 +503,26 @@ void TaskNetworkControlerLoop(void * pvParameters) {
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 void setup() {
-	delay(2000);
+  delay(2000);
   Serial.printf("setup() running on core %d\r\n", xPortGetCoreID());
   configuration.init();
 
-  xTaskCreatePinnedToCore(TaskOTALoop,"TaskOTALoop", 4096, NULL, 1, NULL, CORE_1);
-  xTaskCreatePinnedToCore(TaskNextionLoop,"TaskNextionLoop", 4096, NULL, 1, NULL, CORE_2);
-  xTaskCreatePinnedToCore(TaskTimeLoop,"TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
-  xTaskCreatePinnedToCore(TaskTempSensorLoop,"TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
-  xTaskCreatePinnedToCore(TaskNetworkControlerLoop,"TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_1);
-  
-
-	//Serial2.begin(9600, SERIAL_8N1, UART1_RX, UART1_TX);
-
-	/* Set the baudrate which is for debug and communicate with Nextion screen. */
-	nexInit(115200, UART1_BAUND, SERIAL_8N1, UART1_RX, UART1_TX);
+  xTaskCreatePinnedToCore(TaskOTALoop, "TaskOTALoop", 4096, NULL, 1, NULL, CORE_1);
+  xTaskCreatePinnedToCore(TaskNextionLoop, "TaskNextionLoop", 4096, NULL, 1, NULL, CORE_2);
+  xTaskCreatePinnedToCore(TaskTimeLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
+  xTaskCreatePinnedToCore(TaskTempSensorLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
+  xTaskCreatePinnedToCore(TaskNetworkControlerLoop, "TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_1);
 
 
-	/* Register the pop event callback function of the current button component. */
-  switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop,&switchBathroomMainLight);
-  
+  //Serial2.begin(9600, SERIAL_8N1, UART1_RX, UART1_TX);
+
+  /* Set the baudrate which is for debug and communicate with Nextion screen. */
+  nexInit(115200, UART1_BAUND, SERIAL_8N1, UART1_RX, UART1_TX);
+
+
+  /* Register the pop event callback function of the current button component. */
+  switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop, &switchBathroomMainLight);
+
   btnGoHeatingPage.attachPop(onBtnGoHeatingPagePop, &btnGoHeatingPage);
   btnGoLightsPage.attachPop(onBtnGoLightsPagePop, &btnGoLightsPage);
   btnGoTimePage.attachPop(onBtnGoTimePagePop, &btnGoTimePage);
@@ -536,10 +536,10 @@ void setup() {
   bDateTimeNext.attachPop(onBtnbDateTimeNext, &bDateTimeNext);
   bDateTimeSet.attachPop(onBtnbDateTimeSet, &bDateTimeSet);
 
-  
+
   pinMode(BUILT_LED, OUTPUT);
 
-  Wire.begin(I2C_SDA, I2C_SCL); 
+  Wire.begin(I2C_SDA, I2C_SCL);
 
   ds18b20Init();
 
@@ -547,38 +547,38 @@ void setup() {
 
 
   ArduinoOTA
-	  .onStart([]() {
-	  String type;
-	  if (ArduinoOTA.getCommand() == U_FLASH)
-		  type = "sketch";
-	  else // U_SPIFFS
-		  type = "filesystem";
+  .onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH)
+      type = "sketch";
+    else // U_SPIFFS
+      type = "filesystem";
 
-	  // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-	  Serial.println("Start updating " + type);
+    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+    Serial.println("Start updating " + type);
   })
-	  .onEnd([]() {
-	  Serial.println("\nEnd");
+  .onEnd([]() {
+    Serial.println("\nEnd");
   })
-	  .onProgress([](unsigned int progress, unsigned int total) {
-	  Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  .onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
   })
-	  .onError([](ota_error_t error) {
-	  Serial.printf("Error[%u]: ", error);
-	  if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-	  else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-	  else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-	  else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-	  else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  .onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
   });
 
   ArduinoOTA.begin();
-  
+
 }
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
-void loop(){
+void loop() {
   //nope, do nothing here
-  vTaskDelay(portMAX_DELAY); 
+  vTaskDelay(portMAX_DELAY);
 }

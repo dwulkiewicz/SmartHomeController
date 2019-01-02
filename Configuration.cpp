@@ -69,10 +69,6 @@ Configuration::Configuration()
 	hysteresisTemp = 10; //1*C
 }
 
-Configuration::~Configuration()
-{
-}
-
 bool Configuration::init() {
   Serial.printf("Configuration ******************\r\n");
 	//listDir(SPIFFS, "/", 0);
