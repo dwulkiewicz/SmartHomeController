@@ -30,7 +30,7 @@ NetworkControler::NetworkControler(Configuration* configuration,DisplayControler
   hostname = HOSTNAME_PREFIX + String(buf);
 }
 //----------------------------------------------------------------------------------------
-void NetworkControler::setup() {
+void NetworkControler::init() {
   // We start by connecting to a WiFi network
   Serial.printf("\r\nConnecting to %s\r\n", configuration->wifiSSID.c_str());
 
@@ -69,8 +69,8 @@ void NetworkControler::reconnect() {
 
       // Po ponownym podłączeniu wysyłam ostatni kolor LEDów na MQTT
 //      client.publish(lightingConfirmTopic, &lastColour[0]);
-//      client.publish(switchesRespChannel01, "off");
-//      client.publish(switchesRespChannel02, "off");
+      client.publish(switchesRespChannel01, "off");
+      client.publish(switchesRespChannel02, "off");
 
       // ... and resubscribe
       // można subskrybować wiele topiców
@@ -79,7 +79,7 @@ void NetworkControler::reconnect() {
 //      client.subscribe(sensorsDHT11CommandTopic);
 //      client.subscribe(lightingCommandTopic);
       client.subscribe(switchesReqChannel01);
-//      client.subscribe(switchesReqChannel02);
+      client.subscribe(switchesReqChannel02);
     }
     else {
       Serial.print("failed, rc=");
@@ -113,12 +113,12 @@ void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int len
   
   if (mqttTopic.equals(switchesReqChannel01)) {
     networkControler.setSwitch(0, mqttMessage);
-    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", switchesReqChannel01, mqttMessage.c_str());
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", switchesRespChannel01, mqttMessage.c_str());
     client.publish(switchesRespChannel01, mqttMessage.c_str());
   }
   else if (mqttTopic.equals(switchesReqChannel02)) {
     networkControler.setSwitch(1, mqttMessage);
-    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", switchesReqChannel02, mqttMessage.c_str());
+    Serial.printf("MQTT send topic:[%s], msg: %s\r\n", switchesRespChannel02, mqttMessage.c_str());
     client.publish(switchesRespChannel02, mqttMessage.c_str());
   }  
 }

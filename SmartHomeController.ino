@@ -8,71 +8,33 @@
 /*                                                                      */
 /*              Date: 12.2018                                           */
 /************************************************************************/
-#include "Arduino.h"
+#include <Arduino.h>
 #include <math.h>
-
 #include <ArduinoOTA.h>
-#include "Nextion.h"
-
-#include "Wire.h"
-#include "uRTCLib.h"
-#include <OneWire.h>
-#include <DallasTemperature.h>
-
-#include "Configuration.h"
+#include <Nextion.h>
+#include <Wire.h> //I2C
+#include <uRTCLib.h>
 
 #include "Constants.h"
+#include "Configuration.h"
 #include "DisplayControler.h"
 #include "NetworkControler.h"
-
-#define CORE_1 0
-#define CORE_2 1
-
-#define I2C_ADDRESS_SSD1306 0x3C
-#define I2C_ADDRESS_D1307   0x68
-#define I2C_ADDRESS_AT24C32 0x50
-
-//ESP32 I2C
-#define I2C_SDA 4
-#define I2C_SCL 15
-
-//ESP32 UART1
-#define UART1_BAUND 57600
-#define UART1_TX 21
-#define UART1_RX 13
-
-#define DS18B20_PIN 22
-
-#define BUILT_LED 25
+#include "SensorsHelper.h"
 
 uRTCLib rtc(I2C_ADDRESS_D1307, I2C_ADDRESS_AT24C32);
 
-#define ONE_WIRE_BUS DS18B20_PIN
 
-// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(ONE_WIRE_BUS);
-
-// Pass our oneWire reference to Dallas Temperature.
-DallasTemperature sensors(&oneWire);
-
-// arrays to hold device address
-DeviceAddress insideThermometer;
-
+NexVariable vaIntTemp1 = NexVariable(PG_MAIN, 31, "vaIntTemp1"); 
 
 NexText tDayOfMonth	= NexText(PG_MAIN, LBL_DAY_OF_MONTH_ID, "tDayOfMonth");
 NexText tDayOfWeek	= NexText(PG_MAIN, LBL_DAY_OF_WEEK_ID, "tDayOfWeek");
-
 NexText tTime1  = NexText(PG_MAIN, LBL_TIME1_ID, LBL_TIME1_NAME);
 NexText tTime2  = NexText(PG_MAIN, LBL_TIME2_ID, LBL_TIME2_NAME);
 NexText tIndoorTemp1	= NexText(PG_MAIN, LBL_INDOOR_TEMP1_ID, LBL_INDOOR_TEMP1_NAME);
 NexText tIndoorTemp2  = NexText(PG_MAIN, LBL_INDOOR_TEMP2_ID, LBL_INDOOR_TEMP2_NAME);
-
 NexButton btnGoHeatingPage  = NexButton(PG_MAIN, BTN_GO_HEATING_PG_ID, BTN_GO_HEATING_PG_NAME);
 NexButton btnGoLightsPage = NexButton(PG_MAIN, BTN_GO_LIGHT_PG_ID, BTN_GO_LIGHT_PG_NAME);
 NexButton btnGoTimePage  = NexButton(PG_MAIN, BTN_GO_TIME_PG_ID, BTN_GO_TIME_PG_NAME);
-
-
-
 NexPicture switchBathroomMainLight = NexPicture(PG_MAIN, PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME);
 
 //------------/*Ogrzewanie*/------------
@@ -118,6 +80,7 @@ NexTouch *nex_listen_list[] =
 Configuration configuration;
 DisplayControler displayControler(&configuration);
 NetworkControler networkControler(&configuration, &displayControler);
+
 
 
 #define SETUP_DATETIME_YEAR         0
@@ -375,81 +338,35 @@ void onBtnbDateTimeSet(void *ptr)
 }
 
 
-
-//----------------------------------------------------------------------------------------
-// function to print the temperature for a device
-void ds18b20Init()
-{
-  // locate devices on the bus
-  Serial.print("Locating DS18B20 devices...");
-  sensors.begin();
-  Serial.print("Found ");
-  Serial.print(sensors.getDeviceCount() + 1, DEC);
-  Serial.println(" devices.");
-
-  // report parasite power requirements
-  Serial.print("Parasite power is: ");
-  if (sensors.isParasitePowerMode())
-    Serial.println("ON");
-  else
-    Serial.println("OFF");
-
-  if (!sensors.getAddress(insideThermometer, 0))
-  {
-    Serial.println("Unable to find address for Device 0");
-  }
-  // show the addresses we found on the bus
-  Serial.print("Device 0 Address: ");
-  printDS18B20Address(insideThermometer);
-  Serial.println();
-
-  // set the resolution to 9 bit (Each Dallas/Maxim device is capable of several different resolutions)
-  sensors.setResolution(insideThermometer, 12);
-
-  Serial.print("Device 0 Resolution: ");
-  Serial.print(sensors.getResolution(insideThermometer), DEC);
-  Serial.println();
-
-  sensors.setWaitForConversion(false);
-  Serial.println("DONE");
-}
-
-//----------------------------------------------------------------------------------------
-// function to print the temperature for a device
-void printDS18B20Temperature(DeviceAddress deviceAddress)
-{
-  float tempC = sensors.getTempC(deviceAddress);
-  Serial.print("Temp C: ");
-  Serial.print(tempC);
-}
-
-//----------------------------------------------------------------------------------------
-// function to print a device address
-void printDS18B20Address(DeviceAddress deviceAddress)
-{
-  for (uint8_t i = 0; i < 8; i++)
-  {
-    if (deviceAddress[i] < 16) Serial.print("0");
-    Serial.print(deviceAddress[i], HEX);
-  }
-}
-
 //-----------------------------------------------------------------------------------------
+uint8_t lastTemp1 = 255;
+uint8_t lastTemp2 = 255;
 void TaskTempSensorLoop(void * pvParameters) {
   Serial.printf("TaskTempSensorLoop() running on core %d\r\n", xPortGetCoreID());
   while (true) {
-    sensors.requestTemperatures(); // Send the command to get temperatures
+	SensorsHelper::startMeasure();
     delay(1000);
-    char buf[25];
     /*Indoor temperature*/
-    uint16_t t = round(sensors.getTempC(insideThermometer) * 10.0);
-    String t1 = String(t / 10);
-    String t2 = String(t % 10);
-    tIndoorTemp1.setText(t1.c_str());
-    tIndoorTemp2.setText(t2.c_str());
+	  uint16_t t = SensorsHelper::getTemperature();
+    uint8_t t1 = t / 10;
+    uint8_t t2 = t % 10;         
+    if (lastTemp1 != t1){
+      if (tIndoorTemp1.setText(String(t1).c_str()))
+        lastTemp1 = t1;
+    }  
+    if (lastTemp2 != t2){
+      if (tIndoorTemp2.setText(String(t2).c_str()))
+        lastTemp2 = t2;
+    }   
   }
 }
 //-----------------------------------------------------------------------------------------
+uint8_t lastMinute = 99;
+uint8_t lastHour = 99;
+uint8_t lastDay = 99;
+uint8_t lastMonth = 99;
+uint8_t lastDayOfWeek = 99;
+
 void TaskTimeLoop(void * pvParameters) {
   Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
   while (true) {
@@ -457,20 +374,34 @@ void TaskTimeLoop(void * pvParameters) {
     //Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
 
     rtc.refresh();
-    char buf[25];
-    /*Day of month*/
-    String monthNameStr = monthName(rtc.month());
-    sprintf(buf, "%02d %s", rtc.day(), monthNameStr.c_str());
-    tDayOfMonth.setText(buf);
+    char buf[10];
+	/*Month*/
+	//String monthNameStr = monthName(rtc.month());
+	/*Day of month*/
+	if (lastDay != rtc.day()) {
+		sprintf(buf, "%02d", rtc.day());
+		if(tDayOfMonth.setText(buf))
+		  lastDay = rtc.day();
+	} 
     /*Day of week*/
-    dayOfWeekName(buf, rtc.dayOfWeek());
-    tDayOfWeek.setText(buf);
-    /*Time*/
-    sprintf(buf, "%02d", rtc.hour());
-    tTime1.setText(buf);
-    sprintf(buf, "%02d", rtc.minute());
-    tTime2.setText(buf);
-    delay(1000);
+	if (lastDayOfWeek != rtc.dayOfWeek()) {
+		dayOfWeekName(buf, rtc.dayOfWeek());
+		if(tDayOfWeek.setText(buf))    
+		  lastDayOfWeek = rtc.dayOfWeek();
+	}
+    /*Hour*/
+	if (lastHour != rtc.hour()) {
+		sprintf(buf, "%02d", rtc.hour());
+		if(tTime1.setText(buf))
+		  lastHour = rtc.hour();
+	}
+	/*Minute*/
+	if (lastMinute != rtc.minute()) {
+		sprintf(buf, "%02d", rtc.minute());
+		if(tTime2.setText(buf))
+		  lastMinute = rtc.minute();
+	}
+    delay(500);
   }
 }
 //-----------------------------------------------------------------------------------------
@@ -504,21 +435,21 @@ void TaskNetworkControlerLoop(void * pvParameters) {
 //----------------------------------------------------------------------------------------
 void setup() {
   delay(2000);
+
+  pinMode(BUILT_LED, OUTPUT);
+  Wire.begin(I2C_SDA, I2C_SCL);
+
   Serial.printf("setup() running on core %d\r\n", xPortGetCoreID());
   configuration.init();
 
   xTaskCreatePinnedToCore(TaskOTALoop, "TaskOTALoop", 4096, NULL, 1, NULL, CORE_1);
   xTaskCreatePinnedToCore(TaskNextionLoop, "TaskNextionLoop", 4096, NULL, 1, NULL, CORE_2);
-  xTaskCreatePinnedToCore(TaskTimeLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
+  xTaskCreatePinnedToCore(TaskTimeLoop, "TaskTimeLoop", 4096, NULL, 1, NULL, CORE_1);
   xTaskCreatePinnedToCore(TaskTempSensorLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
   xTaskCreatePinnedToCore(TaskNetworkControlerLoop, "TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_1);
 
-
-  //Serial2.begin(9600, SERIAL_8N1, UART1_RX, UART1_TX);
-
   /* Set the baudrate which is for debug and communicate with Nextion screen. */
   nexInit(115200, UART1_BAUND, SERIAL_8N1, UART1_RX, UART1_TX);
-
 
   /* Register the pop event callback function of the current button component. */
   switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop, &switchBathroomMainLight);
@@ -536,15 +467,9 @@ void setup() {
   bDateTimeNext.attachPop(onBtnbDateTimeNext, &bDateTimeNext);
   bDateTimeSet.attachPop(onBtnbDateTimeSet, &bDateTimeSet);
 
+  SensorsHelper::init();
 
-  pinMode(BUILT_LED, OUTPUT);
-
-  Wire.begin(I2C_SDA, I2C_SCL);
-
-  ds18b20Init();
-
-  networkControler.setup();
-
+  networkControler.init();
 
   ArduinoOTA
   .onStart([]() {

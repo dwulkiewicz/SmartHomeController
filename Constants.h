@@ -3,6 +3,28 @@
 #ifndef __CONSTANTS_H__
 #define __CONSTANTS_H__
 
+
+#define CORE_1 0
+#define CORE_2 1
+
+#define I2C_ADDRESS_SSD1306 0x3C
+#define I2C_ADDRESS_D1307   0x68
+#define I2C_ADDRESS_AT24C32 0x50
+
+//ESP32 I2C
+#define I2C_SDA 4
+#define I2C_SCL 15
+
+//ESP32 UART1
+#define UART1_BAUND 57600
+#define UART1_TX 21
+#define UART1_RX 13
+
+#define DS18B20_PIN 22
+
+#define BUILT_LED 25
+
+
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
 

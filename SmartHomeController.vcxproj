@@ -113,12 +113,14 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="HeatingControler.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SensorsHelper.h" />
     <ClInclude Include="WifiControler.h" />
     <ClInclude Include="__vm\.SmartHomeController.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="HeatingControler.cpp" />
+    <ClCompile Include="SensorsHelper.cpp" />
     <ClCompile Include="WifiControler.cpp" />
   </ItemGroup>
   <ItemGroup>

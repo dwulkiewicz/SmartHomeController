@@ -11,7 +11,7 @@ class NetworkControler
 {
 public:
 	NetworkControler(Configuration* configuration,DisplayControler* displayControler);
-	void setup();
+	void init();
   void loop();
 private:
 	Configuration* configuration;
