@@ -39,6 +39,9 @@
     <ClInclude Include="NetworkControler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RtcHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Configuration.cpp">
@@ -54,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NetworkControler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RtcHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

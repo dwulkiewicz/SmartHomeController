@@ -1,9 +1,11 @@
 #pragma once
-#include <Arduino.h>
-
 
 #ifndef __SENSORS_HELPER_H__
 #define __SENSORS_HELPER_H__
+
+
+#include <Arduino.h>
+
 
 class SensorsHelper
 {

@@ -114,6 +114,7 @@
     <ClInclude Include="DisplayControler.h" />
     <ClInclude Include="HeatingControler.h" />
     <ClInclude Include="NetworkControler.h" />
+    <ClInclude Include="RtcHelper.h" />
     <ClInclude Include="SensorsHelper.h" />
     <ClInclude Include="__vm\.SmartHomeController.vsarduino.h" />
   </ItemGroup>
@@ -122,6 +123,7 @@
     <ClCompile Include="DisplayControler.cpp" />
     <ClCompile Include="HeatingControler.cpp" />
     <ClCompile Include="NetworkControler.cpp" />
+    <ClCompile Include="RtcHelper.cpp" />
     <ClCompile Include="SensorsHelper.cpp" />
   </ItemGroup>
   <ItemGroup>

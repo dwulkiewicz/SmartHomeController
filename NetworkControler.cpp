@@ -54,6 +54,7 @@ void NetworkControler::init() {
 
   client.setServer(configuration->mqttServer.c_str(), 1883);
   client.setCallback(NetworkControler::mqttCallback);
+
   
 }
 //----------------------------------------------------------------------------------------
