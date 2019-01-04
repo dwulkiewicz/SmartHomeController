@@ -27,16 +27,16 @@
     <ClInclude Include="HeatingControler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WifiControler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SensorsHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DisplayControler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkControler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,10 +47,13 @@
     <ClCompile Include="HeatingControler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WifiControler.cpp">
+    <ClCompile Include="SensorsHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SensorsHelper.cpp">
+    <ClCompile Include="DisplayControler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkControler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
