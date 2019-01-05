@@ -16,15 +16,21 @@ private:
 	Configuration* configuration;
 public: //todo przenieść do private, obudować 
   NexPicture* picWiFiStatus;
+public:
+  static uint8_t dayOfWeekPic(uint8_t dayOfWeek);
+  static uint8_t monthPic(uint8_t month);  
 };
 
 extern NexText tIndoorTemp1;
 extern NexText tIndoorTemp2;
 extern NexText tDayOfMonth;
-extern NexText tDayOfWeek;
+extern NexPicture pDayOfWeek;
+extern NexPicture pMonth;
+
 extern NexText tTime1;
 extern NexText tTime2;
-
+extern NexText tTime3;
+extern NexText tTime4;
 
 
 

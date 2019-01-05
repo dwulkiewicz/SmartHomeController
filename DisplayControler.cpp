@@ -7,10 +7,15 @@ extern Configuration configuration;
 
 NexVariable vaIntTemp1 = NexVariable(PG_MAIN, 31, "vaIntTemp1");
 
-NexText tDayOfMonth = NexText(PG_MAIN, LBL_DAY_OF_MONTH_ID, "tDayOfMonth");
-NexText tDayOfWeek = NexText(PG_MAIN, LBL_DAY_OF_WEEK_ID, "tDayOfWeek");
+NexPicture pMonth = NexPicture(PG_MAIN, PIC_MONTH_ID, PIC_MONTH_NAME);
+NexText tDayOfMonth = NexText(PG_MAIN, PIC_DAY_OF_MONTH_ID, PIC_DAY_OF_MONTH_NAME);
+NexPicture pDayOfWeek = NexPicture(PG_MAIN, PIC_DAY_OF_WEEK_ID, PIC_DAY_OF_WEEK_NAME);
+
 NexText tTime1 = NexText(PG_MAIN, LBL_TIME1_ID, LBL_TIME1_NAME);
 NexText tTime2 = NexText(PG_MAIN, LBL_TIME2_ID, LBL_TIME2_NAME);
+NexText tTime3 = NexText(PG_MAIN, LBL_TIME3_ID, LBL_TIME3_NAME);
+NexText tTime4 = NexText(PG_MAIN, LBL_TIME4_ID, LBL_TIME4_NAME);
+
 NexText tIndoorTemp1 = NexText(PG_MAIN, LBL_INDOOR_TEMP1_ID, LBL_INDOOR_TEMP1_NAME);
 NexText tIndoorTemp2 = NexText(PG_MAIN, LBL_INDOOR_TEMP2_ID, LBL_INDOOR_TEMP2_NAME);
 NexButton btnGoHeatingPage = NexButton(PG_MAIN, BTN_GO_HEATING_PG_ID, BTN_GO_HEATING_PG_NAME);
@@ -19,7 +24,7 @@ NexButton btnGoTimePage = NexButton(PG_MAIN, BTN_GO_TIME_PG_ID, BTN_GO_TIME_PG_N
 NexPicture switchBathroomMainLight = NexPicture(PG_MAIN, PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME);
 
 //------------/*Ogrzewanie*/------------
-/*Temperatura w dzie�*/
+/*Temperatura w dzie�*/
 NexText lblDayTempValue = NexText(PG_HEATING_SETTING, LBL_DAY_TEMP_VALUE_ID, LBL_DAY_TEMP_VALUE_NAME);
 NexButton btnDayTempDec = NexButton(PG_HEATING_SETTING, BTN_DAY_TEMP_DEC_ID, BTN_DAY_TEMP_DEC_NAME);
 NexButton btnDayTempInc = NexButton(PG_HEATING_SETTING, BTN_DAY_TEMP_INC_ID, BTN_DAY_TEMP_INC_NAME);
@@ -280,15 +285,11 @@ void onBtnbDateTimeSet(void *ptr)
 	}
 }
 
-
-
-
 DisplayControler::DisplayControler(Configuration* configuration)
 {
   this->configuration = configuration;
   picWiFiStatus = new NexPicture(PG_MAIN, PIC_WIFI_STATUS_ID, PIC_WIFI_STATUS_NAME); 
 }
-
 
 void DisplayControler::init(){
 	/* Set the baudrate which is for debug and communicate with Nextion screen. */
@@ -309,6 +310,38 @@ void DisplayControler::init(){
 
 	bDateTimeNext.attachPop(onBtnbDateTimeNext, &bDateTimeNext);
 	bDateTimeSet.attachPop(onBtnbDateTimeSet, &bDateTimeSet);
+}
+
+uint8_t DisplayControler::dayOfWeekPic(uint8_t dayOfWeek) {
+  switch (dayOfWeek) {
+    case 1: return PIC_DAY_MON;
+    case 2: return PIC_DAY_TUE;
+    case 3: return PIC_DAY_WED;
+    case 4: return PIC_DAY_THU;
+    case 5: return PIC_DAY_FRI;
+    case 6: return PIC_DAY_SAT;
+    case 7: return PIC_DAY_SUN;        
+    default: return PIC_DAY_SUN; //TODO: dodać inną ikonę dla błędu
+  }
+}
+
+uint8_t DisplayControler::monthPic(uint8_t month) {
+  switch (month) {
+    case 1: return PIC_MONTH_JAN;
+    case 2: return PIC_MONTH_FEB;
+    case 3: return PIC_MONTH_MAR;
+    case 4: return PIC_MONTH_APR;
+    case 5: return PIC_MONTH_MAY;
+    case 6: return PIC_MONTH_JUN;
+    case 7: return PIC_MONTH_JUL;
+    case 8: return PIC_MONTH_AUG;
+    case 9: return PIC_MONTH_SEPT;
+    case 10: return PIC_MONTH_OCT;
+    case 11: return PIC_MONTH_NOV;
+    case 12: return PIC_MONTH_DEC;
+    default: return PIC_MONTH_DEC; //TODO: dodać inną ikonę dla błędu    
+  }
+
 }
   
 void DisplayControler::loop(){

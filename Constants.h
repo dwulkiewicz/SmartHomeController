@@ -37,28 +37,62 @@
 #define PICTURE_SWITCH_ON  7
 #define PICTURE_SWITCH_OFF 6
 
+#define PIC_DAY_MON 21
+#define PIC_DAY_TUE 22
+#define PIC_DAY_WED 23
+#define PIC_DAY_THU 24
+#define PIC_DAY_FRI 25
+#define PIC_DAY_SAT 26
+#define PIC_DAY_SUN 27
+
+#define PIC_MONTH_JAN  28
+#define PIC_MONTH_FEB  29
+#define PIC_MONTH_MAR  30
+#define PIC_MONTH_APR  31
+#define PIC_MONTH_MAY  32
+#define PIC_MONTH_JUN  33
+#define PIC_MONTH_JUL  34
+#define PIC_MONTH_AUG  35
+#define PIC_MONTH_SEPT 36
+#define PIC_MONTH_OCT  37
+#define PIC_MONTH_NOV  38
+#define PIC_MONTH_DEC  39
+
+
 //------------/*Strona główna*/------------
-#define PG_MAIN                         0
-#define BTN_GO_LIGHT_PG_ID              3
-#define BTN_GO_LIGHT_PG_NAME            "bLights"
-#define BTN_GO_HEATING_PG_ID            8
-#define BTN_GO_HEATING_PG_NAME          "bHeating"
-#define BTN_GO_TIME_PG_ID               23
-#define BTN_GO_TIME_PG_NAME             "bTime"
-#define PIC_WIFI_STATUS_ID            4
-#define PIC_WIFI_STATUS_NAME            "picWiFi"
+#define PG_MAIN                                            0
+#define BTN_GO_LIGHT_PG_ID                                 3
+#define BTN_GO_LIGHT_PG_NAME                       "bLights"
+#define BTN_GO_HEATING_PG_ID                               8
+#define BTN_GO_HEATING_PG_NAME                    "bHeating"
+#define BTN_GO_TIME_PG_ID                                 23
+#define BTN_GO_TIME_PG_NAME                          "bTime"
+#define PIC_WIFI_STATUS_ID                                 4
+#define PIC_WIFI_STATUS_NAME                       "picWiFi"
 #define PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID                  7
 #define PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME  "picSwitchMain"
-#define LBL_DAY_OF_MONTH_ID             22
-#define LBL_DAY_OF_WEEK_ID              20
-#define LBL_INDOOR_TEMP1_ID           16
+
+#define PIC_DAY_OF_MONTH_ID                        18
+#define PIC_DAY_OF_MONTH_NAME           "tDayOfMonth"
+#define PIC_MONTH_ID                               39
+#define PIC_MONTH_NAME                           "p3"
+#define PIC_DAY_OF_WEEK_ID                         38
+#define PIC_DAY_OF_WEEK_NAME                     "p2"
+#define LBL_TIME1_ID                              34
+#define LBL_TIME1_NAME                         "t10"
+#define LBL_TIME2_ID                              35
+#define LBL_TIME2_NAME                         "t11"
+#define LBL_TIME3_ID                              36
+#define LBL_TIME3_NAME                         "t12"
+#define LBL_TIME4_ID                              37
+#define LBL_TIME4_NAME                         "t13"
+
+#define LBL_INDOOR_TEMP1_ID                     16
 #define LBL_INDOOR_TEMP1_NAME           "tInTemp1"
-#define LBL_INDOOR_TEMP2_ID           17
+#define LBL_INDOOR_TEMP2_ID                     17
 #define LBL_INDOOR_TEMP2_NAME           "tInTemp2"
-#define LBL_TIME1_ID                6
-#define LBL_TIME1_NAME                  "tTime1"
-#define LBL_TIME2_ID              19
-#define LBL_TIME2_NAME                  "tTime2"
+
+
 
 //------------/*Ogrzewanie*/------------
 #define PG_HEATING_SETTING          1

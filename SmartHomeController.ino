@@ -59,39 +59,43 @@ uint8_t lastDayOfWeek = 99;
 
 void TaskTimeLoop(void * pvParameters) {
   Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
+  char buf[5];
+  char buf2[5];  
   while (true) {
-
     //Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
-
     rtc.refresh();
-    char buf[10];
-	/*Month*/
-	//String monthNameStr = monthName(rtc.month());
-	/*Day of month*/
-	if (lastDay != rtc.day()) {
-		sprintf(buf, "%02d", rtc.day());
-		if(tDayOfMonth.setText(buf))
-		  lastDay = rtc.day();
-	} 
+
+  	/*Month*/
+    if (lastMonth != rtc.month()){
+      if(pMonth.setPic(DisplayControler::monthPic(rtc.month())))
+        lastMonth = rtc.month();
+    }
+  	/*Day of month*/
+  	if (lastDay != rtc.day()) {
+  		sprintf(buf, "%02d", rtc.day());
+  		if(tDayOfMonth.setText(buf))
+  		  lastDay = rtc.day();
+  	} 
     /*Day of week*/
-	if (lastDayOfWeek != rtc.dayOfWeek()) {
-		RtcHelper::dayOfWeekName(buf, rtc.dayOfWeek());
-		if(tDayOfWeek.setText(buf))    
-		  lastDayOfWeek = rtc.dayOfWeek();
-	}
+  	if (lastDayOfWeek != rtc.dayOfWeek()) {
+  		if(pDayOfWeek.setPic(DisplayControler::dayOfWeekPic(rtc.dayOfWeek())))  
+  		  lastDayOfWeek = rtc.dayOfWeek();
+  	}
     /*Hour*/
-	if (lastHour != rtc.hour()) {
-		sprintf(buf, "%02d", rtc.hour());
-		if(tTime1.setText(buf))
-		  lastHour = rtc.hour();
-	}
-	/*Minute*/
-	if (lastMinute != rtc.minute()) {
-		sprintf(buf, "%02d", rtc.minute());
-		if(tTime2.setText(buf))
-		  lastMinute = rtc.minute();
-	}
-    delay(500);
+  	if (lastHour != rtc.hour()) {
+      sprintf(buf, "%02d", rtc.hour());  
+      String hour = String(buf);
+  		if(tTime1.setText(hour.substring(0,1).c_str()) && tTime2.setText(hour.substring(1,1).c_str()))
+  		  lastHour = rtc.hour();
+  	}
+  	/*Minute*/
+  	if (lastMinute != rtc.minute()) {
+      sprintf(buf, "%02d", rtc.minute());  
+      String minute = String(buf);    
+      if(tTime3.setText(minute.substring(0,1).c_str()) && tTime4.setText(minute.substring(1,1).c_str()))
+  		  lastMinute = rtc.minute();
+  	}
+  delay(500);
   }
 }
 //-----------------------------------------------------------------------------------------
