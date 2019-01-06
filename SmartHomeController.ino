@@ -51,50 +51,57 @@ void TaskTempSensorLoop(void * pvParameters) {
   }
 }
 //-----------------------------------------------------------------------------------------
-uint8_t lastMinute = 99;
-uint8_t lastHour = 99;
-uint8_t lastDay = 99;
-uint8_t lastMonth = 99;
-uint8_t lastDayOfWeek = 99;
+
 
 void TaskTimeLoop(void * pvParameters) {
   Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
+  uint8_t lastMinute = 99;
+  uint8_t lastHour = 99;
+  uint8_t lastDay = 99;
+  uint8_t lastMonth = 99;
+  uint8_t lastDayOfWeek = 99;
+  uint8_t minute = 99;
+  uint8_t hour = 99;
+  uint8_t day = 99;
+  uint8_t month = 99;
+  uint8_t dayOfWeek = 99;
   char buf[5];
-  char buf2[5];  
+
   while (true) {
     //Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
     rtc.refresh();
+	month = rtc.month();
+	day = rtc.day();
+	dayOfWeek = rtc.dayOfWeek();
+	hour = rtc.hour();
+	minute = rtc.minute();
 
+	/*Hour*/
+	if (lastHour != hour) {
+		if (tTime1.setText(String(hour / 10).c_str()) && tTime2.setText(String(hour % 10).c_str()))
+			lastHour = hour;
+	}
+	/*Minute*/
+	if (lastMinute != minute) {
+		if (tTime3.setText(String(minute / 10).c_str()) && tTime4.setText(String(minute % 10).c_str()))
+			lastMinute = minute;
+	}
   	/*Month*/
-    if (lastMonth != rtc.month()){
-      if(pMonth.setPic(DisplayControler::monthPic(rtc.month())))
-        lastMonth = rtc.month();
+    if (lastMonth != month){
+      if(pMonth.setPic(DisplayControler::monthPic(month)))
+        lastMonth = month;
     }
   	/*Day of month*/
-  	if (lastDay != rtc.day()) {
-  		sprintf(buf, "%02d", rtc.day());
-  		if(tDayOfMonth.setText(buf))
-  		  lastDay = rtc.day();
+  	if (lastDay != day) {
+		if(pDayOfMonth1.setPic(DisplayControler::dayOfMonthPic(day/10)) && pDayOfMonth2.setPic(DisplayControler::dayOfMonthPic(day%10)))
+  		  lastDay = day;
   	} 
     /*Day of week*/
-  	if (lastDayOfWeek != rtc.dayOfWeek()) {
-  		if(pDayOfWeek.setPic(DisplayControler::dayOfWeekPic(rtc.dayOfWeek())))  
-  		  lastDayOfWeek = rtc.dayOfWeek();
+  	if (lastDayOfWeek != dayOfWeek) {
+  		if(pDayOfWeek.setPic(DisplayControler::dayOfWeekPic(dayOfWeek)))
+  		  lastDayOfWeek = dayOfWeek;
   	}
-    /*Hour*/
-  	if (lastHour != rtc.hour()) {
-      sprintf(buf, "%02d", rtc.hour());  
-      String hour = String(buf);
-  		if(tTime1.setText(hour.substring(0,1).c_str()) && tTime2.setText(hour.substring(1,1).c_str()))
-  		  lastHour = rtc.hour();
-  	}
-  	/*Minute*/
-  	if (lastMinute != rtc.minute()) {
-      sprintf(buf, "%02d", rtc.minute());  
-      String minute = String(buf);    
-      if(tTime3.setText(minute.substring(0,1).c_str()) && tTime4.setText(minute.substring(1,1).c_str()))
-  		  lastMinute = rtc.minute();
-  	}
+
   delay(500);
   }
 }

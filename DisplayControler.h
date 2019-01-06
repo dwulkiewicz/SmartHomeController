@@ -19,11 +19,14 @@ public: //todo przenieść do private, obudować
 public:
   static uint8_t dayOfWeekPic(uint8_t dayOfWeek);
   static uint8_t monthPic(uint8_t month);  
+  static uint8_t dayOfMonthPic(uint8_t digit);
 };
 
 extern NexText tIndoorTemp1;
 extern NexText tIndoorTemp2;
-extern NexText tDayOfMonth;
+
+extern NexPicture pDayOfMonth1;
+extern NexPicture pDayOfMonth2;
 extern NexPicture pDayOfWeek;
 extern NexPicture pMonth;
 

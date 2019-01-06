@@ -5,10 +5,9 @@
 
 extern Configuration configuration;
 
-NexVariable vaIntTemp1 = NexVariable(PG_MAIN, 31, "vaIntTemp1");
-
+NexPicture pDayOfMonth1 = NexPicture(PG_MAIN, PIC_DAY_OF_MONTH1_ID, PIC_DAY_OF_MONTH1_NAME);
+NexPicture pDayOfMonth2 = NexPicture(PG_MAIN, PIC_DAY_OF_MONTH2_ID, PIC_DAY_OF_MONTH2_NAME);
 NexPicture pMonth = NexPicture(PG_MAIN, PIC_MONTH_ID, PIC_MONTH_NAME);
-NexText tDayOfMonth = NexText(PG_MAIN, PIC_DAY_OF_MONTH_ID, PIC_DAY_OF_MONTH_NAME);
 NexPicture pDayOfWeek = NexPicture(PG_MAIN, PIC_DAY_OF_WEEK_ID, PIC_DAY_OF_WEEK_NAME);
 
 NexText tTime1 = NexText(PG_MAIN, LBL_TIME1_ID, LBL_TIME1_NAME);
@@ -341,9 +340,24 @@ uint8_t DisplayControler::monthPic(uint8_t month) {
     case 12: return PIC_MONTH_DEC;
     default: return PIC_MONTH_DEC; //TODO: dodać inną ikonę dla błędu    
   }
-
 }
-  
+
+uint8_t DisplayControler::dayOfMonthPic(uint8_t digit) {
+	switch (digit) {
+	case 0: return PIC_DIGIT_0;
+	case 1: return PIC_DIGIT_1;
+	case 2: return PIC_DIGIT_2;
+	case 3: return PIC_DIGIT_3;
+	case 4: return PIC_DIGIT_4;
+	case 5: return PIC_DIGIT_5;
+	case 6: return PIC_DIGIT_6;
+	case 7: return PIC_DIGIT_7;
+	case 8: return PIC_DIGIT_8;
+	case 9: return PIC_DIGIT_9;
+	default: return PIC_DIGIT_0; //TODO: dodać inną ikonę dla błędu    
+	}
+}
+ 
 void DisplayControler::loop(){
 	nexLoop(nex_listen_list);
 }

@@ -58,9 +58,20 @@
 #define PIC_MONTH_NOV  38
 #define PIC_MONTH_DEC  39
 
+#define PIC_DIGIT_0  40
+#define PIC_DIGIT_1  41
+#define PIC_DIGIT_2  42
+#define PIC_DIGIT_3  43
+#define PIC_DIGIT_4  44
+#define PIC_DIGIT_5  45
+#define PIC_DIGIT_6  46
+#define PIC_DIGIT_7  47
+#define PIC_DIGIT_8  48
+#define PIC_DIGIT_9  49
 
 //------------/*Strona główna*/------------
 #define PG_MAIN                                            0
+
 #define BTN_GO_LIGHT_PG_ID                                 3
 #define BTN_GO_LIGHT_PG_NAME                       "bLights"
 #define BTN_GO_HEATING_PG_ID                               8
@@ -72,19 +83,23 @@
 #define PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID                  7
 #define PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME  "picSwitchMain"
 
-#define PIC_DAY_OF_MONTH_ID                        18
-#define PIC_DAY_OF_MONTH_NAME           "tDayOfMonth"
-#define PIC_MONTH_ID                               39
+#define PIC_DAY_OF_MONTH1_ID                        39
+#define PIC_DAY_OF_MONTH1_NAME				      "p4"
+#define PIC_DAY_OF_MONTH2_ID                        40
+#define PIC_DAY_OF_MONTH2_NAME				      "p5"
+
+#define PIC_MONTH_ID                               38
 #define PIC_MONTH_NAME                           "p3"
-#define PIC_DAY_OF_WEEK_ID                         38
+#define PIC_DAY_OF_WEEK_ID                         37
 #define PIC_DAY_OF_WEEK_NAME                     "p2"
-#define LBL_TIME1_ID                              34
+
+#define LBL_TIME1_ID                              33
 #define LBL_TIME1_NAME                         "t10"
-#define LBL_TIME2_ID                              35
+#define LBL_TIME2_ID                              34
 #define LBL_TIME2_NAME                         "t11"
-#define LBL_TIME3_ID                              36
+#define LBL_TIME3_ID                              35
 #define LBL_TIME3_NAME                         "t12"
-#define LBL_TIME4_ID                              37
+#define LBL_TIME4_ID                              36
 #define LBL_TIME4_NAME                         "t13"
 
 #define LBL_INDOOR_TEMP1_ID                     16
