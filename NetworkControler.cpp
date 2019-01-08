@@ -3,9 +3,12 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-
 #include "NetworkControler.h"
 #include "Constants.h"
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
 
 const char* switchesReqChannel01 = "switches/req/channel01";
 const char* switchesReqChannel02 = "switches/req/channel02";
@@ -13,9 +16,9 @@ const char* switchesReqChannel02 = "switches/req/channel02";
 const char* switchesRespChannel01 = "switches/resp/channel01";
 const char* switchesRespChannel02 = "switches/resp/channel02";
 
-
-WiFiClient espClient;
-PubSubClient client(espClient);
+const char* sensorsBME280TemperatureTopic = "sensors/bme280/temperature";
+const char* sensorsBME280HumidityTopic = "sensors/bme280/humidity";
+const char* sensorsBME280PressureTopic = "sensors/bme280/pressure";
 
 //----------------------------------------------------------------------------------------
 
@@ -23,17 +26,21 @@ NetworkControler::NetworkControler(Configuration* configuration,DisplayControler
 {
 	this->configuration = configuration;
   this->displayControler = displayControler;
+
+}
+//----------------------------------------------------------------------------------------
+String NetworkControler::getHostName(){
   // Set Hostname.
   char buf[15];
   uint64_t chipid = ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
   sprintf(buf, "%04x%08x", (uint16_t)(chipid >> 32) /*High 2 bytes*/, (uint32_t)chipid /*Low 4bytes*/);
-  hostname = HOSTNAME_PREFIX + String(buf);
+  return HOSTNAME_PREFIX + String(buf);    
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::init() {
   // We start by connecting to a WiFi network
   Serial.printf("\r\nConnecting to %s\r\n", configuration->wifiSSID.c_str());
-
+  String hostname = NetworkControler::getHostName(); 
   WiFi.begin(configuration->wifiSSID.c_str(), configuration->wifiPassword.c_str());
   WiFi.setHostname(hostname.c_str());
 
@@ -53,9 +60,7 @@ void NetworkControler::init() {
 
 
   client.setServer(configuration->mqttServer.c_str(), 1883);
-  client.setCallback(NetworkControler::mqttCallback);
-
-  
+  client.setCallback(NetworkControler::mqttCallback);  
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::reconnect() {
@@ -64,6 +69,7 @@ void NetworkControler::reconnect() {
   while (!client.connected()) {
     Serial.println("Attempting MQTT connection...");
     // Attempt to connect
+    String hostname = NetworkControler::getHostName();
     if (client.connect(hostname.c_str())) {
       displayControler->picWiFiStatus->setPic(PICTURE_WIFI_ON);  
       Serial.printf("connected as %s\r\n", hostname.c_str());
@@ -75,10 +81,11 @@ void NetworkControler::reconnect() {
 
       // ... and resubscribe
       // można subskrybować wiele topiców
-//      client.subscribe(sensorsBME280CommandTopic);
-//      client.subscribe(sensorsDS18B20CommandTopic);
-//      client.subscribe(sensorsDHT11CommandTopic);
-//      client.subscribe(lightingCommandTopic);
+      client.subscribe(sensorsBME280TemperatureTopic);
+      client.subscribe(sensorsBME280HumidityTopic);
+      client.subscribe(sensorsBME280PressureTopic);
+      //client.subscribe(lightingCommandTopic);
+      
       client.subscribe(switchesReqChannel01);
       client.subscribe(switchesReqChannel02);
     }
@@ -121,7 +128,18 @@ void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int len
     networkControler.setSwitch(1, mqttMessage);
     Serial.printf("MQTT send topic:[%s], msg: %s\r\n", switchesRespChannel02, mqttMessage.c_str());
     client.publish(switchesRespChannel02, mqttMessage.c_str());
-  }  
+  }
+  else if (mqttTopic.equals(sensorsBME280TemperatureTopic)) {
+    networkControler.showTemperature(mqttMessage);
+
+  }
+  else if (mqttTopic.equals(sensorsBME280HumidityTopic)) {
+    networkControler.showHumidity(mqttMessage);
+  }
+  else if (mqttTopic.equals(sensorsBME280PressureTopic)) {
+    networkControler.showPressure(mqttMessage);
+  }    
+   
 }
 
 extern NexPicture switchBathroomMainLight;
@@ -135,4 +153,28 @@ void NetworkControler::setSwitch(uint8_t item, String value) {
   else {
     switchBathroomMainLight.setPic(PICTURE_SWITCH_OFF); 
   }
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::showTemperature(String value) {
+  Serial.printf("Temperature: %s\r\n", value.c_str());
+  float outdoorTemp = value.toFloat();
+  if (outdoorTemp < 0)
+    tOutdoorTempSymbol.setText("-");  
+  else
+    tOutdoorTempSymbol.setText("");
+  int outdoorTempInt = outdoorTemp * 10;    
+  tOutdoorTemp1.setText(String(outdoorTempInt/10).c_str());     
+  tOutdoorTemp2.setText(String(outdoorTempInt%10).c_str());  
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::showHumidity(String value) {
+  Serial.printf("Humidity: %s\r\n", value.c_str());
+  float outdoorHumidity = value.toFloat();  
+  tOutdoorHumidity.setText((String(round(outdoorHumidity)) + "%").c_str());
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::showPressure(String value) {
+  Serial.printf("Pressure: %s\r\n", value.c_str());
+  float outdoorPressure = value.toFloat();  
+  tOutdoorPreasure.setText((String(round(outdoorPressure)) + "hPa").c_str()); //formatowanie
 }

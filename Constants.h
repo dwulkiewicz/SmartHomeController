@@ -28,7 +28,6 @@
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
 
-
 #define COLOR_RED 63488
 #define COLOR_YELLOW 65504
 
@@ -107,7 +106,18 @@
 #define LBL_INDOOR_TEMP2_ID                     17
 #define LBL_INDOOR_TEMP2_NAME           "tInTemp2"
 
+#define LBL_OUTDOOR_TEMP1_ID                     19
+#define LBL_OUTDOOR_TEMP1_NAME                 "t6"
+#define LBL_OUTDOOR_TEMP2_ID                     20
+#define LBL_OUTDOOR_TEMP2_NAME                 "t8"
+#define LBL_OUTDOOR_TEMP_SYMBOL_ID               21
+#define LBL_OUTDOOR_TEMP_SYMBOL_NAME           "t0"
 
+#define LBL_OUTDOOR_HUMIDITY_ID                 12
+#define LBL_OUTDOOR_HUMIDITY_NAME              "t2"
+
+#define LBL_OUTDOOR_PREASURE_ID                 11
+#define LBL_OUTDOOR_PREASURE_NAME              "t1"
 
 //------------/*Ogrzewanie*/------------
 #define PG_HEATING_SETTING          1

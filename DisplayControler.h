@@ -25,6 +25,12 @@ public:
 extern NexText tIndoorTemp1;
 extern NexText tIndoorTemp2;
 
+extern NexText tOutdoorTemp1; 
+extern NexText tOutdoorTemp2;
+extern NexText tOutdoorTempSymbol;
+extern NexText tOutdoorHumidity; 
+extern NexText tOutdoorPreasure; 
+
 extern NexPicture pDayOfMonth1;
 extern NexPicture pDayOfMonth2;
 extern NexPicture pDayOfWeek;
@@ -34,8 +40,6 @@ extern NexText tTime1;
 extern NexText tTime2;
 extern NexText tTime3;
 extern NexText tTime4;
-
-
 
 
 #endif /* #ifndef __DisplayControler_H__ */
