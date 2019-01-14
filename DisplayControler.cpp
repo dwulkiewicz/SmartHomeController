@@ -5,6 +5,7 @@
 
 extern Configuration configuration;
 
+//Strona główna
 NexPicture pDayOfMonth1 = NexPicture(PG_MAIN, PIC_DAY_OF_MONTH1_ID, PIC_DAY_OF_MONTH1_NAME);
 NexPicture pDayOfMonth2 = NexPicture(PG_MAIN, PIC_DAY_OF_MONTH2_ID, PIC_DAY_OF_MONTH2_NAME);
 NexPicture pMonth = NexPicture(PG_MAIN, PIC_MONTH_ID, PIC_MONTH_NAME);
@@ -17,6 +18,7 @@ NexText tTime4 = NexText(PG_MAIN, LBL_TIME4_ID, LBL_TIME4_NAME);
 
 NexText tIndoorTemp1 = NexText(PG_MAIN, LBL_INDOOR_TEMP1_ID, LBL_INDOOR_TEMP1_NAME);
 NexText tIndoorTemp2 = NexText(PG_MAIN, LBL_INDOOR_TEMP2_ID, LBL_INDOOR_TEMP2_NAME);
+NexText tIndoorHumidity = NexText(PG_MAIN, LBL_INDOOR_HUMIDITY_ID, LBL_INDOOR_HUMIDITY_NAME);
 
 NexText tOutdoorTemp1 = NexText(PG_MAIN, LBL_OUTDOOR_TEMP1_ID, LBL_OUTDOOR_TEMP1_NAME);
 NexText tOutdoorTemp2 = NexText(PG_MAIN, LBL_OUTDOOR_TEMP2_ID, LBL_OUTDOOR_TEMP2_NAME);

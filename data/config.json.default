@@ -1,5 +1,0 @@
-{
-	"ssid":"wifi_SSID",
-	"password":"wifi_Pass",
-	"mqtt_server":"mqtt_IP"
-}

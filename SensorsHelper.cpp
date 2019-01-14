@@ -1,3 +1,6 @@
+
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -17,6 +20,7 @@ DallasTemperature sensors(&oneWire);
 // arrays to hold device address
 DeviceAddress insideThermometer;
 
+Adafruit_BME280 bme; // I2C
 
 SensorsHelper::SensorsHelper()
 {
@@ -38,6 +42,16 @@ void printDS18B20Address(DeviceAddress deviceAddress)
 }
 //----------------------------------------------------------------------------------------
 void SensorsHelper::init() {
+
+
+  // default settings
+  // (you can also pass in a Wire library object like &Wire2)
+  bool status = bme.begin(I2C_ADDRESS_BME280);
+  if (!status) {
+    Serial.println("Could not find a valid BME280 sensor, check wiring!");
+  }
+
+/*  
 	// locate devices on the bus
 	Serial.print("Locating DS18B20 devices...");
 	sensors.begin();
@@ -70,14 +84,28 @@ void SensorsHelper::init() {
 
 	sensors.setWaitForConversion(false);
 	Serial.println("DONE");
+*/ 
 }
 //----------------------------------------------------------------------------------------
 void SensorsHelper::startMeasure() {
-	sensors.requestTemperatures(); // Send the command to get temperatures
+//	sensors.requestTemperatures(); // Send the command to get temperatures
 }
 
 //----------------------------------------------------------------------------------------
 uint16_t SensorsHelper::getTemperature(){
-	return round(sensors.getTempC(insideThermometer) * 10.0);
+    float t = bme.readTemperature();
+    Serial.printf("SensorsHelper::getTemperature() -> %f°C\r\n",t);   
+    return round(t*10.0);    
 }
-
+//----------------------------------------------------------------------------------------
+uint16_t SensorsHelper::getHumidity(){
+    float h = bme.readHumidity();
+    Serial.printf("SensorsHelper::getHumidity() -> %f%%\r\n", h);   
+    return round(h);
+}
+//----------------------------------------------------------------------------------------
+uint16_t SensorsHelper::getPreasure(){
+    float p = bme.readPressure();
+    Serial.printf("SensorsHelper::getPreasure() -> %fhPa\r\n", p);   
+    return round(p);
+}

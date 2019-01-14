@@ -24,6 +24,7 @@ public:
 
 extern NexText tIndoorTemp1;
 extern NexText tIndoorTemp2;
+extern NexText tIndoorHumidity; 
 
 extern NexText tOutdoorTemp1; 
 extern NexText tOutdoorTemp2;

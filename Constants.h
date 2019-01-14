@@ -7,22 +7,36 @@
 #define CORE_1 0
 #define CORE_2 1
 
-#define I2C_ADDRESS_SSD1306 0x3C
-#define I2C_ADDRESS_D1307   0x68
-#define I2C_ADDRESS_AT24C32 0x50
+#define I2C_ADDRESS_BME280  0x76 //BME280
+#define I2C_ADDRESS_SSD1306 0x3C //OLED
+#define I2C_ADDRESS_D1307   0x68 //RTC
+#define I2C_ADDRESS_AT24C32 0x50 //EEPROM
 
 //ESP32 I2C
-#define I2C_SDA 4
-#define I2C_SCL 15
+//#define I2C_SDA 4
+//#define I2C_SCL 15
+#define I2C_SCL 13 //21
+#define I2C_SDA 14 //22
+
 
 //ESP32 UART1
 #define UART1_BAUND 57600
-#define UART1_TX 21
-#define UART1_RX 13
+//#define UART1_TX 21
+//#define UART1_RX 13
+#define UART1_TX 16
+#define UART1_RX 17
 
-#define DS18B20_PIN 22
+#define DS18B20_PIN 4
 
-#define BUILT_LED 25
+#define GPIO_CLK 26       
+#define GPIO_DIO 27
+
+#define GPIO_SW_1 36
+#define GPIO_SW_2 39
+#define GPIO_SW_3 34
+#define GPIO_SW_4 32
+
+#define GPIO_BUZZER 2
 
 
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
@@ -101,10 +115,12 @@
 #define LBL_TIME4_ID                              36
 #define LBL_TIME4_NAME                         "t13"
 
-#define LBL_INDOOR_TEMP1_ID                     16
-#define LBL_INDOOR_TEMP1_NAME           "tInTemp1"
-#define LBL_INDOOR_TEMP2_ID                     17
-#define LBL_INDOOR_TEMP2_NAME           "tInTemp2"
+#define LBL_INDOOR_TEMP1_ID                      16
+#define LBL_INDOOR_TEMP1_NAME            "tInTemp1"
+#define LBL_INDOOR_TEMP2_ID                      17
+#define LBL_INDOOR_TEMP2_NAME            "tInTemp2"
+#define LBL_INDOOR_HUMIDITY_ID                   14
+#define LBL_INDOOR_HUMIDITY_NAME               "t4"
 
 #define LBL_OUTDOOR_TEMP1_ID                     19
 #define LBL_OUTDOOR_TEMP1_NAME                 "t6"

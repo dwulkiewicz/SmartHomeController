@@ -107,12 +107,15 @@ bool Configuration::init() {
 
 	if (!json.success()) {
 		Serial.println("Failed to parse config file");
-		//return false;
+    Serial.println("Set default configuration..");	
+    //TODO: wpisać 
 	}
+ else{
+    wifiSSID = json["ssid"].asString();
+    wifiPassword = json["password"].asString();
+    mqttServer = json["mqtt_server"].asString();  
+ }
 
-	wifiSSID = json["ssid"].asString();
-	wifiPassword = json["password"].asString();
-	mqttServer = json["mqtt_server"].asString();
 
 	// Real world application would store these values in some variables for
 	// later use.

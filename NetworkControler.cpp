@@ -158,23 +158,43 @@ void NetworkControler::setSwitch(uint8_t item, String value) {
 void NetworkControler::showTemperature(String value) {
   Serial.printf("Temperature: %s\r\n", value.c_str());
   float outdoorTemp = value.toFloat();
-  if (outdoorTemp < 0)
-    tOutdoorTempSymbol.setText("-");  
+  int outdoorTempInt = abs(outdoorTemp * 10);
+  //poniżej -10.0
+  if (outdoorTemp <= -10.0)
+  { 
+	  tOutdoorTempSymbol.setText("-");
+	  tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+  }
+  //od -9.9 do -0.1
+  else if (outdoorTemp >= -9.9 & outdoorTemp <= -0.1)
+  {
+	  tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
+	  tOutdoorTempSymbol.setText("");
+  }
+  //od 0 w górę
   else
-    tOutdoorTempSymbol.setText("");
-  int outdoorTempInt = outdoorTemp * 10;    
-  tOutdoorTemp1.setText(String(outdoorTempInt/10).c_str());     
+  {
+	  tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+	  tOutdoorTempSymbol.setText("");
+  }   
+   
   tOutdoorTemp2.setText(String(outdoorTempInt%10).c_str());  
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::showHumidity(String value) {
   Serial.printf("Humidity: %s\r\n", value.c_str());
   float outdoorHumidity = value.toFloat();  
-  tOutdoorHumidity.setText((String(round(outdoorHumidity)) + "%").c_str());
+  int ih = round(outdoorHumidity);
+  char buf[10];
+  sprintf(buf, "%02d%%", ih);
+  tOutdoorHumidity.setText(buf);
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::showPressure(String value) {
   Serial.printf("Pressure: %s\r\n", value.c_str());
-  float outdoorPressure = value.toFloat();  
-  tOutdoorPreasure.setText((String(round(outdoorPressure)) + "hPa").c_str()); //formatowanie
+  float outdoorPressure = value.toFloat();
+  int ip = round(outdoorPressure);
+  char buf[10];
+  sprintf(buf, "%02dhPa", ip);
+  tOutdoorPreasure.setText(buf);    
 }
