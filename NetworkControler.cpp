@@ -1,3 +1,13 @@
+/************************************************************************/
+/*                                                                      */
+/*              Project:  SmartHomeControler							*/
+/*              Hardware: ESP32, Nextion 7.0, DS1307, BME280            */
+/*                                                                      */
+/*              Author: Dariusz Wulkiewicz                              */
+/*                      d.wulkiewicz@gmail.com                          */
+/*                                                                      */
+/*              Date: 01.2019                                           */
+/************************************************************************/
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -10,6 +20,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 
+//TODO: przenieść nazwy kolejek do konfiguracji
 const char* switchesReqChannel01 = "switches/req/channel01";
 const char* switchesReqChannel02 = "switches/req/channel02";
 

@@ -83,7 +83,8 @@
 #define PIC_DIGIT_9  49
 
 //------------/*Strona główna*/------------
-#define PG_MAIN                                            0
+#define PG_MAIN_ID                                         0
+#define PG_MAIN_NAME                                "pgMain"
 
 #define BTN_GO_LIGHT_PG_ID                                 3
 #define BTN_GO_LIGHT_PG_NAME                       "bLights"
@@ -136,7 +137,9 @@
 #define LBL_OUTDOOR_PREASURE_NAME              "t1"
 
 //------------/*Ogrzewanie*/------------
-#define PG_HEATING_SETTING          1
+#define PG_HEATING_ID			    1
+#define PG_HEATING_NAME   "pgHeating"
+
 /*Temperatura w dzień*/
 #define BTN_DAY_TEMP_DEC_ID       16
 #define BTN_DAY_TEMP_DEC_NAME   "b18"
@@ -152,17 +155,23 @@
 #define LBL_NIGHT_TEMP_VALUE_ID     33
 #define LBL_NIGHT_TEMP_VALUE_NAME "t8"
 
-//------------/*Zegar*/----------------
-#define PG_TIME            3
-#define BTN_TIME_SET_ID       4
-#define BTN_TIME_SET_NAME     "b6"
-#define BTN_TIME_NEXT_ID      5
-#define BTN_TIME_NEXT_NAME   "b7" 
-#define LBL_TIME_YEAR       6
-#define LBL_TIME_MONTH        8
-#define LBL_TIME_DAY        10
-#define LBL_TIME_DAY_OF_WEEK    11
-#define LBL_TIME_HOUR       1
-#define LBL_TIME_MINUTE       3  
+//------------/*Oświetlenie*/----------------
+#define PG_LIGHTS_ID                  2
+#define PG_LIGHTS_NAME       "pgLights"
+
+//------------/*Inne*/----------------
+#define PG_OTHER_ID			          3
+#define PG_OTHER_NAME         "pgOther"
+/*Zegar*/
+#define BTN_TIME_SET_ID				  4
+#define BTN_TIME_SET_NAME		   "b6"
+#define BTN_TIME_NEXT_ID			  5
+#define BTN_TIME_NEXT_NAME		   "b7" 
+#define LBL_TIME_YEAR			   	  6
+#define LBL_TIME_MONTH                8
+#define LBL_TIME_DAY                 10
+#define LBL_TIME_DAY_OF_WEEK         11
+#define LBL_TIME_HOUR                 1
+#define LBL_TIME_MINUTE               3  
 
 #endif /* #ifndef __CONSTANTS_H__ */

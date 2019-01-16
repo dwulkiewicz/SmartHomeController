@@ -94,18 +94,18 @@ void SensorsHelper::startMeasure() {
 //----------------------------------------------------------------------------------------
 uint16_t SensorsHelper::getTemperature(){
     float t = bme.readTemperature();
-    Serial.printf("SensorsHelper::getTemperature() -> %f°C\r\n",t);   
+    //Serial.printf("SensorsHelper::getTemperature() -> %f°C\r\n",t);   
     return round(t*10.0);    
 }
 //----------------------------------------------------------------------------------------
 uint16_t SensorsHelper::getHumidity(){
     float h = bme.readHumidity();
-    Serial.printf("SensorsHelper::getHumidity() -> %f%%\r\n", h);   
+    //Serial.printf("SensorsHelper::getHumidity() -> %f%%\r\n", h);   
     return round(h);
 }
 //----------------------------------------------------------------------------------------
 uint16_t SensorsHelper::getPreasure(){
     float p = bme.readPressure();
-    Serial.printf("SensorsHelper::getPreasure() -> %fhPa\r\n", p);   
+    //Serial.printf("SensorsHelper::getPreasure() -> %fhPa\r\n", p);   
     return round(p);
 }
