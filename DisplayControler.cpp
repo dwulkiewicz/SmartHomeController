@@ -9,7 +9,10 @@
 /*              Date: 01.2019                                           */
 /************************************************************************/
 
+#include <WiFiType.h>
+
 #include "DisplayControler.h"
+#include "LightsControler.h"
 #include "Constants.h"
 #include "Configuration.h"
 #include "RtcHelper.h"
@@ -41,6 +44,7 @@ NexText tOutdoorTempSymbol = NexText(PG_MAIN_ID, LBL_OUTDOOR_TEMP_SYMBOL_ID, LBL
 NexText tOutdoorHumidity = NexText(PG_MAIN_ID, LBL_OUTDOOR_HUMIDITY_ID, LBL_OUTDOOR_HUMIDITY_NAME);
 NexText tOutdoorPreasure = NexText(PG_MAIN_ID, LBL_OUTDOOR_PREASURE_ID, LBL_OUTDOOR_PREASURE_NAME);
 
+NexPicture picWiFiStatus = NexPicture(PG_MAIN_ID, PIC_WIFI_STATUS_ID, PIC_WIFI_STATUS_NAME);
 NexPicture switchBathroomMainLight = NexPicture(PG_MAIN_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME);
 
 //------------/*Ogrzewanie*/------------
@@ -110,12 +114,12 @@ void onPageShow(void *ptr)
 	}
 }
 //----------------------------------------------------------------------------------------
-bool switchBathroomMainLightState = false;
 void onSwitchBathroomMainLightPop(void *ptr)
 {
 	dbSerialPrintln("onSwitchBathroomMainLightPop");
-	switchBathroomMainLightState = !switchBathroomMainLightState;
-	switchBathroomMainLight.setPic(switchBathroomMainLightState ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);
+  lightsControler.bathroomMainLight.invertState();
+
+	switchBathroomMainLight.setPic(lightsControler.bathroomMainLight.getState() == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);
 }
 //----------------------------------------------------------------------------------------
 void onBtnTempPush(void *ptr) {
@@ -310,7 +314,7 @@ void DisplayControler::refreshTime() {
 	//jeżeli nie jesteśmy na głównej stronie to nie ma sensu odświeżać jej zawartości
 	if (currentPage != PG_MAIN_ID)
 		return;
-	
+
 	rtc.refresh();
 
 	month = rtc.month();
@@ -376,10 +380,79 @@ void DisplayControler::refreshIndoorTemperature() {
 	uint16_t p = SensorsHelper::getPreasure();
 }
 //----------------------------------------------------------------------------------------
+void DisplayControler::setSwitch(uint8_t item, String value) {
+	Serial.printf("Switch: %2d state: %s\r\n", item, value.c_str());
+	if (value.equals("on")) {
+		switchBathroomMainLight.setPic(PICTURE_SWITCH_ON);
+	}
+	else {
+		switchBathroomMainLight.setPic(PICTURE_SWITCH_OFF);
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::showOutdoorTemperature(float outdoorTemp) {
+	Serial.printf("Temperature: %f\r\n", outdoorTemp);
+	int outdoorTempInt = abs(outdoorTemp * 10);
+
+	//poniżej -10.0
+	if (outdoorTemp <= -10.0)
+	{
+		tOutdoorTempSymbol.setText("-");
+		tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+	}
+	//od -9.9 do -0.1
+	else if (outdoorTemp >= -9.9 & outdoorTemp <= -0.1)
+	{
+		tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
+		tOutdoorTempSymbol.setText("");
+	}
+	//od 0 w górę
+	else
+	{
+		tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+		tOutdoorTempSymbol.setText("");
+	}
+	tOutdoorTemp2.setText(String(outdoorTempInt % 10).c_str());
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::showOutdoorHumidity(float outdoorHumidity) {
+	Serial.printf("Humidity: %f\r\n", outdoorHumidity);
+	int ih = round(outdoorHumidity);
+	char buf[10];
+	sprintf(buf, "%02d%%", ih);
+	tOutdoorHumidity.setText(buf);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::showPressure(float outdoorPressure) {
+	Serial.printf("Pressure: %f\r\n", outdoorPressure);
+	int ip = round(outdoorPressure);
+	char buf[10];
+	sprintf(buf, "%02dhPa", ip);
+	tOutdoorPreasure.setText(buf);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::showWiFiStatus(int8_t status) {
+	switch (status) {
+	case WL_CONNECTED:
+		picWiFiStatus.setPic(PICTURE_WIFI_ON);
+		break;
+	default: //WL_IDLE_STATUS, WL_NO_SSID_AVAIL, WL_SCAN_COMPLETED, WL_CONNECT_FAILED, WL_CONNECTION_LOST, WL_DISCONNECTED  
+		picWiFiStatus.setPic(PICTURE_WIFI_OFF);
+		break;
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::showMQTTConnected(bool connected) {
+	//TODO: docelowo zmienić na inną ikonkę na panelu 
+	if (connected)
+		picWiFiStatus.setPic(PICTURE_WIFI_ON);
+	else
+		picWiFiStatus.setPic(PICTURE_WIFI_OFF);
+}
+//----------------------------------------------------------------------------------------
 DisplayControler::DisplayControler(Configuration* configuration)
 {
 	this->configuration = configuration;
-	picWiFiStatus = new NexPicture(PG_MAIN_ID, PIC_WIFI_STATUS_ID, PIC_WIFI_STATUS_NAME);
 	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona
 	uint8_t lastMinute = 99;
 	uint8_t lastHour = 99;

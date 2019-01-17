@@ -26,8 +26,16 @@ public:
 	void refreshHeatingPage();
 	void refreshLightsPage();
 	void refreshOtherPage();
+
+	void showOutdoorTemperature(float outdoorTemp);
+	void showOutdoorHumidity(float outdoorHumidity);
+	void showPressure(float outdoorPressure);
+	void showWiFiStatus(int8_t status);
+	void showMQTTConnected(bool connected);
+
+	void setSwitch(uint8_t item, String value);  
+
 public: //todo przenieść do private, obudować
-	NexPicture* picWiFiStatus;
 	uint8_t currentPage;
 	uint8_t currentTimeComponent;
 private:
@@ -52,7 +60,7 @@ private:
 	uint8_t lastTemp2 = 255;
 	uint16_t lastHumidity = 999;
 };
-
+/*
 extern NexText tIndoorTemp1;
 extern NexText tIndoorTemp2;
 extern NexText tIndoorHumidity;
@@ -72,6 +80,7 @@ extern NexText tTime1;
 extern NexText tTime2;
 extern NexText tTime3;
 extern NexText tTime4;
+*/
 
 
 #endif /* #ifndef __DisplayControler_H__ */

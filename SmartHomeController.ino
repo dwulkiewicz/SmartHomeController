@@ -17,20 +17,18 @@
 
 #include "Constants.h"
 #include "Configuration.h"
+#include "LightsControler.h"
 #include "DisplayControler.h"
 #include "NetworkControler.h"
 #include "SensorsHelper.h"
 #include "RtcHelper.h"
-#include "RGBdriver.h"
 
 
-
-RGBdriver Driver(GPIO_CLK, GPIO_DIO);
 //-----------------------------------------------------------------------------------------
 
 Configuration configuration;
 DisplayControler displayControler(&configuration);
-NetworkControler networkControler(&configuration, &displayControler);
+NetworkControler networkControler(&configuration);
 
 SemaphoreHandle_t xMutex;
 //-----------------------------------------------------------------------------------------
@@ -57,19 +55,7 @@ void TaskTimeLoop(void * pvParameters) {
 void TaskLightsControlerLoop(void * pvParameters) {
 	Serial.printf("TaskLightsControlerLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
-		if (digitalRead(GPIO_SW_1) || digitalRead(GPIO_SW_2) || digitalRead(GPIO_SW_3) || digitalRead(GPIO_SW_4)) {
-			Driver.begin(); // begin
-			Driver.SetColor(255, 255, 255); //Blue. first node data
-			Driver.SetColor(255, 0xFF, 0xFF); //Blue. second node data      
-			Driver.end();
-		}
-		else
-		{
-			Driver.begin(); // begin
-			Driver.SetColor(0, 0, 0); //Blue. first node data
-			Driver.SetColor(0, 0, 0); //Blue. second node data      
-			Driver.end();
-		}
+		
 		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
@@ -106,21 +92,13 @@ void TaskNetworkControlerLoop(void * pvParameters) {
 void setup() {
 	Serial.begin(115200);
 
-	Driver.begin(); // begin
-	Driver.SetColor(0, 0, 0); //Blue. first node data
-	Driver.SetColor(0, 0, 0); //Blue. second node data      
-	Driver.end();
+	lightsControler.init();
 
 	pinMode(GPIO_BUZZER, OUTPUT);
 
 	digitalWrite(GPIO_BUZZER, HIGH);
 	delay(50);
 	digitalWrite(GPIO_BUZZER, LOW);
-
-	pinMode(GPIO_SW_1, INPUT);
-	pinMode(GPIO_SW_2, INPUT);
-	pinMode(GPIO_SW_3, INPUT);
-	pinMode(GPIO_SW_4, INPUT);
 
 	Wire.begin(I2C_SDA, I2C_SCL);
 
