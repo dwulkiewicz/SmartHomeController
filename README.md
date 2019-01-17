@@ -14,4 +14,5 @@ Lights control by PWM Driver<br />
 Outdoor temperature, humidity, preasure by MQTT<br />
 Indoor temperature, humidity by BME280<br />
 
-[Hardware](https://github.com/dwulkiewicz/SmartHomeController/blob/master/circuit/Hardware_01.png)
+![Main page](https://github.com/dwulkiewicz/SmartHomeController/blob/master/circuit/Hardware_01.png)
+![Heating setup page](https://github.com/dwulkiewicz/SmartHomeController/blob/master/circuit/Hardware_02.png)
