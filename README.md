@@ -1,4 +1,4 @@
-# SmartHomeController
+# Smart Home Controller
 
 **Hardware**<br />
 ESP32 WROOM32<br />
