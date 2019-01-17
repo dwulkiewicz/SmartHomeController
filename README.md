@@ -1,11 +1,11 @@
 # Smart Home Controller
 
 **Hardware**<br />
-ESP32 WROOM32<br />
-Nextion 7.0 HMI Panel<br />
+ESP32 WROOM-32<br />
+Nextion 7.0" HMI Panel<br />
 PWM Driver P9813<br />
 Sensor BME280<br />
-RTC 1307<br />
+RTC module on DS1307<br />
 
 **Function**<br />
 Integration with node-RED by MQTT<br />
