@@ -4,9 +4,9 @@
 
 #include <stdint.h>
 //---------------------------------------------------------------------------
-/*! \file classKolor.h Plik zawieraj¹cy klasê 'classKolor'.
+/*! \file classKolor.h Plik zawierajÄ…cy klasÄ™ 'classKolor'.
 */
-/*! \brief Klasa opisuj¹ca kolor wg modelu SVH.
+/*! \brief Klasa opisujÄ…ca kolor wg modelu SVH.
 */
 typedef struct HsvColor
 {
@@ -15,7 +15,7 @@ typedef struct HsvColor
 	uint8_t v; //0-255
 } HsvColor;
 //---------------------------------------------------------------------------
-/*! \brief Klasa opisuj¹ca kolor wg modelu RGB.
+/*! \brief Klasa opisujÄ…ca kolor wg modelu RGB.
 */
 typedef struct RgbColor
 {
@@ -26,15 +26,15 @@ typedef struct RgbColor
 
 //---------------------------------------------------------------------------
 
-/*! \brief G³ówna klasa classKolor.
+/*! \brief GÅ‚Ã³wna klasa classKolor.
 
-Umo¿liwia konwersjê miêdzy przestrzeniami kolorów
+UmoÅ¼liwia konwersjÄ™ miÄ™dzy przestrzeniami kolorÃ³w
 */
 
 class ColorUtils
 {
 public:
-	static RgbColor HsvToRgb(HsvColor hsv); //!< Funkcja statyczna konwertuj¹ca HSV -> RGB, wszystie wartoœci //0-255
-	static HsvColor RgbToHsv(RgbColor rgb); //!< Funkcja statyczna konwertuj¹ca RGB -> HSV, wszystie wartoœci //0-255
+	static RgbColor HsvToRgb(HsvColor hsv); //!< Funkcja statyczna konwertujÄ…ca HSV -> RGB, wszystie wartoÅ›ci //0-255
+	static HsvColor RgbToHsv(RgbColor rgb); //!< Funkcja statyczna konwertujÄ…ca RGB -> HSV, wszystie wartoÅ›ci //0-255
 };
 #endif

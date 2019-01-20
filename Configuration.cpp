@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*              Klasa obsluguj�ca konfiguracj�		                    */
+/*              Klasa obslugujďż˝ca konfiguracjďż˝		                    */
 /*              Hardware: ESP32 (Heltec Wifi-Lora-32)                   */
 /*                                                                      */
 /*              Author: Dariusz Wulkiewicz                              */
@@ -21,6 +21,8 @@
 #define EEPROM_ADDR_DAY_TEMP        0x00
 #define EEPROM_ADDR_NIGHT_TEMP      0x01
 #define EEPROM_ADDR_HYSTERESIS_TEMP 0x02
+
+#define EEPROM_ADDR_PARAMS_OFFSET   0x30
 
 #define OFFSET_TEMP  100  //10.0*C
 
@@ -108,7 +110,7 @@ bool Configuration::init() {
 	if (!json.success()) {
 		Serial.println("Failed to parse config file");
     Serial.println("Set default configuration..");	
-    //TODO: wpisać 
+    //TODO: wpisaÄ‡ 
 	}
  else{
     wifiSSID = json["ssid"].asString();
@@ -213,6 +215,17 @@ bool Configuration::decrementHisteresisTemperature() {
 	return false;
 }
 
+void Configuration::setParam(uint8_t paramId, uint8_t value){
+    Serial.printf("Configuration::setParam() paramId: %d value: %d\r\n", paramId, value);  
+    EEPROM.write(EEPROM_ADDR_PARAMS_OFFSET + paramId, value);
+    EEPROM.commit();  
+}
+uint8_t Configuration::getParam(uint8_t paramId){    
+    uint8_t value = EEPROM.read(EEPROM_ADDR_PARAMS_OFFSET + paramId);  
+    Serial.printf("Configuration::getParam() paramId: %d value: %d\r\n", paramId, value);
+    return value;     
+}
+
 void Configuration::print(){ 
   Serial.printf("wifiSSID: %s\r\n", wifiSSID.c_str());
   Serial.printf("wifiPassword: %s\r\n", wifiPassword.c_str());
@@ -221,3 +234,5 @@ void Configuration::print(){
   Serial.printf("nightTemp: %.1f\r\n", getNightTemperature());
   Serial.printf("hysteresisTemp: %.1f\r\n", getHisteresisTemp());
 }
+
+Configuration configuration;

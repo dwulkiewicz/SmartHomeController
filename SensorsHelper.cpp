@@ -8,17 +8,17 @@
 #include "Constants.h"
 
 
-#define ONE_WIRE_BUS DS18B20_PIN
-
-
-// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(ONE_WIRE_BUS);
-
-// Pass our oneWire reference to Dallas Temperature.
-DallasTemperature sensors(&oneWire);
-
-// arrays to hold device address
-DeviceAddress insideThermometer;
+//#define ONE_WIRE_BUS DS18B20_PIN
+//
+//
+//// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+//OneWire oneWire(ONE_WIRE_BUS);
+//
+//// Pass our oneWire reference to Dallas Temperature.
+//DallasTemperature sensors(&oneWire);
+//
+//// arrays to hold device address
+//DeviceAddress insideThermometer;
 
 Adafruit_BME280 bme; // I2C
 
@@ -32,18 +32,16 @@ SensorsHelper::~SensorsHelper()
 
 //----------------------------------------------------------------------------------------
 // function to print a device address
-void printDS18B20Address(DeviceAddress deviceAddress)
-{
-	for (uint8_t i = 0; i < 8; i++)
-	{
-		if (deviceAddress[i] < 16) Serial.print("0");
-		Serial.print(deviceAddress[i], HEX);
-	}
-}
+//void printDS18B20Address(DeviceAddress deviceAddress)
+//{
+//	for (uint8_t i = 0; i < 8; i++)
+//	{
+//		if (deviceAddress[i] < 16) Serial.print("0");
+//		Serial.print(deviceAddress[i], HEX);
+//	}
+//}
 //----------------------------------------------------------------------------------------
 void SensorsHelper::init() {
-
-
   // default settings
   // (you can also pass in a Wire library object like &Wire2)
   bool status = bme.begin(I2C_ADDRESS_BME280);
@@ -87,14 +85,14 @@ void SensorsHelper::init() {
 */ 
 }
 //----------------------------------------------------------------------------------------
-void SensorsHelper::startMeasure() {
-//	sensors.requestTemperatures(); // Send the command to get temperatures
-}
+//void SensorsHelper::startMeasure() {
+////	sensors.requestTemperatures(); // Send the command to get temperatures
+//}
 
 //----------------------------------------------------------------------------------------
 uint16_t SensorsHelper::getTemperature(){
     float t = bme.readTemperature();
-    //Serial.printf("SensorsHelper::getTemperature() -> %f°C\r\n",t);   
+    //Serial.printf("SensorsHelper::getTemperature() -> %fÂ°C\r\n",t);   
     return round(t*10.0);    
 }
 //----------------------------------------------------------------------------------------

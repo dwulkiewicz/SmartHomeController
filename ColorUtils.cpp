@@ -2,10 +2,10 @@
 #include "ColorUtils.h"
 
 //---------------------------------------------------------------------------
-/*! Zwraca maksymaln¹ wartoœæ z 'a' i 'b'. */
+/*! Zwraca maksymalnÄ… wartoÅ›Ä‡ z 'a' i 'b'. */
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 
-/*! Zwraca minimaln¹ wartoœæ z 'a' i 'b'. */
+/*! Zwraca minimalnÄ… wartoÅ›Ä‡ z 'a' i 'b'. */
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 

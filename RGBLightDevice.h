@@ -24,4 +24,3 @@ private:
 	uint8_t hue;    
 	uint8_t saturation;
 };
-

@@ -1,4 +1,5 @@
 #include "OnOffDevice.h"
+#include "Constants.h"
 
 OnOffDevice::OnOffDevice()
 {

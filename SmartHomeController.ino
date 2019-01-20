@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*              Project:  SmartHomeControler							*/
+/*              Project:  SmartHomeControler							              */
 /*              Hardware: ESP32, Nextion 7.0, DS1307, BME280            */
 /*                                                                      */
 /*              Author: Dariusz Wulkiewicz                              */
@@ -13,32 +13,25 @@
 #include <ArduinoOTA.h>
 #include <Nextion.h>
 #include <Wire.h> //I2C
-#include <uRTCLib.h>
 
 #include "Constants.h"
 #include "Configuration.h"
+#include "EventsHandler.h"
 #include "LightsControler.h"
 #include "DisplayControler.h"
 #include "NetworkControler.h"
 #include "SensorsHelper.h"
-#include "RtcHelper.h"
-
-
-//-----------------------------------------------------------------------------------------
-
-Configuration configuration;
-DisplayControler displayControler(&configuration);
-NetworkControler networkControler(&configuration);
 
 SemaphoreHandle_t xMutex;
+
 //-----------------------------------------------------------------------------------------
 void TaskTempSensorLoop(void * pvParameters) {
 	Serial.printf("TaskTempSensorLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		xSemaphoreTake(xMutex, portMAX_DELAY);
-		displayControler.refreshIndoorTemperature();
+		eventsHandler.onRefreshIndoorTemperature();
 		xSemaphoreGive(xMutex);
-		vTaskDelay(pdMS_TO_TICKS(4000));
+		vTaskDelay(pdMS_TO_TICKS(TASK_INDOOR_TEMP_SENSOR_LOOP));
 	}
 }
 //-----------------------------------------------------------------------------------------
@@ -46,26 +39,25 @@ void TaskTimeLoop(void * pvParameters) {
 	Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		xSemaphoreTake(xMutex, portMAX_DELAY);
-		displayControler.refreshTime();
+    eventsHandler.onRefreshDateTime();
 		xSemaphoreGive(xMutex);
-		vTaskDelay(pdMS_TO_TICKS(500));
+		vTaskDelay(pdMS_TO_TICKS(TASK_DATATIME_LOOP));
 	}
 }
 //-----------------------------------------------------------------------------------------
 void TaskLightsControlerLoop(void * pvParameters) {
 	Serial.printf("TaskLightsControlerLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
-		
+		lightsControler.loop();
 		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
-
 //-----------------------------------------------------------------------------------------
 void TaskNextionLoop(void * pvParameters) {
 	Serial.printf("TaskNextionLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		displayControler.loop();
-		vTaskDelay(10);
+    vTaskDelay(pdMS_TO_TICKS(10));
 	}
 }
 //-----------------------------------------------------------------------------------------
@@ -73,16 +65,15 @@ void TaskOTALoop(void * pvParameters) {
 	Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		ArduinoOTA.handle();
-		vTaskDelay(10);
+    vTaskDelay(pdMS_TO_TICKS(10));
 	}
 }
-
 //-----------------------------------------------------------------------------------------
 void TaskNetworkControlerLoop(void * pvParameters) {
 	Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		networkControler.loop();
-		vTaskDelay(10);
+    vTaskDelay(pdMS_TO_TICKS(10));
 	}
 }
 
@@ -91,8 +82,6 @@ void TaskNetworkControlerLoop(void * pvParameters) {
 //----------------------------------------------------------------------------------------
 void setup() {
 	Serial.begin(115200);
-
-	lightsControler.init();
 
 	pinMode(GPIO_BUZZER, OUTPUT);
 
@@ -139,6 +128,7 @@ void setup() {
 	SensorsHelper::init();
 	displayControler.init();
 	networkControler.init();
+  lightsControler.init();  
 
 	/* create Mutex */
 	xMutex = xSemaphoreCreateMutex();
@@ -147,7 +137,7 @@ void setup() {
 	xTaskCreatePinnedToCore(TaskTimeLoop, "TaskTimeLoop", 4096, NULL, 1, NULL, CORE_1);
 	xTaskCreatePinnedToCore(TaskTempSensorLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
 	xTaskCreatePinnedToCore(TaskNetworkControlerLoop, "TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_2);
-	xTaskCreatePinnedToCore(TaskLightsControlerLoop, "TaskLightsControlerLoop", 4096, NULL, 1, NULL, CORE_2);
+	xTaskCreatePinnedToCore(TaskLightsControlerLoop, "TaskLightsControlerLoop", 4096, NULL, 1, NULL, CORE_1);
 
 	ArduinoOTA
 		.onStart([]() {

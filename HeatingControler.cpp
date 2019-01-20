@@ -5,5 +5,3 @@
 HeatingControler::HeatingControler()
 {
 }
-
-

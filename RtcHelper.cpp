@@ -1,4 +1,5 @@
 
+#include <uRTCLib.h>
 #include "RtcHelper.h"
 #include "Constants.h"
 
@@ -35,13 +36,13 @@ String RtcHelper::monthName(uint8_t month) {
 	case 1: return "styczen";
 	case 2: return "luty";
 	case 3: return "marzec";
-	case 4: return "kwiecieñ";
+	case 4: return "kwiecieÅ„";
 	case 5: return "maj";
 	case 6: return "czerwiec";
 	case 7: return "lipiec";
-	case 8: return "sierpieñ";
-	case 9: return "wrzesieñ";
-	case 10: return "paŸdziernik";
+	case 8: return "sierpieÅ„";
+	case 9: return "wrzesieÅ„";
+	case 10: return "paÅºdziernik";
 	case 11: return "listopad";
 	case 12: return "grudzien";
 	}

@@ -94,7 +94,7 @@ void RGBdriver::SetColor(uint8_t Red,uint8_t Green,uint8_t Blue)
 {
   uint32_t dx = 0;
  
-  dx |= (uint32_t)0x03 << 30;             // highest two bits 1，flag bits
+  dx |= (uint32_t)0x03 << 30;             // highest two bits 1ďĽŚflag bits
   dx |= (uint32_t)TakeAntiCode(Blue) << 28;
   dx |= (uint32_t)TakeAntiCode(Green) << 26;	
   dx |= (uint32_t)TakeAntiCode(Red) << 24;

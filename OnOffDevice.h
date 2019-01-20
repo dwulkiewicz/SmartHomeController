@@ -2,9 +2,6 @@
 
 #include <Arduino.h>
 
-#define SW_OFF 0
-#define SW_ON 1
-
 class OnOffDevice
 {
 public:

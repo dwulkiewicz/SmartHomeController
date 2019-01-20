@@ -24,6 +24,9 @@ public:
 	float getHisteresisTemp();
 	bool incrementHisteresisTemperature();
 	bool decrementHisteresisTemperature();
+
+  void setParam(uint8_t paramId, uint8_t value); //0-255
+  uint8_t getParam(uint8_t paramId); //0-255  
 private:
 	uint8_t offsetTemp;
 	uint8_t dayTemp;
@@ -34,3 +37,5 @@ public: //TODO: do zmiany na get
 	String wifiPassword;
 	String mqttServer;
 };
+
+extern Configuration configuration;

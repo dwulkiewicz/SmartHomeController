@@ -17,85 +17,97 @@
 #include "Configuration.h"
 #include "RtcHelper.h"
 #include "SensorsHelper.h"
-
-extern Configuration configuration;
-extern DisplayControler displayControler;
+#include "EventsHandler.h"
 
 //------------/*Strona główna*/------------//
 NexPage pgMain = NexPage(PG_MAIN_ID, 0, PG_MAIN_NAME);
 
-NexPicture pDayOfMonth1 = NexPicture(PG_MAIN_ID, PIC_DAY_OF_MONTH1_ID, PIC_DAY_OF_MONTH1_NAME);
-NexPicture pDayOfMonth2 = NexPicture(PG_MAIN_ID, PIC_DAY_OF_MONTH2_ID, PIC_DAY_OF_MONTH2_NAME);
-NexPicture pMonth = NexPicture(PG_MAIN_ID, PIC_MONTH_ID, PIC_MONTH_NAME);
-NexPicture pDayOfWeek = NexPicture(PG_MAIN_ID, PIC_DAY_OF_WEEK_ID, PIC_DAY_OF_WEEK_NAME);
+NexPicture pDayOfMonth1 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH1_ID, OBJ_DAY_OF_MONTH1_NAME);
+NexPicture pDayOfMonth2 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH2_ID, OBJ_DAY_OF_MONTH2_NAME);
+NexPicture pMonth = NexPicture(PG_MAIN_ID, OBJ_MONTH_ID, OBJ_MONTH_NAME);
+NexPicture pDayOfWeek = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_WEEK_ID, OBJ_DAY_OF_WEEK_NAME);
 
-NexText tTime1 = NexText(PG_MAIN_ID, LBL_TIME1_ID, LBL_TIME1_NAME);
-NexText tTime2 = NexText(PG_MAIN_ID, LBL_TIME2_ID, LBL_TIME2_NAME);
-NexText tTime3 = NexText(PG_MAIN_ID, LBL_TIME3_ID, LBL_TIME3_NAME);
-NexText tTime4 = NexText(PG_MAIN_ID, LBL_TIME4_ID, LBL_TIME4_NAME);
+NexText tTime1 = NexText(PG_MAIN_ID, OBJ_TIME1_ID, OBJ_TIME1_NAME);
+NexText tTime2 = NexText(PG_MAIN_ID, OBJ_TIME2_ID, OBJ_TIME2_NAME);
+NexText tTime3 = NexText(PG_MAIN_ID, OBJ_TIME3_ID, OBJ_TIME3_NAME);
+NexText tTime4 = NexText(PG_MAIN_ID, OBJ_TIME4_ID, OBJ_TIME4_NAME);
 
-NexText tIndoorTemp1 = NexText(PG_MAIN_ID, LBL_INDOOR_TEMP1_ID, LBL_INDOOR_TEMP1_NAME);
-NexText tIndoorTemp2 = NexText(PG_MAIN_ID, LBL_INDOOR_TEMP2_ID, LBL_INDOOR_TEMP2_NAME);
-NexText tIndoorHumidity = NexText(PG_MAIN_ID, LBL_INDOOR_HUMIDITY_ID, LBL_INDOOR_HUMIDITY_NAME);
+NexText tIndoorTemp1 = NexText(PG_MAIN_ID, OBJ_INDOOR_TEMP1_ID, OBJ_INDOOR_TEMP1_NAME);
+NexText tIndoorTemp2 = NexText(PG_MAIN_ID, OBJ_INDOOR_TEMP2_ID, OBJ_INDOOR_TEMP2_NAME);
+NexText tIndoorHumidity = NexText(PG_MAIN_ID, OBJ_INDOOR_HUMIDITY_ID, OBJ_INDOOR_HUMIDITY_NAME);
 
-NexText tOutdoorTemp1 = NexText(PG_MAIN_ID, LBL_OUTDOOR_TEMP1_ID, LBL_OUTDOOR_TEMP1_NAME);
-NexText tOutdoorTemp2 = NexText(PG_MAIN_ID, LBL_OUTDOOR_TEMP2_ID, LBL_OUTDOOR_TEMP2_NAME);
-NexText tOutdoorTempSymbol = NexText(PG_MAIN_ID, LBL_OUTDOOR_TEMP_SYMBOL_ID, LBL_OUTDOOR_TEMP_SYMBOL_NAME);
-NexText tOutdoorHumidity = NexText(PG_MAIN_ID, LBL_OUTDOOR_HUMIDITY_ID, LBL_OUTDOOR_HUMIDITY_NAME);
-NexText tOutdoorPreasure = NexText(PG_MAIN_ID, LBL_OUTDOOR_PREASURE_ID, LBL_OUTDOOR_PREASURE_NAME);
+NexText tOutdoorTemp1 = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP1_ID, OBJ_OUTDOOR_TEMP1_NAME);
+NexText tOutdoorTemp2 = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP2_ID, OBJ_OUTDOOR_TEMP2_NAME);
+NexText tOutdoorTempSymbol = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP_SYMBOL_ID, OBJ_OUTDOOR_TEMP_SYMBOL_NAME);
+NexText tOutdoorHumidity = NexText(PG_MAIN_ID, OBJ_OUTDOOR_HUMIDITY_ID, OBJ_OUTDOOR_HUMIDITY_NAME);
+NexText tOutdoorPreasure = NexText(PG_MAIN_ID, OBJ_OUTDOOR_PREASURE_ID, OBJ_OUTDOOR_PREASURE_NAME);
 
-NexPicture picWiFiStatus = NexPicture(PG_MAIN_ID, PIC_WIFI_STATUS_ID, PIC_WIFI_STATUS_NAME);
-NexPicture switchBathroomMainLight = NexPicture(PG_MAIN_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_ID, PIC_SWITCH_BATHROOM_MAIN_LIGHT_NAME);
+NexPicture objWiFiStatus = NexPicture(PG_MAIN_ID, OBJ_WIFI_STATUS_ID, OBJ_WIFI_STATUS_NAME);
+NexPicture objBathSw1 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_1_ID, OBJ_BATH_SW_1_NAME);
+NexPicture objBathSw2 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_2_ID, OBJ_BATH_SW_2_NAME);
+NexPicture objBathSw3 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_3_ID, OBJ_BATH_SW_3_NAME);
 
 //------------/*Ogrzewanie*/------------
 NexPage pgHeating = NexPage(PG_HEATING_ID, 0, PG_HEATING_NAME);
 /*Temperatura w dzień*/
-NexText lblDayTempValue = NexText(PG_HEATING_ID, LBL_DAY_TEMP_VALUE_ID, LBL_DAY_TEMP_VALUE_NAME);
-NexButton btnDayTempDec = NexButton(PG_HEATING_ID, BTN_DAY_TEMP_DEC_ID, BTN_DAY_TEMP_DEC_NAME);
-NexButton btnDayTempInc = NexButton(PG_HEATING_ID, BTN_DAY_TEMP_INC_ID, BTN_DAY_TEMP_INC_NAME);
+NexText lblDayTempValue = NexText(PG_HEATING_ID, OBJ_DAY_TEMP_VALUE_ID, OBJ_DAY_TEMP_VALUE_NAME);
+NexButton btnDayTempDec = NexButton(PG_HEATING_ID, OBJ_DAY_TEMP_DEC_ID, OBJ_DAY_TEMP_DEC_NAME);
+NexButton btnDayTempInc = NexButton(PG_HEATING_ID, OBJ_DAY_TEMP_INC_ID, OBJ_DAY_TEMP_INC_NAME);
 /*Temperatura w noc*/
-NexText lblNightTempValue = NexText(PG_HEATING_ID, LBL_NIGHT_TEMP_VALUE_ID, LBL_NIGHT_TEMP_VALUE_NAME);
-NexButton btnNightTempDec = NexButton(PG_HEATING_ID, BTN_NIGHT_TEMP_DEC_ID, BTN_NIGHT_TEMP_DEC_NAME);
-NexButton btnNightTempInc = NexButton(PG_HEATING_ID, BTN_NIGHT_TEMP_INC_ID, BTN_NIGHT_TEMP_INC_NAME);
+NexText lblNightTempValue = NexText(PG_HEATING_ID, OBJ_NIGHT_TEMP_VALUE_ID, OBJ_NIGHT_TEMP_VALUE_NAME);
+NexButton btnNightTempDec = NexButton(PG_HEATING_ID, OBJ_NIGHT_TEMP_DEC_ID, OBJ_NIGHT_TEMP_DEC_NAME);
+NexButton btnNightTempInc = NexButton(PG_HEATING_ID, OBJ_NIGHT_TEMP_INC_ID, OBJ_NIGHT_TEMP_INC_NAME);
 
 //------------/*Oświetlenie*/------------
 NexPage pgLights = NexPage(PG_LIGHTS_ID, 0, PG_LIGHTS_NAME);
+NexSlider sldMain1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_MAIN_1_ID, OBJ_LIGHT_BATH_MAIN_1_NAME);
+NexSlider sldAdd1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_ADD_1_ID, OBJ_LIGHT_BATH_ADD_1_NAME);
+NexSlider sldTape1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_TAPE_1_ID, OBJ_LIGHT_BATH_TAPE_1_NAME);
+NexSlider sldRgbV1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_RGB_V_1_ID, OBJ_LIGHT_BATH_RGB_V_1_NAME);
+NexSlider sldRgbH1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_RGB_H_1_ID, OBJ_LIGHT_BATH_RGB_H_1_NAME);
 
 //------------/*Czas i inne*/------------
 NexPage pgOther = NexPage(PG_OTHER_ID, 0, PG_OTHER_NAME);
 /*Ustawianie czasu*/
-NexText tYear = NexText(PG_OTHER_ID, LBL_TIME_YEAR, "lblYear");
-NexText tMonth = NexText(PG_OTHER_ID, LBL_TIME_MONTH, "lblMonth");
-NexText tDay = NexText(PG_OTHER_ID, LBL_TIME_DAY, "lblDay");
-NexText tDayW = NexText(PG_OTHER_ID, LBL_TIME_DAY_OF_WEEK, "lblDayW");
-NexText tHour = NexText(PG_OTHER_ID, LBL_TIME_HOUR, "lblHour");
-NexText tMinute = NexText(PG_OTHER_ID, LBL_TIME_MINUTE, "lblMinute");
-NexButton bDateTimeNext = NexButton(PG_OTHER_ID, BTN_TIME_NEXT_ID, BTN_TIME_NEXT_NAME);
-NexButton bDateTimeSet = NexButton(PG_OTHER_ID, BTN_TIME_SET_ID, BTN_TIME_SET_NAME);
+NexText tYear = NexText(PG_OTHER_ID, OBJ_TIME_YEAR_ID, OBJ_TIME_YEAR_NAME);
+NexText tMonth = NexText(PG_OTHER_ID, OBJ_TIME_MONTH_ID, OBJ_TIME_MONTH_NAME);
+NexText tDay = NexText(PG_OTHER_ID, OBJ_TIME_DAY_ID, OBJ_TIME_DAY_NAME);
+NexText tDayW = NexText(PG_OTHER_ID, OBJ_TIME_DAY_OF_WEEK_ID, OBJ_TIME_DAY_OF_WEEK_NAME);
+NexText tHour = NexText(PG_OTHER_ID, OBJ_TIME_HOUR_ID, OBJ_TIME_HOUR_NAME);
+NexText tMinute = NexText(PG_OTHER_ID, OBJ_TIME_MINUTE_ID, OBJ_TIME_MINUTE_NAME);
+NexButton bDateTimeNext = NexButton(PG_OTHER_ID, OBJ_TIME_NEXT_ID, OBJ_TIME_NEXT_NAME);
+NexButton bDateTimeSet = NexButton(PG_OTHER_ID, OBJ_TIME_SET_ID, OBJ_TIME_SET_NAME);
 
 /*
   Register a button object to the touch event list.
 */
 NexTouch *nex_listen_list[] =
 {
-  &switchBathroomMainLight,
+  &pgMain,
+  &pgHeating,
+  &pgLights,
+  &pgOther,
+  &objBathSw1,
+  &objBathSw2,
+  &objBathSw3,
   &btnDayTempInc,
   &btnDayTempDec,
   &btnNightTempInc,
   &btnNightTempDec,
   &bDateTimeNext,
   &bDateTimeSet,
-  &pgMain,
-  &pgHeating,
-  &pgLights,
-  &pgOther,
+  &sldMain1,
+  &sldAdd1,
+  &sldTape1,
+  &sldRgbV1,
+  &sldRgbH1,
   NULL
 };
 //----------------------------------------------------------------------------------------
 void onPageShow(void *ptr)
 {
 	NexPage *page = (NexPage *)ptr;
-	dbSerialPrintln("onPageShow: " + String(page->getObjName()));
+	Serial.printf("onPageShow() %s\r\n", page->getObjName());
 	displayControler.currentPage = page->getObjPid();
 
 	switch (displayControler.currentPage) {
@@ -114,35 +126,106 @@ void onPageShow(void *ptr)
 	}
 }
 //----------------------------------------------------------------------------------------
-void onSwitchBathroomMainLightPop(void *ptr)
+void onBathSwPush(void *ptr)
 {
-	dbSerialPrintln("onSwitchBathroomMainLightPop");
-  lightsControler.bathroomMainLight.invertState();
-
-	switchBathroomMainLight.setPic(lightsControler.bathroomMainLight.getState() == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);
+	NexPicture *obj = (NexPicture *)ptr;
+	Serial.printf("onBathSwPush() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
+	uint8_t switchId;
+	uint8_t switchState;
+	switch (obj->getObjCid()) {
+	case OBJ_BATH_SW_1_ID:
+		switchId = SWITCH_BATH_1_ID;
+		switchState	= !displayControler.sw1State;
+		break;
+	case OBJ_BATH_SW_2_ID:
+		switchId = SWITCH_BATH_2_ID;
+		switchState = !displayControler.sw2State;
+		break;
+	case OBJ_BATH_SW_3_ID:
+		switchId = SWITCH_BATH_3_ID;
+		switchState = !displayControler.sw3State;
+		break;
+	default:
+		return; //nieznany komponent
+	}
+	eventsHandler.onSwitchChange(switchId, switchState);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
+	Serial.printf("DisplayControler::onSwitchChanged() id: %d state: %d\r\n", switchId, switchState);
+	switch (switchId) {
+	case SWITCH_BATH_1_ID:
+		sw1State = switchState;
+		refreshBathSw1();
+		break;
+	case SWITCH_BATH_2_ID:
+		sw2State = switchState;
+		refreshBathSw2();
+		break;
+	case SWITCH_BATH_3_ID:
+		sw3State = switchState;
+		refreshBathSw3();
+		break;
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshBathSw1(void) {
+	if (currentPage != PG_MAIN_ID)
+		return;
+	Serial.printf("DisplayControler::refreshBathSw1()\r\n");
+	if (lastSw1State != sw1State) {
+		if (currentPage == PG_MAIN_ID){
+      objBathSw1.setPic(sw1State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+			lastSw1State = sw1State;
+		}
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshBathSw2(void) {
+	if (currentPage != PG_MAIN_ID)
+		return;
+	Serial.printf("DisplayControler::refreshBathSw2()\r\n");
+	if (lastSw2State != sw2State) {
+		if (currentPage == PG_MAIN_ID){
+      objBathSw2.setPic(sw2State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+			lastSw2State = sw2State;
+		}
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshBathSw3(void) {
+	if (currentPage != PG_MAIN_ID)
+		return;
+	Serial.printf("DisplayControler::refreshBathSw3()\r\n");
+	if (lastSw3State != sw3State) {
+		if (currentPage == PG_MAIN_ID){
+      objBathSw3.setPic(sw3State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu 
+			lastSw3State = sw3State;
+		}
+	}
 }
 //----------------------------------------------------------------------------------------
 void onBtnTempPush(void *ptr) {
 	NexButton *btn = (NexButton *)ptr;
-	dbSerialPrintln("onBtnTempPush: pageId=" + String(btn->getObjPid()) + " componentId=" + String(btn->getObjCid()) + " name=" + btn->getObjName());
+	Serial.printf("onBtnTempPush: pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
 
 	switch (btn->getObjCid()) {
-	case BTN_DAY_TEMP_INC_ID:
+	case OBJ_DAY_TEMP_INC_ID:
 		if (configuration.incrementDayTemperature()) {
 			lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
 		}
 		break;
-	case BTN_DAY_TEMP_DEC_ID:
+	case OBJ_DAY_TEMP_DEC_ID:
 		if (configuration.decrementDayTemperature()) {
 			lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
 		}
 		break;
-	case BTN_NIGHT_TEMP_INC_ID:
+	case OBJ_NIGHT_TEMP_INC_ID:
 		if (configuration.incrementNightTemperature()) {
 			lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 		}
 		break;
-	case BTN_NIGHT_TEMP_DEC_ID:
+	case OBJ_NIGHT_TEMP_DEC_ID:
 		if (configuration.decrementNightTemperature()) {
 			lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 		}
@@ -152,18 +235,22 @@ void onBtnTempPush(void *ptr) {
 //----------------------------------------------------------------------------------------
 void DisplayControler::refresMainPage()
 {
-	//TODO: zrobić
+	//TODO: 
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshHeatingPage()
 {
-	lblDayTempValue.setText(Configuration::temperatureAsString(configuration->getDayTemperature()).c_str());
-	lblNightTempValue.setText(Configuration::temperatureAsString(configuration->getNightTemperature()).c_str());
+	lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
+	lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshLightsPage()
 {
-	//TODO: zrobić
+	sldMain1.setValue(lightsControler.bathroomMainLight.getBrightness());
+	sldAdd1.setValue(lightsControler.bathroomAdditionalLight.getBrightness());
+	sldTape1.setValue(lightsControler.bathroomTapeLight.getBrightness());
+	sldRgbV1.setValue(lightsControler.bathroomRGBTapeLight.getBrightness());
+	sldRgbH1.setValue(lightsControler.bathroomRGBTapeLight.getHue());
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshOtherPage()
@@ -188,7 +275,7 @@ void DisplayControler::refreshOtherPage()
 void onBtnbDateTimeNextPush(void *ptr)
 {
 	NexButton *btn = (NexButton *)ptr;
-	dbSerialPrintln("onBtnbDateTimeNextPush: " + String(btn->getObjName()));
+	Serial.printf("onBtnbDateTimeNextPush: %s\r\n", btn->getObjName());
 
 	switch (displayControler.currentTimeComponent) {
 	case SETUP_DATETIME_YEAR:
@@ -231,7 +318,7 @@ void onBtnbDateTimeNextPush(void *ptr)
 void onBtnbDateTimeSetPush(void *ptr)
 {
 	NexButton *btn = (NexButton *)ptr;
-	dbSerialPrintln("onBtnbDateTimeSetPush: " + String(btn->getObjName()));
+	Serial.printf("onBtnbDateTimeSetPush: %s\r\n", btn->getObjName());
 
 	rtc.refresh();
 	char buf[10];
@@ -308,10 +395,8 @@ void onBtnbDateTimeSetPush(void *ptr)
 		tMinute.setText(buf);
 	}
 }
-
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshTime() {
-	//jeżeli nie jesteśmy na głównej stronie to nie ma sensu odświeżać jej zawartości
 	if (currentPage != PG_MAIN_ID)
 		return;
 
@@ -351,7 +436,6 @@ void DisplayControler::refreshTime() {
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshIndoorTemperature() {
-	//jeżeli nie jesteśmy na głównej stronie to nie ma sensu odświeżać jej zawartości
 	if (currentPage != PG_MAIN_ID)
 		return;
 	char buf[10];
@@ -380,18 +464,8 @@ void DisplayControler::refreshIndoorTemperature() {
 	uint16_t p = SensorsHelper::getPreasure();
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::setSwitch(uint8_t item, String value) {
-	Serial.printf("Switch: %2d state: %s\r\n", item, value.c_str());
-	if (value.equals("on")) {
-		switchBathroomMainLight.setPic(PICTURE_SWITCH_ON);
-	}
-	else {
-		switchBathroomMainLight.setPic(PICTURE_SWITCH_OFF);
-	}
-}
-//----------------------------------------------------------------------------------------
 void DisplayControler::showOutdoorTemperature(float outdoorTemp) {
-	Serial.printf("Temperature: %f\r\n", outdoorTemp);
+	Serial.printf("DisplayControler::showOutdoorTemperature() %.1f\r\n", outdoorTemp);
 	int outdoorTempInt = abs(outdoorTemp * 10);
 
 	//poniżej -10.0
@@ -416,7 +490,7 @@ void DisplayControler::showOutdoorTemperature(float outdoorTemp) {
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::showOutdoorHumidity(float outdoorHumidity) {
-	Serial.printf("Humidity: %f\r\n", outdoorHumidity);
+	Serial.printf("DisplayControler::showOutdoorHumidity() %.1f\r\n", outdoorHumidity);
 	int ih = round(outdoorHumidity);
 	char buf[10];
 	sprintf(buf, "%02d%%", ih);
@@ -424,7 +498,7 @@ void DisplayControler::showOutdoorHumidity(float outdoorHumidity) {
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::showPressure(float outdoorPressure) {
-	Serial.printf("Pressure: %f\r\n", outdoorPressure);
+	Serial.printf("DisplayControler::showPressure() %.1f\r\n", outdoorPressure);
 	int ip = round(outdoorPressure);
 	char buf[10];
 	sprintf(buf, "%02dhPa", ip);
@@ -434,10 +508,10 @@ void DisplayControler::showPressure(float outdoorPressure) {
 void DisplayControler::showWiFiStatus(int8_t status) {
 	switch (status) {
 	case WL_CONNECTED:
-		picWiFiStatus.setPic(PICTURE_WIFI_ON);
+		objWiFiStatus.setPic(PICTURE_WIFI_ON);
 		break;
 	default: //WL_IDLE_STATUS, WL_NO_SSID_AVAIL, WL_SCAN_COMPLETED, WL_CONNECT_FAILED, WL_CONNECTION_LOST, WL_DISCONNECTED  
-		picWiFiStatus.setPic(PICTURE_WIFI_OFF);
+		objWiFiStatus.setPic(PICTURE_WIFI_OFF);
 		break;
 	}
 }
@@ -445,15 +519,47 @@ void DisplayControler::showWiFiStatus(int8_t status) {
 void DisplayControler::showMQTTConnected(bool connected) {
 	//TODO: docelowo zmienić na inną ikonkę na panelu 
 	if (connected)
-		picWiFiStatus.setPic(PICTURE_WIFI_ON);
+		objWiFiStatus.setPic(PICTURE_WIFI_ON);
 	else
-		picWiFiStatus.setPic(PICTURE_WIFI_OFF);
+		objWiFiStatus.setPic(PICTURE_WIFI_OFF);
 }
 //----------------------------------------------------------------------------------------
-DisplayControler::DisplayControler(Configuration* configuration)
+void onSliderLightPop(void *ptr)
 {
-	this->configuration = configuration;
-	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona
+  //TODO: poprawić zapamiętywanie w EEPROM  !!!!  
+	NexSlider *obj = (NexSlider *)ptr;
+  Serial.printf("onSliderLightPop() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
+	uint32_t value;
+	bool ret = obj->getValue(&value);
+	if (ret) {
+		switch (obj->getObjCid()) {
+		case OBJ_LIGHT_BATH_MAIN_1_ID:
+			lightsControler.bathroomMainLight.setBrightness(value);
+      configuration.setParam(0,value);
+			break;
+		case OBJ_LIGHT_BATH_ADD_1_ID:
+			lightsControler.bathroomAdditionalLight.setBrightness(value);
+      configuration.setParam(1,value);     
+			break;
+		case OBJ_LIGHT_BATH_TAPE_1_ID:
+			lightsControler.bathroomTapeLight.setBrightness(value);
+      configuration.setParam(2,value);     
+			break;
+		case OBJ_LIGHT_BATH_RGB_V_1_ID:
+			lightsControler.bathroomRGBTapeLight.setBrightness(value);
+      configuration.setParam(3,value);      
+			break;
+		case OBJ_LIGHT_BATH_RGB_H_1_ID:
+			lightsControler.bathroomRGBTapeLight.setHue(value);
+      configuration.setParam(4,value);     
+			break;
+		}   
+	}
+}
+//----------------------------------------------------------------------------------------
+DisplayControler::DisplayControler()
+{
+	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
 	uint8_t lastMinute = 99;
 	uint8_t lastHour = 99;
 	uint8_t lastDay = 99;
@@ -464,6 +570,12 @@ DisplayControler::DisplayControler(Configuration* configuration)
 	uint8_t day = 99;
 	uint8_t month = 99;
 	uint8_t dayOfWeek = 99;
+	uint8_t lastSw1State = SW_ON;
+	uint8_t lastSw2State = SW_ON;
+	uint8_t lastSw3State = SW_ON;
+	uint8_t sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	uint8_t sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	uint8_t sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::init() {
@@ -476,7 +588,9 @@ void DisplayControler::init() {
 	pgLights.attachOnShow(onPageShow, &pgLights);
 	pgOther.attachOnShow(onPageShow, &pgOther);
 
-	switchBathroomMainLight.attachPop(onSwitchBathroomMainLightPop, &switchBathroomMainLight);
+	objBathSw1.attachPush(onBathSwPush, &objBathSw1);
+	objBathSw2.attachPush(onBathSwPush, &objBathSw2);
+	objBathSw3.attachPush(onBathSwPush, &objBathSw3);
 
 	btnDayTempInc.attachPush(onBtnTempPush, &btnDayTempInc);
 	btnDayTempDec.attachPush(onBtnTempPush, &btnDayTempDec);
@@ -486,6 +600,12 @@ void DisplayControler::init() {
 
 	bDateTimeNext.attachPush(onBtnbDateTimeNextPush, &bDateTimeNext);
 	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);
+
+	sldMain1.attachPop(onSliderLightPop, &sldMain1);
+	sldAdd1.attachPop(onSliderLightPop, &sldAdd1);
+	sldTape1.attachPop(onSliderLightPop, &sldTape1);
+	sldRgbV1.attachPop(onSliderLightPop, &sldRgbV1);
+	sldRgbH1.attachPop(onSliderLightPop, &sldRgbH1);
 }
 //----------------------------------------------------------------------------------------
 uint8_t DisplayControler::dayOfWeekPic(uint8_t dayOfWeek) {
@@ -515,7 +635,7 @@ uint8_t DisplayControler::monthPic(uint8_t month) {
 	case 10: return PIC_MONTH_OCT;
 	case 11: return PIC_MONTH_NOV;
 	case 12: return PIC_MONTH_DEC;
-	default: return PIC_MONTH_DEC; //TODO: dodać inną ikonę dla błędu    
+	default: return PIC_MONTH_DEC; //TODO: dodać inną ikonę dla błędu
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -531,10 +651,20 @@ uint8_t DisplayControler::dayOfMonthPic(uint8_t digit) {
 	case 7: return PIC_DIGIT_7;
 	case 8: return PIC_DIGIT_8;
 	case 9: return PIC_DIGIT_9;
-	default: return PIC_DIGIT_0; //TODO: dodać inną ikonę dla błędu    
+	default: return PIC_DIGIT_0; //TODO: dodać inną ikonę dla błędu
 	}
 }
 //---------------------------------------------------------------------------------------- 
 void DisplayControler::loop() {
 	nexLoop(nex_listen_list);
+
+	//TODO: do przeniesienia do innej pętli
+	if (sw1State != lastSw1State)
+		refreshBathSw1();
+	if (sw2State != lastSw2State)
+		refreshBathSw2();
+	if (sw3State != lastSw3State)
+		refreshBathSw3();
 }
+
+DisplayControler displayControler;

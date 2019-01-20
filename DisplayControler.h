@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <Nextion.h>
-#include "Configuration.h"
 
 #define SETUP_DATETIME_YEAR         0
 #define SETUP_DATETIME_MONTH        1
@@ -15,7 +14,7 @@
 class DisplayControler
 {
 public:
-	DisplayControler(Configuration* configuration);
+	DisplayControler();
 public:
 	void init();
 	void loop();
@@ -26,24 +25,27 @@ public:
 	void refreshHeatingPage();
 	void refreshLightsPage();
 	void refreshOtherPage();
-
 	void showOutdoorTemperature(float outdoorTemp);
 	void showOutdoorHumidity(float outdoorHumidity);
 	void showPressure(float outdoorPressure);
 	void showWiFiStatus(int8_t status);
 	void showMQTTConnected(bool connected);
-
-	void setSwitch(uint8_t item, String value);  
-
-public: //todo przenieść do private, obudować
-	uint8_t currentPage;
-	uint8_t currentTimeComponent;
+	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+public: 
+	uint8_t currentPage; //todo przenieść do private, obudować
+	uint8_t currentTimeComponent; //todo przenieść do private, obudować
+	uint8_t sw1State;//TODO: do przerobienia
+	uint8_t sw2State;//TODO: do przerobienia
+	uint8_t sw3State;//TODO: do przerobienia
 private:
 	static uint8_t dayOfWeekPic(uint8_t dayOfWeek);
 	static uint8_t monthPic(uint8_t month);
 	static uint8_t dayOfMonthPic(uint8_t digit);
 private:
-	Configuration* configuration;
+	void refreshBathSw1(void);
+	void refreshBathSw2(void);
+	void refreshBathSw3(void);
+private:
 	//Time
 	uint8_t lastMinute;
 	uint8_t lastHour;
@@ -59,28 +61,10 @@ private:
 	uint8_t lastTemp1 = 255;
 	uint8_t lastTemp2 = 255;
 	uint16_t lastHumidity = 999;
+	//Switch
+	uint8_t lastSw1State;
+	uint8_t lastSw2State;
+	uint8_t lastSw3State;
 };
-/*
-extern NexText tIndoorTemp1;
-extern NexText tIndoorTemp2;
-extern NexText tIndoorHumidity;
-
-extern NexText tOutdoorTemp1;
-extern NexText tOutdoorTemp2;
-extern NexText tOutdoorTempSymbol;
-extern NexText tOutdoorHumidity;
-extern NexText tOutdoorPreasure;
-
-extern NexPicture pDayOfMonth1;
-extern NexPicture pDayOfMonth2;
-extern NexPicture pDayOfWeek;
-extern NexPicture pMonth;
-
-extern NexText tTime1;
-extern NexText tTime2;
-extern NexText tTime3;
-extern NexText tTime4;
-*/
-
-
+extern DisplayControler displayControler;
 #endif /* #ifndef __DisplayControler_H__ */
