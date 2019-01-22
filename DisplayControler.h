@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <Nextion.h>
+#include "RtcControler.h"
 
 #define SETUP_DATETIME_YEAR         0
 #define SETUP_DATETIME_MONTH        1
@@ -19,7 +20,8 @@ public:
 	void init();
 	void loop();
 public:
-	void refreshTime();
+	void onRefreshDateTime(const TDateTime& dateTime);
+
 	void refreshIndoorTemperature();
 	void refresMainPage();
 	void refreshHeatingPage();
@@ -47,16 +49,22 @@ private:
 	void refreshBathSw3(void);
 private:
 	//Time
+	/*
 	uint8_t lastMinute;
 	uint8_t lastHour;
 	uint8_t lastDay;
 	uint8_t lastMonth;
 	uint8_t lastDayOfWeek;
+	
 	uint8_t minute;
 	uint8_t hour;
 	uint8_t day;
 	uint8_t month;
 	uint8_t dayOfWeek;
+	*/
+	TDateTime screenDateTime;
+	TDateTime currDateTime;
+
 	//Indoor sensor
 	uint8_t lastTemp1 = 255;
 	uint8_t lastTemp2 = 255;

@@ -20,10 +20,10 @@
 #include "LightsControler.h"
 #include "DisplayControler.h"
 #include "NetworkControler.h"
+#include "RtcControler.h"
 #include "SensorsHelper.h"
 
 SemaphoreHandle_t xMutex;
-
 //-----------------------------------------------------------------------------------------
 void TaskTempSensorLoop(void * pvParameters) {
 	Serial.printf("TaskTempSensorLoop() running on core %d\r\n", xPortGetCoreID());
@@ -39,7 +39,7 @@ void TaskTimeLoop(void * pvParameters) {
 	Serial.printf("TaskTimeLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		xSemaphoreTake(xMutex, portMAX_DELAY);
-    eventsHandler.onRefreshDateTime();
+		rtcControler.loop();
 		xSemaphoreGive(xMutex);
 		vTaskDelay(pdMS_TO_TICKS(TASK_DATATIME_LOOP));
 	}
@@ -57,15 +57,7 @@ void TaskNextionLoop(void * pvParameters) {
 	Serial.printf("TaskNextionLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		displayControler.loop();
-    vTaskDelay(pdMS_TO_TICKS(10));
-	}
-}
-//-----------------------------------------------------------------------------------------
-void TaskOTALoop(void * pvParameters) {
-	Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
-	while (true) {
-		ArduinoOTA.handle();
-    vTaskDelay(pdMS_TO_TICKS(10));
+		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
 //-----------------------------------------------------------------------------------------
@@ -73,10 +65,9 @@ void TaskNetworkControlerLoop(void * pvParameters) {
 	Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		networkControler.loop();
-    vTaskDelay(pdMS_TO_TICKS(10));
+		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
-
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
@@ -128,45 +119,18 @@ void setup() {
 	SensorsHelper::init();
 	displayControler.init();
 	networkControler.init();
-  lightsControler.init();  
+	lightsControler.init();
+	heatingControler.init();
 
 	/* create Mutex */
 	xMutex = xSemaphoreCreateMutex();
-	xTaskCreatePinnedToCore(TaskOTALoop, "TaskOTALoop", 4096, NULL, 1, NULL, CORE_1);
-	xTaskCreatePinnedToCore(TaskNextionLoop, "TaskNextionLoop", 4096, NULL, 1, NULL, CORE_2);
+	xTaskCreatePinnedToCore(TaskNextionLoop, "TaskNextionLoop", 4096, NULL, 1, NULL, CORE_1);
 	xTaskCreatePinnedToCore(TaskTimeLoop, "TaskTimeLoop", 4096, NULL, 1, NULL, CORE_1);
 	xTaskCreatePinnedToCore(TaskTempSensorLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
 	xTaskCreatePinnedToCore(TaskNetworkControlerLoop, "TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_2);
 	xTaskCreatePinnedToCore(TaskLightsControlerLoop, "TaskLightsControlerLoop", 4096, NULL, 1, NULL, CORE_1);
-
-	ArduinoOTA
-		.onStart([]() {
-		String type;
-		if (ArduinoOTA.getCommand() == U_FLASH)
-			type = "sketch";
-		else // U_SPIFFS
-			type = "filesystem";
-
-		// NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-		Serial.println("Start updating " + type);
-	})
-		.onEnd([]() {
-		Serial.println("\nEnd");
-	})
-		.onProgress([](unsigned int progress, unsigned int total) {
-		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-	})
-		.onError([](ota_error_t error) {
-		Serial.printf("Error[%u]: ", error);
-		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-		else if (error == OTA_END_ERROR) Serial.println("End Failed");
-	});
-	ArduinoOTA.setHostname((const char *)NetworkControler::getHostName().c_str());
-	ArduinoOTA.begin();
 }
+
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------

@@ -37,6 +37,8 @@
 
 #define GPIO_BUZZER 2
 
+#define GPIO_RELAY 15
+
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
 #define TASK_INDOOR_TEMP_SENSOR_LOOP 4000 //ms
@@ -145,20 +147,20 @@
 #define PG_HEATING_ID			    1
 #define PG_HEATING_NAME   "pgHeating"
 
-/*Temperatura w dzieĹ„*/
-#define OBJ_DAY_TEMP_DEC_ID       16
-#define OBJ_DAY_TEMP_DEC_NAME   "b18"
-#define OBJ_DAY_TEMP_INC_ID       17
-#define OBJ_DAY_TEMP_INC_NAME   "b19"
-#define OBJ_DAY_TEMP_VALUE_ID     18      
-#define OBJ_DAY_TEMP_VALUE_NAME  "t9"
-/*Temperatura w noc*/
-#define OBJ_NIGHT_TEMP_DEC_ID       32
-#define OBJ_NIGHT_TEMP_DEC_NAME  "b17"
-#define OBJ_NIGHT_TEMP_INC_ID       31
-#define OBJ_NIGHT_TEMP_INC_NAME  "b16"
-#define OBJ_NIGHT_TEMP_VALUE_ID     33
-#define OBJ_NIGHT_TEMP_VALUE_NAME "t8"
+/*Temperatura w nocy*/
+#define OBJ_NIGHT_TEMP_DEC_ID       16
+#define OBJ_NIGHT_TEMP_DEC_NAME   "b18"
+#define OBJ_NIGHT_TEMP_INC_ID       17
+#define OBJ_NIGHT_TEMP_INC_NAME   "b19"
+#define OBJ_NIGHT_TEMP_VALUE_ID     18      
+#define OBJ_NIGHT_TEMP_VALUE_NAME  "t9"
+/*Temperatura w dzień*/
+#define OBJ_DAY_TEMP_DEC_ID       32
+#define OBJ_DAY_TEMP_DEC_NAME  "b17"
+#define OBJ_DAY_TEMP_INC_ID       31
+#define OBJ_DAY_TEMP_INC_NAME  "b16"
+#define OBJ_DAY_TEMP_VALUE_ID     33
+#define OBJ_DAY_TEMP_VALUE_NAME "t8"
 
 //------------/*OĹ›wietlenie*/----------------
 #define PG_LIGHTS_ID                  2

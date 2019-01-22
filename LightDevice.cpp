@@ -3,7 +3,7 @@
 
 
 LightDevice::LightDevice()
-	: OnOffDevice()
+	: SwitchDevice()
 {
 	brightness = 0;
 }

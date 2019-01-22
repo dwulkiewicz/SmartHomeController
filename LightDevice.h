@@ -1,7 +1,7 @@
 #pragma once
-#include "OnOffDevice.h"
+#include "SwitchDevice.h"
 class LightDevice :
-	public OnOffDevice
+	public SwitchDevice
 {
 public:
 	LightDevice();

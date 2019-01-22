@@ -12,7 +12,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-
+#include <ArduinoOTA.h>
 #include "NetworkControler.h"
 #include "DisplayControler.h"
 #include "EventsHandler.h"
@@ -48,36 +48,76 @@ String NetworkControler::getHostName() {
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::init() {
-	// We start by connecting to a WiFi network
-	Serial.printf("\r\nConnecting to %s\r\n", configuration.wifiSSID.c_str());
-	String hostname = NetworkControler::getHostName();
-	WiFi.begin(configuration.wifiSSID.c_str(), configuration.wifiPassword.c_str());
-	WiFi.setHostname(hostname.c_str());
+  initWiFi();
+  initMQTT();
+  initOTA();
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::initWiFi(){ 
+  // We start by connecting to a WiFi network
+  Serial.printf("\r\nConnecting to %s\r\n", configuration.wifiSSID.c_str());
+  String hostname = NetworkControler::getHostName();
+  WiFi.begin(configuration.wifiSSID.c_str(), configuration.wifiPassword.c_str());
+  WiFi.setHostname(hostname.c_str());
 
-	// Wait for connection
-	while (WiFi.status() != WL_CONNECTED) {
-		displayControler.showWiFiStatus(WiFi.status());
-		delay(500);
-		Serial.print(".");
-	}
-	displayControler.showWiFiStatus(WiFi.status());
+  // Wait for connection
+  //TODO: uwaga na wotchdoga, trzeba wyjść jak się nie uda połączyć i obsłużyć poprawnie brak połączenia z WiFi   
+  while (WiFi.status() != WL_CONNECTED) {
+    //TODO: przerobić na metodę z EventHandlera
+    displayControler.showWiFiStatus(WiFi.status());
+    delay(500);
+    Serial.print(".");
+  }
+  //TODO: przerobić na metodę z EventHandlera
+  displayControler.showWiFiStatus(WiFi.status());
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.printf("IP address: %s Hostname: %s\r\n", WiFi.localIP().toString().c_str(), hostname.c_str());  
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::initMQTT(){
+  client.setServer(configuration.mqttServer.c_str(), 1883);
+  client.setCallback(NetworkControler::mqttCallback);   
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::initOTA(){
+  ArduinoOTA
+    .onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH)
+      type = "sketch";
+    else // U_SPIFFS
+      type = "filesystem";
 
-	Serial.println("");
-	Serial.println("WiFi connected");
-	Serial.printf("IP address: %s Hostname: %s\r\n", WiFi.localIP().toString().c_str(), hostname.c_str());
-
-	client.setServer(configuration.mqttServer.c_str(), 1883);
-	client.setCallback(NetworkControler::mqttCallback);
+    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+    Serial.println("Start updating " + type);
+  })
+    .onEnd([]() {
+    Serial.println("\nEnd");
+  })
+    .onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  })
+    .onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+  ArduinoOTA.setHostname((const char *)NetworkControler::getHostName().c_str());
+  ArduinoOTA.begin();    
 }
 //----------------------------------------------------------------------------------------
 bool NetworkControler::reconnect() {
 	displayControler.showMQTTConnected(false);
 	// Loop until we're reconnected
-  String stateStr; 
+  //String stateStr = ""; 
 	if (!client.connected()) {
 		int state = client.state();
 		//NetworkControler::statusToString(state,stateStr);
-		Serial.printf("MQTT state %s [%d], attempting connection...\r\n", stateStr, state);
+		Serial.printf("MQTT state [%d], attempting connection...\r\n", state);
 		// Attempt to connect
 		String hostname = NetworkControler::getHostName();
 		if (client.connect(hostname.c_str())) {
@@ -102,7 +142,7 @@ bool NetworkControler::reconnect() {
 		else {
       int state = client.state();
       //NetworkControler::statusToString(state,stateStr);      
-			Serial.printf("MQTT reconnect failed, state %s [%d]\r\n", stateStr, state);
+			Serial.printf("MQTT reconnect failed, state [%d]\r\n", state);
 			return false;
 		}
 	}
@@ -113,6 +153,7 @@ void NetworkControler::loop() {
 		return;
 	}
 	client.loop();
+  ArduinoOTA.handle();  
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int length) {
@@ -165,7 +206,7 @@ void NetworkControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 	client.publish(topic, msg.c_str());
 }
 //----------------------------------------------------------------------------------------
-String NetworkControler::statusToString(int status,String& statusStr) {
+String NetworkControler::statusToString(int status, String& statusStr) {
 	;
 	switch (status) {
 	case MQTT_CONNECTION_TIMEOUT:		statusStr = "MQTT_CONNECTION_TIMEOUT"; break;

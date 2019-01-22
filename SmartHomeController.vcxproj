@@ -118,10 +118,10 @@
     <ClInclude Include="LightDevice.h" />
     <ClInclude Include="LightsControler.h" />
     <ClInclude Include="NetworkControler.h" />
-    <ClInclude Include="OnOffDevice.h" />
+    <ClInclude Include="SwitchDevice.h" />
     <ClInclude Include="RGBdriver.h" />
     <ClInclude Include="RGBLightDevice.h" />
-    <ClInclude Include="RtcHelper.h" />
+    <ClInclude Include="RtcControler.h" />
     <ClInclude Include="SensorsHelper.h" />
     <ClInclude Include="__vm\.SmartHomeController.vsarduino.h" />
   </ItemGroup>
@@ -134,10 +134,10 @@
     <ClCompile Include="LightDevice.cpp" />
     <ClCompile Include="LightsControler.cpp" />
     <ClCompile Include="NetworkControler.cpp" />
-    <ClCompile Include="OnOffDevice.cpp" />
+    <ClCompile Include="SwitchDevice.cpp" />
     <ClCompile Include="RGBdriver.cpp" />
     <ClCompile Include="RGBLightDevice.cpp" />
-    <ClCompile Include="RtcHelper.cpp" />
+    <ClCompile Include="RtcControler.cpp" />
     <ClCompile Include="SensorsHelper.cpp" />
   </ItemGroup>
   <ItemGroup>

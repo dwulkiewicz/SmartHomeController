@@ -3,17 +3,25 @@
 #include "LightsControler.h"
 #include "DisplayControler.h"
 #include "NetworkControler.h"
+#include "SensorsHelper.h"
 
 EventsHandler::EventsHandler()
 {  
 }
 //----------------------------------------------------------------------------------------
 void EventsHandler::onRefreshIndoorTemperature(){
-    displayControler.refreshIndoorTemperature();  
+    //TODO: dodać klasę SensorControler 
+	
+	displayControler.refreshIndoorTemperature(); 
+
+	float indoorTemp = SensorsHelper::getTemperature() / 10;
+
+	heatingControler.onRefreshIndoorTemp(indoorTemp);
 }
 //----------------------------------------------------------------------------------------
-void EventsHandler::onRefreshDateTime(){
-    displayControler.refreshTime();    
+void EventsHandler::onRefreshDateTime(const TDateTime& dateTime){
+  displayControler.onRefreshDateTime(dateTime);
+	heatingControler.onRefreshDateTime(dateTime);
 }
 //----------------------------------------------------------------------------------------
 void EventsHandler::onSwitchChange(uint8_t switchId, uint8_t switchState) {

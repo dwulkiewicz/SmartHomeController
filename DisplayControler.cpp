@@ -15,7 +15,7 @@
 #include "LightsControler.h"
 #include "Constants.h"
 #include "Configuration.h"
-#include "RtcHelper.h"
+#include "RtcControler.h"
 #include "SensorsHelper.h"
 #include "EventsHandler.h"
 
@@ -268,7 +268,7 @@ void DisplayControler::refreshOtherPage()
 	tHour.setText(buf);
 	sprintf(buf, "%02d", rtc.minute());
 	tMinute.setText(buf);
-	RtcHelper::dayOfWeekName(buf, rtc.dayOfWeek());
+	RtcControler::dayOfWeekName(buf, rtc.dayOfWeek());
 	tDayW.setText(buf);
 }
 //----------------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ void onBtnbDateTimeSetPush(void *ptr)
 
 		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), dayOfWeek, rtc.day(), rtc.month(), rtc.year());
 
-		RtcHelper::dayOfWeekName(buf, dayOfWeek);
+		RtcControler::dayOfWeekName(buf, dayOfWeek);
 		tDayW.setText(buf);
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_HOUR) {
@@ -396,42 +396,35 @@ void onBtnbDateTimeSetPush(void *ptr)
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshTime() {
+void DisplayControler::onRefreshDateTime(const TDateTime& dateTime) {
+	currDateTime = dateTime;
+	//i tak się nie uda przesłać danych do Nextion jeżeli nie jest obecnie aktywna głowna strona
 	if (currentPage != PG_MAIN_ID)
 		return;
-
-	rtc.refresh();
-
-	month = rtc.month();
-	day = rtc.day();
-	dayOfWeek = rtc.dayOfWeek();
-	hour = rtc.hour();
-	minute = rtc.minute();
-
 	/*Hour*/
-	if (lastHour != hour) {
-		if (currentPage == PG_MAIN_ID && tTime1.setText(String(hour / 10).c_str()) && tTime2.setText(String(hour % 10).c_str()))
-			lastHour = hour;
+	if (screenDateTime.hour != currDateTime.hour) {
+		if (currentPage == PG_MAIN_ID && tTime1.setText(String(currDateTime.hour / 10).c_str()) && tTime2.setText(String(currDateTime.hour % 10).c_str()))
+			screenDateTime.hour = currDateTime.hour;
 	}
 	/*Minute*/
-	if (lastMinute != minute) {
-		if (currentPage == PG_MAIN_ID && tTime3.setText(String(minute / 10).c_str()) && tTime4.setText(String(minute % 10).c_str()))
-			lastMinute = minute;
+	if (screenDateTime.minute != currDateTime.minute) {
+		if (currentPage == PG_MAIN_ID && tTime3.setText(String(currDateTime.minute / 10).c_str()) && tTime4.setText(String(currDateTime.minute % 10).c_str()))
+			screenDateTime.minute = currDateTime.minute;
 	}
 	/*Month*/
-	if (lastMonth != month) {
-		if (currentPage == PG_MAIN_ID && pMonth.setPic(monthPic(month)))
-			lastMonth = month;
+	if (screenDateTime.month != currDateTime.month) {
+		if (currentPage == PG_MAIN_ID && pMonth.setPic(monthPic(currDateTime.month)))
+			screenDateTime.month = currDateTime.month;
 	}
 	/*Day of month*/
-	if (lastDay != day) {
-		if (currentPage == PG_MAIN_ID && pDayOfMonth1.setPic(dayOfMonthPic(day / 10)) && pDayOfMonth2.setPic(dayOfMonthPic(day % 10)))
-			lastDay = day;
+	if (screenDateTime.day != currDateTime.day) {
+		if (currentPage == PG_MAIN_ID && pDayOfMonth1.setPic(dayOfMonthPic(currDateTime.day / 10)) && pDayOfMonth2.setPic(dayOfMonthPic(currDateTime.day % 10)))
+			screenDateTime.day = currDateTime.day;
 	}
 	/*Day of week*/
-	if (lastDayOfWeek != dayOfWeek) {
-		if (currentPage == PG_MAIN_ID && pDayOfWeek.setPic(dayOfWeekPic(dayOfWeek)))
-			lastDayOfWeek = dayOfWeek;
+	if (screenDateTime.day != currDateTime.dayOfWeek) {
+		if (currentPage == PG_MAIN_ID && pDayOfWeek.setPic(dayOfWeekPic(currDateTime.dayOfWeek)))
+			screenDateTime.dayOfWeek = currDateTime.dayOfWeek;
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -560,19 +553,23 @@ void onSliderLightPop(void *ptr)
 DisplayControler::DisplayControler()
 {
 	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
-	uint8_t lastMinute = 99;
-	uint8_t lastHour = 99;
-	uint8_t lastDay = 99;
-	uint8_t lastMonth = 99;
-	uint8_t lastDayOfWeek = 99;
-	uint8_t minute = 99;
-	uint8_t hour = 99;
-	uint8_t day = 99;
-	uint8_t month = 99;
-	uint8_t dayOfWeek = 99;
+	
+	screenDateTime.minute = 99;
+	screenDateTime.hour = 99;
+	screenDateTime.day = 99;
+	screenDateTime.month = 99;
+	screenDateTime.dayOfWeek = 99;
+
+	currDateTime.minute = 99;
+	currDateTime.hour = 99;
+	currDateTime.day = 99;
+	currDateTime.month = 99;
+	currDateTime.dayOfWeek = 99;
+
 	uint8_t lastSw1State = SW_ON;
 	uint8_t lastSw2State = SW_ON;
 	uint8_t lastSw3State = SW_ON;
+
 	uint8_t sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 	uint8_t sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 	uint8_t sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch

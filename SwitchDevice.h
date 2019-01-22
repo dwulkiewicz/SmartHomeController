@@ -2,11 +2,11 @@
 
 #include <Arduino.h>
 
-class OnOffDevice
+class SwitchDevice
 {
 public:
-	OnOffDevice();
-	~OnOffDevice();
+	SwitchDevice();
+	~SwitchDevice();
 	bool setState(bool state);
   void invertState();
 	bool switchOn();

@@ -39,9 +39,6 @@
     <ClInclude Include="NetworkControler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RtcHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RGBdriver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -51,9 +48,6 @@
     <ClInclude Include="LightsControler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OnOffDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LightDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -61,6 +55,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ColorUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SwitchDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RtcControler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,9 +80,6 @@
     <ClCompile Include="NetworkControler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RtcHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RGBdriver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,9 +89,6 @@
     <ClCompile Include="LightsControler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OnOffDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LightDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,6 +96,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ColorUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SwitchDevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RtcControler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

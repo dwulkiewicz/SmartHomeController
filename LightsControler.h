@@ -12,9 +12,9 @@ public:
 	void loop();
 	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
 private:
-	OnOffDevice swBath1;
-	OnOffDevice swBath2;
-	OnOffDevice swBath3;
+	SwitchDevice swBath1;
+	SwitchDevice swBath2;
+	SwitchDevice swBath3;
 public:	 
 	LightDevice bathroomMainLight; //TODO: do przerobienia
 	LightDevice bathroomAdditionalLight; //TODO: do przerobienia

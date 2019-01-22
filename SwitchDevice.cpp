@@ -1,16 +1,16 @@
-#include "OnOffDevice.h"
+#include "SwitchDevice.h"
 #include "Constants.h"
 
-OnOffDevice::OnOffDevice()
+SwitchDevice::SwitchDevice()
 {
 	state = SW_OFF;
 }
 
-OnOffDevice::~OnOffDevice()
+SwitchDevice::~SwitchDevice()
 {
 }
 
-bool OnOffDevice::setState(bool state){
+bool SwitchDevice::setState(bool state){
   if(this->state != state){
     this->state = state;
     return true;
@@ -18,22 +18,22 @@ bool OnOffDevice::setState(bool state){
   return false;
 }
 
-bool OnOffDevice::getState() {
+bool SwitchDevice::getState() {
 	return state;
 }
 
-void OnOffDevice::invertState(){
+void SwitchDevice::invertState(){
   state = !state;
 }
   
-bool OnOffDevice::switchOn() {
+bool SwitchDevice::switchOn() {
 	if (state == SW_ON)
 		return false;
 	state = SW_ON;
 	return true;
 }
 
-bool OnOffDevice::switchOff() {
+bool SwitchDevice::switchOff() {
 	if (state == SW_OFF)
 		return false;
 	state = SW_OFF;
