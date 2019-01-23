@@ -422,7 +422,7 @@ void DisplayControler::onRefreshDateTime(const TDateTime& dateTime) {
 			screenDateTime.day = currDateTime.day;
 	}
 	/*Day of week*/
-	if (screenDateTime.day != currDateTime.dayOfWeek) {
+	if (screenDateTime.dayOfWeek != currDateTime.dayOfWeek) {
 		if (currentPage == PG_MAIN_ID && pDayOfWeek.setPic(dayOfWeekPic(currDateTime.dayOfWeek)))
 			screenDateTime.dayOfWeek = currDateTime.dayOfWeek;
 	}
@@ -457,45 +457,68 @@ void DisplayControler::refreshIndoorTemperature() {
 	uint16_t p = SensorsHelper::getPreasure();
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::showOutdoorTemperature(float outdoorTemp) {
-	Serial.printf("DisplayControler::showOutdoorTemperature() %.1f\r\n", outdoorTemp);
-	int outdoorTempInt = abs(outdoorTemp * 10);
-
-	//poniżej -10.0
-	if (outdoorTemp <= -10.0)
-	{
-		tOutdoorTempSymbol.setText("-");
-		tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
-	}
-	//od -9.9 do -0.1
-	else if (outdoorTemp >= -9.9 & outdoorTemp <= -0.1)
-	{
-		tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
-		tOutdoorTempSymbol.setText("");
-	}
-	//od 0 w górę
-	else
-	{
-		tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
-		tOutdoorTempSymbol.setText("");
-	}
-	tOutdoorTemp2.setText(String(outdoorTempInt % 10).c_str());
+void DisplayControler::onRefreshOutdoorTemperature(float outdoorTemp) {
+  currOutdoorTemp = outdoorTemp;
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::showOutdoorHumidity(float outdoorHumidity) {
-	Serial.printf("DisplayControler::showOutdoorHumidity() %.1f\r\n", outdoorHumidity);
-	int ih = round(outdoorHumidity);
-	char buf[10];
-	sprintf(buf, "%02d%%", ih);
-	tOutdoorHumidity.setText(buf);
+void DisplayControler::onRefreshOutdoorHumidity(float outdoorHumidity) {
+  currOutdoorHumidity = outdoorHumidity;
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::showPressure(float outdoorPressure) {
-	Serial.printf("DisplayControler::showPressure() %.1f\r\n", outdoorPressure);
-	int ip = round(outdoorPressure);
+void DisplayControler::onRefreshOutdoorPreasure(float outdoorPressure) {
+  currOutdoorPressure = outdoorPressure;
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshOutdoorTemperature() {  
+  if (currentPage == PG_MAIN_ID && screenOutdoorTemp != currOutdoorTemp){
+    Serial.printf("DisplayControler::refreshOutdoorTemperature() %.1f\r\n", currOutdoorTemp); 	
+    bool ret1 = false;
+    bool ret2 = false;
+    bool ret3 = false;    
+  	int outdoorTempInt = abs(currOutdoorTemp * 10);  
+  	//poniżej -10.0
+  	if (currOutdoorTemp <= -10.0){
+  		ret1 = tOutdoorTempSymbol.setText("-");
+  		ret2 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+  	}
+  	//od -9.9 do -0.1
+  	else if (currOutdoorTemp >= -9.9 & currOutdoorTemp <= -0.1){
+  		ret1 = tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
+  		ret2 = tOutdoorTempSymbol.setText("");
+  	}
+  	//od 0 w górę
+  	else{
+  		ret1 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+  		ret2 = tOutdoorTempSymbol.setText("");
+  	}
+  	ret3 = tOutdoorTemp2.setText(String(outdoorTempInt % 10).c_str());
+    if (ret1 && ret2 && ret3){
+      screenOutdoorTemp = currOutdoorTemp;    
+    }
+  }
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshOutdoorHumidity() {
+  if (currentPage == PG_MAIN_ID && screenOutdoorHumidity != currOutdoorHumidity)
+  {
+      Serial.printf("DisplayControler::refreshOutdoorHumidity() %.1f\r\n", currOutdoorHumidity);
+      int ih = round(currOutdoorHumidity);
+      char buf[10];
+      sprintf(buf, "%02d%%", ih);
+      if (tOutdoorHumidity.setText(buf))
+        screenOutdoorHumidity = currOutdoorHumidity;   
+  }
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshOutdoorPreasure() {
+  if (currentPage == PG_MAIN_ID && screenOutdoorPressure != currOutdoorPressure){
+	Serial.printf("DisplayControler::onRefreshOutdoorPreasure() %.1f\r\n", currOutdoorPressure);
+	int ip = round(currOutdoorPressure);
 	char buf[10];
 	sprintf(buf, "%02dhPa", ip);
-	tOutdoorPreasure.setText(buf);
+	if(tOutdoorPreasure.setText(buf))
+    screenOutdoorPressure = currOutdoorPressure;
+  }
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::showWiFiStatus(int8_t status) {
@@ -565,6 +588,13 @@ DisplayControler::DisplayControler()
 	currDateTime.day = 99;
 	currDateTime.month = 99;
 	currDateTime.dayOfWeek = 99;
+
+  screenOutdoorTemp = 99;
+  screenOutdoorHumidity = 0;
+  screenOutdoorPressure = 0;  
+  currOutdoorTemp = 99;
+  currOutdoorHumidity = 0;
+  currOutdoorPressure = 0;  
 
 	uint8_t lastSw1State = SW_ON;
 	uint8_t lastSw2State = SW_ON;
@@ -662,6 +692,13 @@ void DisplayControler::loop() {
 		refreshBathSw2();
 	if (sw3State != lastSw3State)
 		refreshBathSw3();
+  if (screenOutdoorTemp != currOutdoorTemp)
+    refreshOutdoorTemperature();
+  if (screenOutdoorHumidity != currOutdoorHumidity)
+    refreshOutdoorHumidity();
+  if (screenOutdoorPressure != currOutdoorPressure)
+    refreshOutdoorPreasure();        
+   
 }
 
 DisplayControler displayControler;

@@ -113,11 +113,11 @@ void NetworkControler::initOTA(){
 bool NetworkControler::reconnect() {
 	displayControler.showMQTTConnected(false);
 	// Loop until we're reconnected
-  //String stateStr = ""; 
+  String stateStr; 
 	if (!client.connected()) {
 		int state = client.state();
-		//NetworkControler::statusToString(state,stateStr);
-		Serial.printf("MQTT state [%d], attempting connection...\r\n", state);
+		stateStr = NetworkControler::statusToString(state);
+		Serial.printf("MQTT state %s, attempting connection...\r\n", stateStr.c_str());
 		// Attempt to connect
 		String hostname = NetworkControler::getHostName();
 		if (client.connect(hostname.c_str())) {
@@ -141,8 +141,8 @@ bool NetworkControler::reconnect() {
 		}
 		else {
       int state = client.state();
-      //NetworkControler::statusToString(state,stateStr);      
-			Serial.printf("MQTT reconnect failed, state [%d]\r\n", state);
+      stateStr = NetworkControler::statusToString(state);  
+			Serial.printf("MQTT reconnect failed, state %s\r\n", stateStr.c_str());
 			return false;
 		}
 	}
@@ -176,15 +176,15 @@ void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int len
 	}
 	else if (mqttTopic.equals(sensorsBME280TemperatureTopic)) {
 		float outdoorTemp = mqttMessage.toFloat();
-		displayControler.showOutdoorTemperature(outdoorTemp);
+    eventsHandler.onRefreshOutdoorTemperature(outdoorTemp);
 	}
 	else if (mqttTopic.equals(sensorsBME280HumidityTopic)) {
 		float outdoorHumidity = mqttMessage.toFloat();
-		displayControler.showOutdoorHumidity(outdoorHumidity);
+		eventsHandler.onRefreshOutdoorHumidity(outdoorHumidity);
 	}
 	else if (mqttTopic.equals(sensorsBME280PressureTopic)) {
 		float outdoorPressure = mqttMessage.toFloat();
-		displayControler.showPressure(outdoorPressure);
+		eventsHandler.onRefreshOutdoorPressure(outdoorPressure);
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -206,20 +206,19 @@ void NetworkControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 	client.publish(topic, msg.c_str());
 }
 //----------------------------------------------------------------------------------------
-String NetworkControler::statusToString(int status, String& statusStr) {
-	;
+String NetworkControler::statusToString(int status) {
 	switch (status) {
-	case MQTT_CONNECTION_TIMEOUT:		statusStr = "MQTT_CONNECTION_TIMEOUT"; break;
-	case MQTT_CONNECTION_LOST:			statusStr = "MQTT_CONNECTION_LOST"; break;
-	case MQTT_CONNECT_FAILED:			statusStr = "MQTT_CONNECT_FAILED"; break;
-	case MQTT_DISCONNECTED:				statusStr = "MQTT_DISCONNECTED"; break;
-	case MQTT_CONNECTED:				statusStr = "MQTT_CONNECTED"; break;
-	case MQTT_CONNECT_BAD_PROTOCOL:		statusStr = "MQTT_CONNECT_BAD_PROTOCOL"; break;
-	case MQTT_CONNECT_BAD_CLIENT_ID:	statusStr = "MQTT_CONNECT_BAD_CLIENT_ID"; break;
-	case MQTT_CONNECT_UNAVAILABLE:		statusStr = "MQTT_CONNECT_UNAVAILABLE"; break;
-	case MQTT_CONNECT_BAD_CREDENTIALS:	statusStr = "MQTT_CONNECT_BAD_CREDENTIALS"; break;
-	case MQTT_CONNECT_UNAUTHORIZED:		statusStr = "MQTT_CONNECT_UNAUTHORIZED"; break;
-	default: statusStr = "UNKNOWN"; break;
+	case MQTT_CONNECTION_TIMEOUT:		  return "MQTT_CONNECTION_TIMEOUT"; 
+	case MQTT_CONNECTION_LOST:			  return "MQTT_CONNECTION_LOST"; 
+	case MQTT_CONNECT_FAILED:			    return "MQTT_CONNECT_FAILED"; 
+	case MQTT_DISCONNECTED:				    return "MQTT_DISCONNECTED"; 
+	case MQTT_CONNECTED:				      return "MQTT_CONNECTED"; 
+	case MQTT_CONNECT_BAD_PROTOCOL:		return "MQTT_CONNECT_BAD_PROTOCOL"; 
+	case MQTT_CONNECT_BAD_CLIENT_ID:	return "MQTT_CONNECT_BAD_CLIENT_ID"; 
+	case MQTT_CONNECT_UNAVAILABLE:		return "MQTT_CONNECT_UNAVAILABLE"; 
+	case MQTT_CONNECT_BAD_CREDENTIALS:return "MQTT_CONNECT_BAD_CREDENTIALS"; 
+	case MQTT_CONNECT_UNAUTHORIZED:		return "MQTT_CONNECT_UNAUTHORIZED";
+	default:                          return "UNKNOWN[" + String(status) + "]";
 	}
 }
 NetworkControler networkControler;

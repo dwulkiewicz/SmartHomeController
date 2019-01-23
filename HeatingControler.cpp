@@ -18,13 +18,11 @@ void HeatingControler::init() {
 	digitalWrite(GPIO_RELAY, LOW);
 }
 //----------------------------------------------------------------------------------------
-void HeatingControler::onRefreshDateTime(const TDateTime& dateTime) {
-	
+void HeatingControler::onRefreshDateTime(const TDateTime& dateTime) {	
 	if (currDateTime.minute != dateTime.minute || currDateTime.hour != dateTime.hour || currDateTime.dayOfWeek != dateTime.dayOfWeek) {
-		currDateTime = dateTime;
-		char buf[5];
-		RtcControler::dayOfWeekName(buf, currDateTime.dayOfWeek);
-		Serial.printf("HeatingControler::onRefreshDateTime() %s %02d:%02d\r\n", buf, currDateTime.hour, dateTime.minute);
+		currDateTime = dateTime;  
+    String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfWeek);  
+		Serial.printf("HeatingControler::onRefreshDateTime() %s %02d:%02d\r\n", dayOfWeekStr.c_str(), currDateTime.hour, dateTime.minute);
 		refresh();
 	}
 }

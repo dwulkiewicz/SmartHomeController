@@ -29,5 +29,17 @@ void EventsHandler::onSwitchChange(uint8_t switchId, uint8_t switchState) {
 	displayControler.onSwitchChanged(switchId, switchState);
 	lightsControler.onSwitchChanged(switchId, switchState);
 }
+//----------------------------------------------------------------------------------------
+void EventsHandler::onRefreshOutdoorTemperature(float value) {
+  displayControler.onRefreshOutdoorTemperature(value);
+}
+//----------------------------------------------------------------------------------------
+void EventsHandler::onRefreshOutdoorHumidity(float value) {
+  displayControler.onRefreshOutdoorHumidity(value);
+}
+//----------------------------------------------------------------------------------------
+void EventsHandler::onRefreshOutdoorPressure(float value) {
+  displayControler.onRefreshOutdoorPreasure(value);
+}
 
 EventsHandler eventsHandler;

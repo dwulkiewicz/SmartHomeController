@@ -21,18 +21,20 @@ public:
 	void loop();
 public:
 	void onRefreshDateTime(const TDateTime& dateTime);
-
+  void onRefreshOutdoorTemperature(float outdoorTemp);
+  void onRefreshOutdoorHumidity(float outdoorHumidity);
+  void onRefreshOutdoorPreasure(float outdoorPressure);
+  void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+  
 	void refreshIndoorTemperature();
 	void refresMainPage();
 	void refreshHeatingPage();
 	void refreshLightsPage();
 	void refreshOtherPage();
-	void showOutdoorTemperature(float outdoorTemp);
-	void showOutdoorHumidity(float outdoorHumidity);
-	void showPressure(float outdoorPressure);
+
 	void showWiFiStatus(int8_t status);
 	void showMQTTConnected(bool connected);
-	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+
 public: 
 	uint8_t currentPage; //todo przenieść do private, obudować
 	uint8_t currentTimeComponent; //todo przenieść do private, obudować
@@ -47,21 +49,14 @@ private:
 	void refreshBathSw1(void);
 	void refreshBathSw2(void);
 	void refreshBathSw3(void);
+  void refreshOutdoorTemperature(void);
+  void refreshOutdoorHumidity(void);
+  void refreshOutdoorPreasure(void);
 private:
+
+//TODO: zmienne przenieść do struktury
+
 	//Time
-	/*
-	uint8_t lastMinute;
-	uint8_t lastHour;
-	uint8_t lastDay;
-	uint8_t lastMonth;
-	uint8_t lastDayOfWeek;
-	
-	uint8_t minute;
-	uint8_t hour;
-	uint8_t day;
-	uint8_t month;
-	uint8_t dayOfWeek;
-	*/
 	TDateTime screenDateTime;
 	TDateTime currDateTime;
 
@@ -69,6 +64,15 @@ private:
 	uint8_t lastTemp1 = 255;
 	uint8_t lastTemp2 = 255;
 	uint16_t lastHumidity = 999;
+  //Outdoor sensor
+  float screenOutdoorTemp;
+  float screenOutdoorHumidity;
+  float screenOutdoorPressure;  
+  float currOutdoorTemp;
+  float currOutdoorHumidity;
+  float currOutdoorPressure;
+    
+  
 	//Switch
 	uint8_t lastSw1State;
 	uint8_t lastSw2State;

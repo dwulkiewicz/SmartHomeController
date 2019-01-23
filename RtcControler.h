@@ -22,6 +22,7 @@ public:
 	void loop();
 public:
 	static void dayOfWeekName(char* buf, uint8_t dayOfWeek);
+  static String dayOfWeekName(uint8_t dayOfWeek);
 	static String monthName(uint8_t month);
 private:
 	TDateTime dateTime;

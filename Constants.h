@@ -50,6 +50,15 @@
 #define SW_OFF 0
 #define SW_ON 1
 
+#define DAY_OF_WEEK_MO 1
+#define DAY_OF_WEEK_TUE 2
+#define DAY_OF_WEEK_WE 3
+#define DAY_OF_WEEK_THU 4
+#define DAY_OF_WEEK_FRI 5
+#define DAY_OF_WEEK_SAT 6
+#define DAY_OF_WEEK_SUN 7
+
+
 #define COLOR_RED 63488
 #define COLOR_YELLOW 65504
 

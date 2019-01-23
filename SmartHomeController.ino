@@ -10,7 +10,6 @@
 /************************************************************************/
 #include <Arduino.h>
 #include <math.h>
-#include <ArduinoOTA.h>
 #include <Nextion.h>
 #include <Wire.h> //I2C
 
@@ -65,7 +64,7 @@ void TaskNetworkControlerLoop(void * pvParameters) {
 	Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		networkControler.loop();
-		vTaskDelay(pdMS_TO_TICKS(100));
+		vTaskDelay(10);
 	}
 }
 //----------------------------------------------------------------------------------------
