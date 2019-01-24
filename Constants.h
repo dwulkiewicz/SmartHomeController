@@ -45,10 +45,14 @@
 #define TASK_DATATIME_LOOP            500 //ms
 
 #define SWITCH_BATH_1_ID	1
-#define SWITCH_BATH_2_ID    2
-#define SWITCH_BATH_3_ID    3
+#define SWITCH_BATH_2_ID  2
+#define SWITCH_BATH_3_ID  3
+
 #define SW_OFF 0
 #define SW_ON 1
+
+#define HEATING_STATUS_COOL 0
+#define HEATING_STATUS_HEAT 1
 
 #define DAY_OF_WEEK_MO 1
 #define DAY_OF_WEEK_TUE 2
@@ -58,14 +62,17 @@
 #define DAY_OF_WEEK_SAT 6
 #define DAY_OF_WEEK_SUN 7
 
-
-#define COLOR_RED 63488
+#define COLOR_RED    63488
 #define COLOR_YELLOW 65504
 
 #define PICTURE_WIFI_ON  5
 #define PICTURE_WIFI_OFF 4
 #define PICTURE_SWITCH_ON  7
 #define PICTURE_SWITCH_OFF 6
+
+#define PIC_HEATING_HEAT 12
+#define PIC_EMPTY        51 //TODO: do zmiany na pusty obrazek
+
 
 #define PIC_DAY_MON 18
 #define PIC_DAY_TUE 19
@@ -100,18 +107,21 @@
 #define PIC_DIGIT_9  46
 
 //------------/*Strona gĹ‚Ăłwna*/------------
-#define PG_MAIN_ID                                0
-#define PG_MAIN_NAME                       "pgMain"
+#define PG_MAIN_ID                       0
+#define PG_MAIN_NAME              "pgMain"
 
-#define OBJ_WIFI_STATUS_ID                        4
-#define OBJ_WIFI_STATUS_NAME              "picWiFi"
+#define OBJ_WIFI_STATUS_ID               4
+#define OBJ_WIFI_STATUS_NAME     "picWiFi"
 
-#define OBJ_BATH_SW_1_ID				          5
-#define OBJ_BATH_SW_1_NAME			 	 "pBathSw1"
-#define OBJ_BATH_SW_2_ID				         32
-#define OBJ_BATH_SW_2_NAME			     "pBathSw2"
-#define OBJ_BATH_SW_3_ID				         33
-#define OBJ_BATH_SW_3_NAME			     "pBathSw3"
+#define OBJ_HEATING_STATUS_ID            7
+#define OBJ_HEATING_STATUS_NAME       "p0"
+
+#define OBJ_BATH_SW_1_ID				         5
+#define OBJ_BATH_SW_1_NAME	  	"pBathSw1"
+#define OBJ_BATH_SW_2_ID				        32
+#define OBJ_BATH_SW_2_NAME			"pBathSw2"
+#define OBJ_BATH_SW_3_ID				        33
+#define OBJ_BATH_SW_3_NAME			"pBathSw3"
 
 #define OBJ_DAY_OF_MONTH1_ID                     39
 #define OBJ_DAY_OF_MONTH1_NAME				   "p4"
@@ -170,6 +180,22 @@
 #define OBJ_DAY_TEMP_INC_NAME  "b16"
 #define OBJ_DAY_TEMP_VALUE_ID     33
 #define OBJ_DAY_TEMP_VALUE_NAME "t8"
+
+#define OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_ID        3
+#define OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_NAME   "t0"
+#define OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID        2
+#define OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_NAME   "b0"
+#define OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID        4
+#define OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_NAME   "b1"
+ /*   
+#define OBJ_HEATING_WORKING_DAYS_MORNING_OFF     
+#define OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON    
+#define OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF   
+#define OBJ_HEATING_WEEKEND_MORNING_ON           
+#define OBJ_HEATING_WEEKEND_MORNING_OFF          
+#define OBJ_HEATING_WEEKEND_AFTERNOON_ON         
+#define OBJ_HEATING_WEEKEND_AFTERNOON_OFF       
+*/
 
 //------------/*OĹ›wietlenie*/----------------
 #define PG_LIGHTS_ID                  2

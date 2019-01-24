@@ -22,6 +22,23 @@
 #define EEPROM_ADDR_NIGHT_TEMP      0x01
 #define EEPROM_ADDR_HYSTERESIS_TEMP 0x02
 
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_ON_H     0x03 
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_ON_M     0x04
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_OFF_H    0x05
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_OFF_M    0x06
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_ON_H   0x07
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_ON_M   0x08
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_OFF_H  0x09
+#define EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_OFF_M  0x0A
+#define EEPROM_ADDR_HEATING_WEEKEND_MORNING_ON_H          0x0B
+#define EEPROM_ADDR_HEATING_WEEKEND_MORNING_ON_M          0x0C
+#define EEPROM_ADDR_HEATING_WEEKEND_MORNING_OFF_H         0x0D
+#define EEPROM_ADDR_HEATING_WEEKEND_MORNING_OFF_M         0x0E
+#define EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_ON_H        0x0F
+#define EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_ON_M        0x10
+#define EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_H       0x11
+#define EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_M       0x12
+
 #define EEPROM_ADDR_PARAMS_OFFSET   0x30
 
 #define OFFSET_TEMP  100  //10.0*C
@@ -130,7 +147,22 @@ bool Configuration::init() {
 	dayTemp = EEPROM.read(EEPROM_ADDR_DAY_TEMP);
 	nightTemp = EEPROM.read(EEPROM_ADDR_NIGHT_TEMP);
 	hysteresisTemp = EEPROM.read(EEPROM_ADDR_HYSTERESIS_TEMP);
-
+  heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_ON_H);
+  heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_ON_M);
+  heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].hour = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_OFF_H);
+  heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].minute = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_OFF_M);
+  heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].hour = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_ON_H);
+  heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].minute = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_ON_M);
+  heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].hour = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_OFF_H);
+  heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].minute = EEPROM.read(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_OFF_M);
+  heatingTimes[HEATING_WEEKEND_MORNING_ON].hour = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_MORNING_ON_H);
+  heatingTimes[HEATING_WEEKEND_MORNING_ON].minute = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_MORNING_ON_M);
+  heatingTimes[HEATING_WEEKEND_MORNING_OFF].hour = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_MORNING_OFF_H);
+  heatingTimes[HEATING_WEEKEND_MORNING_OFF].minute = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_MORNING_OFF_M);
+  heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_ON_H);
+  heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_ON_M);
+  heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_H);
+  heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_M);      
   print();
   Serial.printf("End Configuration ******************\r\n");
 	return true;
@@ -215,11 +247,93 @@ bool Configuration::decrementHisteresisTemperature() {
 	return false;
 }
 
+TShortTime Configuration::getHeatingTime(uint8_t idx){
+  return heatingTimes[idx];  
+}
+
+bool Configuration::incrementHeatingTime(uint8_t idx){
+   if (heatingTimes[idx].minute >= 0 && heatingTimes[idx].minute < 15)     
+     heatingTimes[idx].minute = 15;
+   else if (heatingTimes[idx].minute >= 15 && heatingTimes[idx].minute < 30)     
+     heatingTimes[idx].minute = 30;       
+   else if (heatingTimes[idx].minute >= 30 && heatingTimes[idx].minute < 45)     
+     heatingTimes[idx].minute = 45;           
+   else if (heatingTimes[idx].minute >= 45){
+     heatingTimes[idx].minute = 0;       
+     if (heatingTimes[idx].hour < 23)
+       heatingTimes[idx].hour++; 
+     else
+       heatingTimes[idx].hour = 0; 
+     }                  
+  saveHeatingTime(idx);
+  return true;                     
+}
+
+bool Configuration::decrementHeatingTime(uint8_t idx){
+   if (heatingTimes[idx].minute == 0){     
+     heatingTimes[idx].minute = 45;
+     if (heatingTimes[idx].hour > 0)
+       heatingTimes[idx].hour--; 
+     else
+       heatingTimes[idx].hour = 23;      
+   }
+   else if (heatingTimes[idx].minute > 0 && heatingTimes[idx].minute <= 15)
+     heatingTimes[idx].minute = 0;   
+   else if (heatingTimes[idx].minute > 15 && heatingTimes[idx].minute <= 30)     
+     heatingTimes[idx].minute = 15;            
+   else if (heatingTimes[idx].minute > 30 && heatingTimes[idx].minute <= 45)     
+     heatingTimes[idx].minute = 30;       
+   else if (heatingTimes[idx].minute > 45)     
+     heatingTimes[idx].minute = 45;      
+  saveHeatingTime(idx);
+  return true;   
+}
+
+void Configuration::saveHeatingTime(uint8_t idx){
+   //TODO: jakoś to elegancko zrobić
+   switch(idx){
+     case HEATING_WORKING_DAYS_MORNING_ON:
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_ON_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_ON_M, heatingTimes[idx].minute);
+     break;
+     case HEATING_WORKING_DAYS_MORNING_OFF:
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_OFF_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_MORNING_OFF_M, heatingTimes[idx].minute);
+     break;
+     case HEATING_WORKING_DAYS_AFTERNOON_ON:
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_ON_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_ON_M, heatingTimes[idx].minute);
+     break;
+     case HEATING_WORKING_DAYS_AFTERNOON_OFF:
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_OFF_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WORKING_DAYS_AFTERNOON_OFF_M, heatingTimes[idx].minute);
+     break;
+     case HEATING_WEEKEND_MORNING_ON:
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_MORNING_ON_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_MORNING_ON_M, heatingTimes[idx].minute);
+     break;
+     case HEATING_WEEKEND_MORNING_OFF:
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_MORNING_OFF_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_MORNING_OFF_M, heatingTimes[idx].minute);
+     break;
+     case HEATING_WEEKEND_AFTERNOON_ON:
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_ON_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_ON_M, heatingTimes[idx].minute);
+     break;               
+     case HEATING_WEEKEND_AFTERNOON_OFF:
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_H, heatingTimes[idx].hour);
+     EEPROM.write(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_M, heatingTimes[idx].minute);
+     break;
+    }  
+  EEPROM.commit();  
+}
+
 void Configuration::setParam(uint8_t paramId, uint8_t value){
     Serial.printf("Configuration::setParam() paramId: %d value: %d\r\n", paramId, value);  
     EEPROM.write(EEPROM_ADDR_PARAMS_OFFSET + paramId, value);
     EEPROM.commit();  
 }
+
 uint8_t Configuration::getParam(uint8_t paramId){    
     uint8_t value = EEPROM.read(EEPROM_ADDR_PARAMS_OFFSET + paramId);  
     Serial.printf("Configuration::getParam() paramId: %d value: %d\r\n", paramId, value);
@@ -233,6 +347,15 @@ void Configuration::print(){
   Serial.printf("dayTemp: %.1f\r\n", getDayTemperature());
   Serial.printf("nightTemp: %.1f\r\n", getNightTemperature());
   Serial.printf("hysteresisTemp: %.1f\r\n", getHisteresisTemp());
+  Serial.printf("HEATING_WORKING_DAYS_MORNING_ON: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute);
+  Serial.printf("HEATING_WORKING_DAYS_MORNING_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].minute);
+  Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_ON: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].hour,heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].minute);
+  Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].hour,heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].minute);
+  Serial.printf("HEATING_WEEKEND_MORNING_ON: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_ON].hour,heatingTimes[HEATING_WEEKEND_MORNING_ON].minute);
+  Serial.printf("HEATING_WORKING_DAYS_MORNING_ON: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute);
+  Serial.printf("HEATING_WEEKEND_MORNING_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_OFF].hour,heatingTimes[HEATING_WEEKEND_MORNING_OFF].minute);
+  Serial.printf("HEATING_WEEKEND_AFTERNOON_ON: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour,heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute);
+  Serial.printf("HEATING_WEEKEND_AFTERNOON_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour,heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute);             
 }
 
 Configuration configuration;

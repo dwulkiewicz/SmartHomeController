@@ -22,6 +22,9 @@
 //------------/*Strona główna*/------------//
 NexPage pgMain = NexPage(PG_MAIN_ID, 0, PG_MAIN_NAME);
 
+NexPicture objWiFiStatus(PG_MAIN_ID, OBJ_WIFI_STATUS_ID, OBJ_WIFI_STATUS_NAME);
+NexPicture objHeatingStatus(PG_MAIN_ID, OBJ_HEATING_STATUS_ID, OBJ_HEATING_STATUS_NAME);
+
 NexPicture pDayOfMonth1 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH1_ID, OBJ_DAY_OF_MONTH1_NAME);
 NexPicture pDayOfMonth2 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH2_ID, OBJ_DAY_OF_MONTH2_NAME);
 NexPicture pMonth = NexPicture(PG_MAIN_ID, OBJ_MONTH_ID, OBJ_MONTH_NAME);
@@ -42,7 +45,8 @@ NexText tOutdoorTempSymbol = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP_SYMBOL_ID, OBJ
 NexText tOutdoorHumidity = NexText(PG_MAIN_ID, OBJ_OUTDOOR_HUMIDITY_ID, OBJ_OUTDOOR_HUMIDITY_NAME);
 NexText tOutdoorPreasure = NexText(PG_MAIN_ID, OBJ_OUTDOOR_PREASURE_ID, OBJ_OUTDOOR_PREASURE_NAME);
 
-NexPicture objWiFiStatus = NexPicture(PG_MAIN_ID, OBJ_WIFI_STATUS_ID, OBJ_WIFI_STATUS_NAME);
+
+
 NexPicture objBathSw1 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_1_ID, OBJ_BATH_SW_1_NAME);
 NexPicture objBathSw2 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_2_ID, OBJ_BATH_SW_2_NAME);
 NexPicture objBathSw3 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_3_ID, OBJ_BATH_SW_3_NAME);
@@ -57,6 +61,11 @@ NexButton btnDayTempInc = NexButton(PG_HEATING_ID, OBJ_DAY_TEMP_INC_ID, OBJ_DAY_
 NexText lblNightTempValue = NexText(PG_HEATING_ID, OBJ_NIGHT_TEMP_VALUE_ID, OBJ_NIGHT_TEMP_VALUE_NAME);
 NexButton btnNightTempDec = NexButton(PG_HEATING_ID, OBJ_NIGHT_TEMP_DEC_ID, OBJ_NIGHT_TEMP_DEC_NAME);
 NexButton btnNightTempInc = NexButton(PG_HEATING_ID, OBJ_NIGHT_TEMP_INC_ID, OBJ_NIGHT_TEMP_INC_NAME);
+/*Włącz ogrzewanie rano w tygodniu*/
+NexText objHeatingWorkingDaysMorningOnVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_NAME);
+NexButton objHeatingWorkingDaysMorningOnDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_NAME);
+NexButton objHeatingWorkingDaysMorningOnInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_NAME);
+
 
 //------------/*Oświetlenie*/------------
 NexPage pgLights = NexPage(PG_LIGHTS_ID, 0, PG_LIGHTS_NAME);
@@ -101,6 +110,8 @@ NexTouch *nex_listen_list[] =
   &sldTape1,
   &sldRgbV1,
   &sldRgbH1,
+  &objHeatingWorkingDaysMorningOnDec,
+  &objHeatingWorkingDaysMorningOnInc,
   NULL
 };
 //----------------------------------------------------------------------------------------
@@ -151,20 +162,33 @@ void onBathSwPush(void *ptr)
 	eventsHandler.onSwitchChange(switchId, switchState);
 }
 //----------------------------------------------------------------------------------------
+void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {  
+  currHeatingStatus = heatingStatus;
+  if (currentPage != PG_MAIN_ID)
+    return;
+  String statusStr = HeatingControler::heatingStatusName(heatingStatus);   
+  Serial.printf("DisplayControler::refreshHeatingStatus() status: %s\r\n", statusStr.c_str());
+  if (screenHeatingStatus != currHeatingStatus) {
+    if (currentPage == PG_MAIN_ID && objHeatingStatus.setPic(currHeatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_EMPTY)){
+      screenHeatingStatus = currHeatingStatus;
+    }
+  }
+}
+//----------------------------------------------------------------------------------------
 void DisplayControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 	Serial.printf("DisplayControler::onSwitchChanged() id: %d state: %d\r\n", switchId, switchState);
 	switch (switchId) {
 	case SWITCH_BATH_1_ID:
 		sw1State = switchState;
-		refreshBathSw1();
+		//refreshBathSw1();
 		break;
 	case SWITCH_BATH_2_ID:
 		sw2State = switchState;
-		refreshBathSw2();
+		//refreshBathSw2();
 		break;
 	case SWITCH_BATH_3_ID:
 		sw3State = switchState;
-		refreshBathSw3();
+		//refreshBathSw3();
 		break;
 	}
 }
@@ -209,6 +233,7 @@ void onBtnTempPush(void *ptr) {
 	NexButton *btn = (NexButton *)ptr;
 	Serial.printf("onBtnTempPush: pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
 
+  char buf[8];
 	switch (btn->getObjCid()) {
 	case OBJ_DAY_TEMP_INC_ID:
 		if (configuration.incrementDayTemperature()) {
@@ -229,8 +254,21 @@ void onBtnTempPush(void *ptr) {
 		if (configuration.decrementNightTemperature()) {
 			lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 		}
-		break;
-	}
+		break;	
+  case OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID:
+    if (configuration.incrementHeatingTime(HEATING_WORKING_DAYS_MORNING_ON)) {
+      sprintf(buf,"%02d:02d", configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).hour, configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minute);
+      objHeatingWorkingDaysMorningOnVal.setText(buf);
+    }
+    break;
+  case OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID:
+    if (configuration.decrementHeatingTime(HEATING_WORKING_DAYS_MORNING_ON)) {
+      sprintf(buf,"%02d:02d", configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).hour, configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minute);
+      objHeatingWorkingDaysMorningOnVal.setText(buf);
+    }
+    break;
+  }
+  eventsHandler.onHeatingConfigurationChange();
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refresMainPage()
@@ -240,8 +278,12 @@ void DisplayControler::refresMainPage()
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshHeatingPage()
 {
+  char buf[8];  
+  sprintf(buf,"%02d:02d", configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).hour, configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minute);
+  objHeatingWorkingDaysMorningOnVal.setText(buf);
+        
 	lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
-	lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
+	lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str()); 
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshLightsPage()
@@ -596,13 +638,16 @@ DisplayControler::DisplayControler()
   currOutdoorHumidity = 0;
   currOutdoorPressure = 0;  
 
-	uint8_t lastSw1State = SW_ON;
-	uint8_t lastSw2State = SW_ON;
-	uint8_t lastSw3State = SW_ON;
+	lastSw1State = SW_ON;
+	lastSw2State = SW_ON;
+	lastSw3State = SW_ON;
 
-	uint8_t sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
-	uint8_t sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
-	uint8_t sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+
+  currHeatingStatus = HEATING_STATUS_HEAT;
+  screenHeatingStatus = HEATING_STATUS_HEAT; 
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::init() {
@@ -624,6 +669,9 @@ void DisplayControler::init() {
 
 	btnNightTempInc.attachPush(onBtnTempPush, &btnNightTempInc);
 	btnNightTempDec.attachPush(onBtnTempPush, &btnNightTempDec);
+
+  objHeatingWorkingDaysMorningOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnDec);
+  objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc);  
 
 	bDateTimeNext.attachPush(onBtnbDateTimeNextPush, &bDateTimeNext);
 	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);
@@ -697,8 +745,9 @@ void DisplayControler::loop() {
   if (screenOutdoorHumidity != currOutdoorHumidity)
     refreshOutdoorHumidity();
   if (screenOutdoorPressure != currOutdoorPressure)
-    refreshOutdoorPreasure();        
-   
+    refreshOutdoorPreasure();   
+  if(currHeatingStatus != screenHeatingStatus)
+    refreshHeatingStatus(currHeatingStatus);              
 }
 
 DisplayControler displayControler;

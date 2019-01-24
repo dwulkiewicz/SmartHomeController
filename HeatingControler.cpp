@@ -1,4 +1,5 @@
 #include "HeatingControler.h"
+#include "EventsHandler.h"
 #include "Configuration.h"
 #include "Constants.h"
 
@@ -11,6 +12,8 @@ HeatingControler::HeatingControler()
 	currDateTime.dayOfWeek = 99;
 
 	currIndoorTemp = 99.9;
+
+  status = HEATING_STATUS_COOL;
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::init() {
@@ -36,20 +39,41 @@ void HeatingControler::onRefreshIndoorTemp(float indoorTemp) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void HeatingControler::refresh() {
-	
+void HeatingControler::onConfigurationChange(){
+  Serial.printf("HeatingControler::onConfigurationChange()\r\n");
+  refresh();  
+}
+//----------------------------------------------------------------------------------------
+void HeatingControler::refresh() {	
 	//TODO: oczywiście to poniżej do zmiany
-
 	float dayTemp = configuration.getDayTemperature();
-
-	Serial.printf("HeatingControler::refresh() currTemp: %.1f dayTemp: %.1f\r\n", currIndoorTemp, dayTemp);
-
+  float histeresisTemp = configuration.getHisteresisTemp();
+	Serial.printf("HeatingControler::refresh() currTemp: %.1f dayTemp: %.1f histeresisTemp: %.1f\r\n", currIndoorTemp, dayTemp, histeresisTemp);
 	if (currIndoorTemp < dayTemp) {
+    setStatus(HEATING_STATUS_HEAT);
 		digitalWrite(GPIO_RELAY, HIGH);
 	}
 	else {
+    setStatus(HEATING_STATUS_COOL);
 		digitalWrite(GPIO_RELAY, LOW);
 	}
 }
+//----------------------------------------------------------------------------------------
+void HeatingControler::setStatus(uint8_t status){
+  if(this->status != status){
+    this->status = status;
+    eventsHandler.onHeatingStatusChange(status);    
+  }  
+}  
+//----------------------------------------------------------------------------------------
+String HeatingControler::heatingStatusName(uint8_t status) {
+  switch(status){
+    case HEATING_STATUS_HEAT: return "HEATING_STATUS_HEAT"; 
+    case HEATING_STATUS_COOL: return "HEATING_STATUS_COOL";
+    default: return "HEATING_STATUS_???";    
+  }
+}
+
+
 
 HeatingControler heatingControler;

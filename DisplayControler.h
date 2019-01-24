@@ -25,6 +25,7 @@ public:
   void onRefreshOutdoorHumidity(float outdoorHumidity);
   void onRefreshOutdoorPreasure(float outdoorPressure);
   void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+  void refreshHeatingStatus(uint8_t heatingStatus);
   
 	void refreshIndoorTemperature();
 	void refresMainPage();
@@ -53,13 +54,10 @@ private:
   void refreshOutdoorHumidity(void);
   void refreshOutdoorPreasure(void);
 private:
-
-//TODO: zmienne przenieść do struktury
-
+  //TODO: zmienne przenieść do struktury
 	//Time
 	TDateTime screenDateTime;
 	TDateTime currDateTime;
-
 	//Indoor sensor
 	uint8_t lastTemp1 = 255;
 	uint8_t lastTemp2 = 255;
@@ -70,10 +68,11 @@ private:
   float screenOutdoorPressure;  
   float currOutdoorTemp;
   float currOutdoorHumidity;
-  float currOutdoorPressure;
-    
-  
-	//Switch
+  float currOutdoorPressure;    
+  //Heating
+  uint8_t currHeatingStatus;
+  uint8_t screenHeatingStatus;
+  //Switch
 	uint8_t lastSw1State;
 	uint8_t lastSw2State;
 	uint8_t lastSw3State;

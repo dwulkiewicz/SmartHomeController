@@ -10,10 +10,16 @@ public:
 	void init();
 	void onRefreshDateTime(const TDateTime& dateTime);
 	void onRefreshIndoorTemp(float indoorTemp);
+  void onConfigurationChange();
+public:
+  static String heatingStatusName(uint8_t status);
 private:
+  void refresh(); 
+  void setStatus(uint8_t status);
+private:
+  uint8_t status;
 	TDateTime currDateTime;
 	float currIndoorTemp;
-	void refresh();
 };
 extern HeatingControler heatingControler;
 #endif /* #ifndef __HeatingControler_H__ */

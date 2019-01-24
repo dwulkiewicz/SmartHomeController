@@ -19,6 +19,14 @@ void EventsHandler::onRefreshIndoorTemperature(){
 	heatingControler.onRefreshIndoorTemp(indoorTemp);
 }
 //----------------------------------------------------------------------------------------
+void EventsHandler::onHeatingStatusChange(uint8_t status) {
+   displayControler.refreshHeatingStatus(status);
+}
+//----------------------------------------------------------------------------------------
+void EventsHandler::onHeatingConfigurationChange(void){
+  heatingControler.onConfigurationChange();  
+}  
+//----------------------------------------------------------------------------------------
 void EventsHandler::onRefreshDateTime(const TDateTime& dateTime){
   displayControler.onRefreshDateTime(dateTime);
 	heatingControler.onRefreshDateTime(dateTime);
