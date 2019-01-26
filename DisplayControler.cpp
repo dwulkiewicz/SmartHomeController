@@ -484,7 +484,7 @@ void DisplayControler::refreshIndoorTemperature() {
 			lastTemp1 = t1;
 	}
 	if (lastTemp2 != t2) {
-		sprintf(buf, "%02d", t2);
+		sprintf(buf, "%01d", t2);
 		if (currentPage == PG_MAIN_ID && tIndoorTemp2.setText(buf))
 			lastTemp2 = t2;
 	}
@@ -523,10 +523,17 @@ void DisplayControler::refreshOutdoorTemperature() {
   		ret1 = tOutdoorTempSymbol.setText("-");
   		ret2 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
   	}
-  	//od -9.9 do -0.1
-  	else if (currOutdoorTemp >= -9.9 & currOutdoorTemp <= -0.1){
-  		ret1 = tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
-  		ret2 = tOutdoorTempSymbol.setText("");
+    //od -9.9 do -1.0
+    else if (currOutdoorTemp >= -9.9 & currOutdoorTemp <= -1.0){
+      ret1 = tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
+      ret2 = tOutdoorTempSymbol.setText("");     
+    }
+  	//od -0.9 do -0.1
+  	else if (currOutdoorTemp >= -0.9 & currOutdoorTemp <= -0.1){
+      char buf[3];
+      sprintf(buf, "-%01d%", outdoorTempInt / 10);      
+  		ret1 = tOutdoorTemp1.setText(buf);
+      ret2 = tOutdoorTempSymbol.setText("");     
   	}
   	//od 0 w górę
   	else{

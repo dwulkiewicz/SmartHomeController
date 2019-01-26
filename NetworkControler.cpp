@@ -152,8 +152,10 @@ void NetworkControler::loop() {
 	if (!client.connected() && !reconnect()) {
 		return;
 	}
-	client.loop();
-  ArduinoOTA.handle();  
+  // Handle OTA server.
+  ArduinoOTA.handle();
+
+  client.loop();
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int length) {

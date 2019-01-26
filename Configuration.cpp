@@ -97,44 +97,26 @@ bool Configuration::init() {
 		return false;
 	}
 
-	File configFile = SPIFFS.open("/config.json", "r");
-	if (!configFile) {
+	File file = SPIFFS.open("/config.json", "r");
+	if (!file) {
 		Serial.println("Configuration::init() Failed to open config file");
 		return false;
 	}
 	else {
 		Serial.println("config file opened");
 	}
-
-
-	size_t size = configFile.size();
-	if (size > 1024) {
-		Serial.println("Config file size is too large");
-		return false;
-	}
-	
-	// Allocate a buffer to store contents of the file.
-	std::unique_ptr<char[]> buf(new char[size]);
-
-	// We don't use String here because ArduinoJson library requires the input
-	// buffer to be mutable. If you don't use ArduinoJson, you may as well
-	// use configFile.readString instead.
-	configFile.readBytes(buf.get(), size);
-
-	StaticJsonBuffer<200> jsonBuffer;
-	JsonObject& json = jsonBuffer.parseObject(buf.get());
-
-	if (!json.success()) {
-		Serial.println("Failed to parse config file");
-    Serial.println("Set default configuration..");	
-    //TODO: wpisaÄ‡ 
-	}
- else{
-    wifiSSID = json["ssid"].asString();
-    wifiPassword = json["password"].asString();
-    mqttServer = json["mqtt_server"].asString();  
- }
-
+  StaticJsonDocument<512> doc;
+  DeserializationError error = deserializeJson(doc, file);
+  if (error)
+    Serial.println(F("Failed to read file, using default configuration"));
+  else
+  {
+    JsonObject root = doc.as<JsonObject>();  
+    wifiSSID = root["ssid"].as<String>();
+    wifiPassword = root["password"].as<String>();
+    mqttServer = root["mqtt_server"].as<String>();  
+  }
+  file.close();
 
 	// Real world application would store these values in some variables for
 	// later use.
