@@ -10,6 +10,7 @@
 /************************************************************************/
 
 #include <WiFiType.h>
+#include <PubSubClient.h>
 
 #include "DisplayControler.h"
 #include "LightsControler.h"
@@ -65,7 +66,34 @@ NexButton btnNightTempInc = NexButton(PG_HEATING_ID, OBJ_NIGHT_TEMP_INC_ID, OBJ_
 NexText objHeatingWorkingDaysMorningOnVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_NAME);
 NexButton objHeatingWorkingDaysMorningOnDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_NAME);
 NexButton objHeatingWorkingDaysMorningOnInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_NAME);
-
+/*Wyłącz ogrzewanie rano w tygodniu*/
+NexText objHeatingWorkingDaysMorningOffVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_VAL_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_VAL_NAME);
+NexButton objHeatingWorkingDaysMorningOffDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_DEC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_DEC_NAME);
+NexButton objHeatingWorkingDaysMorningOffInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_INC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_INC_NAME);
+/*Włącz ogrzewanie popołudniu w tygodniu*/
+NexText objHeatingWorkingDaysAfternoonOnVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_VAL_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_VAL_NAME);
+NexButton objHeatingWorkingDaysAfternoonOnDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_DEC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_DEC_NAME);
+NexButton objHeatingWorkingDaysAfternoonOnInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_INC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_INC_NAME);
+/*Wyłącz ogrzewanie popołudniu w tygodniu*/
+NexText objHeatingWorkingDaysAfternoonOffVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_VAL_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_VAL_NAME);
+NexButton objHeatingWorkingDaysAfternoonOffDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_DEC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_DEC_NAME);
+NexButton objHeatingWorkingDaysAfternoonOffInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_NAME);
+/*Włącz ogrzewanie rano w weekend*/
+NexText objHeatingWeekendMorningOnVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_ON_VAL_ID, OBJ_HEATING_WEEKEND_MORNING_ON_VAL_NAME);
+NexButton objHeatingWeekendMorningOnDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_ON_DEC_ID, OBJ_HEATING_WEEKEND_MORNING_ON_DEC_NAME);
+NexButton objHeatingWeekendMorningOnInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_ON_INC_ID, OBJ_HEATING_WEEKEND_MORNING_ON_INC_NAME);
+/*Wyłącz ogrzewanie rano w weekend*/
+NexText objHeatingWeekendMorningOffVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_VAL_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_VAL_NAME);
+NexButton objHeatingWeekendMorningOffDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_DEC_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_DEC_NAME);
+NexButton objHeatingWeekendMorningOffInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_INC_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_INC_NAME);
+/*Włącz ogrzewanie popołudniu w weekend*/
+NexText objHeatingWeekendAfternoonOnVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_VAL_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_VAL_NAME);
+NexButton objHeatingWeekendAfternoonOnDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_DEC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_DEC_NAME);
+NexButton objHeatingWeekendAfternoonOnInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_INC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_INC_NAME);
+/*Wyłącz ogrzewanie popołudniu w weekend*/
+NexText objHeatingWeekendAfternoonOffVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_VAL_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_VAL_NAME);
+NexButton objHeatingWeekendAfternoonOffDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_DEC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_DEC_NAME);
+NexButton objHeatingWeekendAfternoonOffInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_NAME);
 
 //------------/*Oświetlenie*/------------
 NexPage pgLights = NexPage(PG_LIGHTS_ID, 0, PG_LIGHTS_NAME);
@@ -112,6 +140,20 @@ NexTouch *nex_listen_list[] =
   &sldRgbH1,
   &objHeatingWorkingDaysMorningOnDec,
   &objHeatingWorkingDaysMorningOnInc,
+  &objHeatingWorkingDaysMorningOffDec,
+  &objHeatingWorkingDaysMorningOffInc,
+  &objHeatingWorkingDaysAfternoonOnDec,
+  &objHeatingWorkingDaysAfternoonOnInc,
+  &objHeatingWorkingDaysAfternoonOffDec,
+  &objHeatingWorkingDaysAfternoonOffInc,
+  &objHeatingWeekendMorningOnDec,
+  &objHeatingWeekendMorningOnInc,
+  &objHeatingWeekendMorningOffDec,
+  &objHeatingWeekendMorningOffInc,
+  &objHeatingWeekendAfternoonOnDec,
+  &objHeatingWeekendAfternoonOnInc,
+  &objHeatingWeekendAfternoonOffDec,
+  &objHeatingWeekendAfternoonOffInc, 
   NULL
 };
 //----------------------------------------------------------------------------------------
@@ -229,7 +271,7 @@ void DisplayControler::refreshBathSw3(void) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void onBtnTempPush(void *ptr) {
+void DisplayControler::onBtnTempPush(void *ptr) {
 	NexButton *btn = (NexButton *)ptr;
 	Serial.printf("onBtnTempPush: pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
 
@@ -255,35 +297,92 @@ void onBtnTempPush(void *ptr) {
 			lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 		}
 		break;	
-  case OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID:
-    if (configuration.incrementHeatingTime(HEATING_WORKING_DAYS_MORNING_ON)) {
-      sprintf(buf,"%02d:02d", configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).hour, configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minute);
-      objHeatingWorkingDaysMorningOnVal.setText(buf);
-    }
-    break;
   case OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID:
-    if (configuration.decrementHeatingTime(HEATING_WORKING_DAYS_MORNING_ON)) {
-      sprintf(buf,"%02d:02d", configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).hour, configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minute);
-      objHeatingWorkingDaysMorningOnVal.setText(buf);
-    }
+    displayControler.decHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
     break;
+  case OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID:
+    displayControler.incHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
+    break;
+  case OBJ_HEATING_WORKING_DAYS_MORNING_OFF_DEC_ID:
+    displayControler.decHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
+    break;
+  case OBJ_HEATING_WORKING_DAYS_MORNING_OFF_INC_ID:
+    displayControler.incHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
+    break;
+  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_DEC_ID:
+    displayControler.decHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
+    break;
+  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_INC_ID:
+    displayControler.incHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
+    break;
+  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_DEC_ID:
+    displayControler.decHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
+    break;
+  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_ID:
+    displayControler.incHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
+    break;
+  case OBJ_HEATING_WEEKEND_MORNING_ON_DEC_ID:
+    displayControler.decHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
+    break;
+  case OBJ_HEATING_WEEKEND_MORNING_ON_INC_ID:
+    displayControler.incHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
+    break;
+  case OBJ_HEATING_WEEKEND_MORNING_OFF_DEC_ID:
+    displayControler.decHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
+    break;
+  case OBJ_HEATING_WEEKEND_MORNING_OFF_INC_ID:
+    displayControler.incHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
+    break;
+  case OBJ_HEATING_WEEKEND_AFTERNOON_ON_DEC_ID:
+    displayControler.decHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
+    break;
+  case OBJ_HEATING_WEEKEND_AFTERNOON_ON_INC_ID:
+    displayControler.incHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
+    break;
+  case OBJ_HEATING_WEEKEND_AFTERNOON_OFF_DEC_ID:
+    displayControler.decHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
+    break;
+  case OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_ID:
+    displayControler.incHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
+    break;    
   }
   eventsHandler.onHeatingConfigurationChange();
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refresMainPage()
-{
+void DisplayControler::decHeatingTime(uint8_t idx, class NexText* obj){
+  if (configuration.decrementHeatingTime(idx)) {
+    showHeatingTime(idx,obj);
+  }
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::incHeatingTime(uint8_t idx, class NexText* obj){
+  if (configuration.incrementHeatingTime(idx)) {
+    showHeatingTime(idx,obj);
+  }
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::showHeatingTime(uint8_t idx, NexText* obj){
+  char buf[8];
+  sprintf(buf,"%02d:%02d", configuration.getHeatingTime(idx).hour, configuration.getHeatingTime(idx).minute);
+  obj->setText(buf);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refresMainPage(){
 	//TODO: 
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshHeatingPage()
-{
-  char buf[8];  
-  sprintf(buf,"%02d:02d", configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).hour, configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minute);
-  objHeatingWorkingDaysMorningOnVal.setText(buf);
-        
-	lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
-	lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str()); 
+void DisplayControler::refreshHeatingPage(){
+  lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
+  lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str()); 
+
+  showHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
+  showHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
+  showHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
+  showHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
+  showHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
+  showHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
+  showHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
+  showHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);  
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshLightsPage()
@@ -581,9 +680,9 @@ void DisplayControler::showWiFiStatus(int8_t status) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::showMQTTConnected(bool connected) {
-	//TODO: docelowo zmienić na inną ikonkę na panelu 
-	if (connected)
+void DisplayControler::showMQTTStatus(int status) {
+	//TODO: docelowo zmienić na inną ikonkę na panelu   
+	if (status == MQTT_CONNECTED)
 		objWiFiStatus.setPic(PICTURE_WIFI_ON);
 	else
 		objWiFiStatus.setPic(PICTURE_WIFI_OFF);
@@ -625,7 +724,12 @@ void onSliderLightPop(void *ptr)
 DisplayControler::DisplayControler()
 {
 	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
-	
+
+  //disp;
+  //TDisplayBuffer disp;
+  //TDisplayBuffer curr;
+
+  
 	screenDateTime.minute = 99;
 	screenDateTime.hour = 99;
 	screenDateTime.day = 99;
@@ -678,7 +782,21 @@ void DisplayControler::init() {
 	btnNightTempDec.attachPush(onBtnTempPush, &btnNightTempDec);
 
   objHeatingWorkingDaysMorningOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnDec);
-  objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc);  
+  objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc); 
+  objHeatingWorkingDaysMorningOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffDec);
+  objHeatingWorkingDaysMorningOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffInc);  
+  objHeatingWorkingDaysAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnDec);
+  objHeatingWorkingDaysAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnInc);  
+  objHeatingWorkingDaysAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffDec);
+  objHeatingWorkingDaysAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffInc);  
+  objHeatingWeekendMorningOnDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnDec);
+  objHeatingWeekendMorningOnInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnInc); 
+  objHeatingWeekendMorningOffDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffDec);
+  objHeatingWeekendMorningOffInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffInc);  
+  objHeatingWeekendAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnDec);
+  objHeatingWeekendAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnInc);  
+  objHeatingWeekendAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffDec);
+  objHeatingWeekendAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffInc); 
 
 	bDateTimeNext.attachPush(onBtnbDateTimeNextPush, &bDateTimeNext);
 	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);

@@ -17,4 +17,28 @@ typedef struct {
   uint8_t hour;
 }   TShortTime;
 
+typedef struct {
+	//Time
+	TDateTime dateTime;
+	//Indoor sensor
+	float indoorTemperature;
+	float indoorHumidity;
+	float indoorPressure;  
+	//Outdoor sensor
+	float outdoorTemperature;
+	float outdoorHumidity;
+	float outdoorPressure;  
+	//Heating
+	uint8_t heatingStatus;
+	//Network
+	uint8_t wifiStatus;	
+	uint8_t mqttStatus;		
+	//Switch
+	uint8_t switch1State;
+	uint8_t switch2State;
+	uint8_t switch3State;	
+}	TDisplayBuffer;
+
+
+
 #endif /* #ifndef __Types_H__ */

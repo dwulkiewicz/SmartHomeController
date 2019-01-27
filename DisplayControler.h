@@ -34,8 +34,7 @@ public:
 	void refreshOtherPage();
 
 	void showWiFiStatus(int8_t status);
-	void showMQTTConnected(bool connected);
-
+	void showMQTTStatus(int status);
 public: 
 	uint8_t currentPage; //todo przenieść do private, obudować
 	uint8_t currentTimeComponent; //todo przenieść do private, obudować
@@ -45,7 +44,10 @@ public:
 private:
 	static uint8_t dayOfWeekPic(uint8_t dayOfWeek);
 	static uint8_t monthPic(uint8_t month);
-	static uint8_t dayOfMonthPic(uint8_t digit);
+	static uint8_t dayOfMonthPic(uint8_t digit); 
+
+  static void onBtnTempPush(void *ptr);
+  
 private:
 	void refreshBathSw1(void);
 	void refreshBathSw2(void);
@@ -53,7 +55,14 @@ private:
   void refreshOutdoorTemperature(void);
   void refreshOutdoorHumidity(void);
   void refreshOutdoorPreasure(void);
+  void decHeatingTime(uint8_t idx, class NexText* obj);
+  void incHeatingTime(uint8_t idx, class NexText* obj);
+  void showHeatingTime(uint8_t idx, NexText* obj);
 private:
+  TDisplayBuffer disp;
+  TDisplayBuffer curr;
+
+
   //TODO: zmienne przenieść do struktury
 	//Time
 	TDateTime screenDateTime;
@@ -76,6 +85,9 @@ private:
 	uint8_t lastSw1State;
 	uint8_t lastSw2State;
 	uint8_t lastSw3State;
+
+
+ 
 };
 extern DisplayControler displayControler;
 #endif /* #ifndef __DisplayControler_H__ */

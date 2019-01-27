@@ -61,10 +61,10 @@ void TaskNextionLoop(void * pvParameters) {
 }
 //-----------------------------------------------------------------------------------------
 void TaskNetworkControlerLoop(void * pvParameters) {
-	Serial.printf("TaskOTALoop() running on core %d\r\n", xPortGetCoreID());
+	Serial.printf("TaskNetworkControlerLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		networkControler.loop();
-		vTaskDelay(10);
+		vTaskDelay(1);
 	}
 }
 //----------------------------------------------------------------------------------------

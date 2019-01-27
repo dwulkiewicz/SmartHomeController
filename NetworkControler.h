@@ -17,7 +17,7 @@ private:
   void initOTA();
   bool reconnect(); 
   static void mqttCallback(char* topic, byte* payload, unsigned int length);  
-  static String statusToString(int status);
+  static String statusMqttToString(int status);
 };
 extern NetworkControler networkControler;
 #endif /* #ifndef __NetworkControler_H__ */

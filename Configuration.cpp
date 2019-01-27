@@ -229,7 +229,7 @@ bool Configuration::decrementHisteresisTemperature() {
 	return false;
 }
 
-TShortTime Configuration::getHeatingTime(uint8_t idx){
+TShortTime Configuration::getHeatingTime(uint8_t idx){ 
   return heatingTimes[idx];  
 }
 
@@ -246,7 +246,7 @@ bool Configuration::incrementHeatingTime(uint8_t idx){
        heatingTimes[idx].hour++; 
      else
        heatingTimes[idx].hour = 0; 
-     }                  
+     }               
   saveHeatingTime(idx);
   return true;                     
 }
@@ -329,15 +329,15 @@ void Configuration::print(){
   Serial.printf("dayTemp: %.1f\r\n", getDayTemperature());
   Serial.printf("nightTemp: %.1f\r\n", getNightTemperature());
   Serial.printf("hysteresisTemp: %.1f\r\n", getHisteresisTemp());
-  Serial.printf("HEATING_WORKING_DAYS_MORNING_ON: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute);
-  Serial.printf("HEATING_WORKING_DAYS_MORNING_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].minute);
-  Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_ON: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].hour,heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].minute);
-  Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].hour,heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].minute);
-  Serial.printf("HEATING_WEEKEND_MORNING_ON: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_ON].hour,heatingTimes[HEATING_WEEKEND_MORNING_ON].minute);
-  Serial.printf("HEATING_WORKING_DAYS_MORNING_ON: %2d:%2d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute);
-  Serial.printf("HEATING_WEEKEND_MORNING_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_OFF].hour,heatingTimes[HEATING_WEEKEND_MORNING_OFF].minute);
-  Serial.printf("HEATING_WEEKEND_AFTERNOON_ON: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour,heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute);
-  Serial.printf("HEATING_WEEKEND_AFTERNOON_OFF: %2d:%2d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour,heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute);             
+  Serial.printf("HEATING_WORKING_DAYS_MORNING_ON: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute);
+  Serial.printf("HEATING_WORKING_DAYS_MORNING_OFF: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].minute);
+  Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_ON: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].hour,heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].minute);
+  Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_OFF: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].hour,heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].minute);
+  Serial.printf("HEATING_WEEKEND_MORNING_ON: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_ON].hour,heatingTimes[HEATING_WEEKEND_MORNING_ON].minute);
+  Serial.printf("HEATING_WORKING_DAYS_MORNING_ON: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour,heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute);
+  Serial.printf("HEATING_WEEKEND_MORNING_OFF: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_OFF].hour,heatingTimes[HEATING_WEEKEND_MORNING_OFF].minute);
+  Serial.printf("HEATING_WEEKEND_AFTERNOON_ON: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour,heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute);
+  Serial.printf("HEATING_WEEKEND_AFTERNOON_OFF: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour,heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute);             
 }
 
 Configuration configuration;

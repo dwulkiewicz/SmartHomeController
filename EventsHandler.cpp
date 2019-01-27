@@ -49,5 +49,15 @@ void EventsHandler::onRefreshOutdoorHumidity(float value) {
 void EventsHandler::onRefreshOutdoorPressure(float value) {
   displayControler.onRefreshOutdoorPreasure(value);
 }
+//----------------------------------------------------------------------------------------
+void EventsHandler::onWiFiStatusChange(uint8_t status){
+  displayControler.showWiFiStatus(status);  
+}
+//----------------------------------------------------------------------------------------
+void EventsHandler::onMQTTStatusChange(int status){
+  //TODO: zmienić na status
+  displayControler.showMQTTStatus(status);    
+}
+
 
 EventsHandler eventsHandler;

@@ -61,15 +61,13 @@ void NetworkControler::initWiFi(){
   WiFi.setHostname(hostname.c_str());
 
   // Wait for connection
-  //TODO: uwaga na wotchdoga, trzeba wyjść jak się nie uda połączyć i obsłużyć poprawnie brak połączenia z WiFi   
+  //TODO: uwaga na wotchdoga, trzeba wyjść jak się nie uda połączyć i obsłużyć poprawnie brak połączenia z WiFi, do przerobienia połączenie do sieci WiFi   
   while (WiFi.status() != WL_CONNECTED) {
-    //TODO: przerobić na metodę z EventHandlera
-    displayControler.showWiFiStatus(WiFi.status());
+    eventsHandler.onWiFiStatusChange(WiFi.status());    
     delay(500);
     Serial.print(".");
-  }
-  //TODO: przerobić na metodę z EventHandlera
-  displayControler.showWiFiStatus(WiFi.status());
+  }  
+  eventsHandler.onWiFiStatusChange(WiFi.status());    
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.printf("IP address: %s Hostname: %s\r\n", WiFi.localIP().toString().c_str(), hostname.c_str());  
@@ -111,26 +109,20 @@ void NetworkControler::initOTA(){
 }
 //----------------------------------------------------------------------------------------
 bool NetworkControler::reconnect() {
-	displayControler.showMQTTConnected(false);
-	// Loop until we're reconnected
-  String stateStr; 
 	if (!client.connected()) {
-		int state = client.state();
-		stateStr = NetworkControler::statusToString(state);
-		Serial.printf("MQTT state %s, attempting connection...\r\n", stateStr.c_str());
+		Serial.printf("MQTT state: %s, attempting connection...\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
+    eventsHandler.onMQTTStatusChange(client.state()); 
 		// Attempt to connect
 		String hostname = NetworkControler::getHostName();
-		if (client.connect(hostname.c_str())) {
-			displayControler.showMQTTConnected(true);
+		if (client.connect(hostname.c_str())) {				
 			Serial.printf("MQTT connected as %s\r\n", hostname.c_str());
-
+      eventsHandler.onMQTTStatusChange(client.state());
+      
 			//TODO: przerobić na oczyt stanu 
 			//Po ponownym podłączeniu wysyłam ostatni stan     
 			//client.publish(switchesRespChannel01, "off");
 			//client.publish(switchesRespChannel02, "off");
-
-			// ... and resubscribe
-			// można subskrybować wiele topików
+			// ... and resubscribe (można subskrybować wiele topików)
 			client.subscribe(sensorsBME280TemperatureTopic);
 			client.subscribe(sensorsBME280HumidityTopic);
 			client.subscribe(sensorsBME280PressureTopic);
@@ -139,10 +131,9 @@ bool NetworkControler::reconnect() {
 			client.subscribe(switchesReqChannel02);
 			return true;
 		}
-		else {
-      int state = client.state();
-      stateStr = NetworkControler::statusToString(state);  
-			Serial.printf("MQTT reconnect failed, state %s\r\n", stateStr.c_str());
+		else {   
+			Serial.printf("MQTT reconnect failed, state: %s\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
+      eventsHandler.onMQTTStatusChange(client.state());       
 			return false;
 		}
 	}
@@ -208,7 +199,7 @@ void NetworkControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 	client.publish(topic, msg.c_str());
 }
 //----------------------------------------------------------------------------------------
-String NetworkControler::statusToString(int status) {
+String NetworkControler::statusMqttToString(int status) {
 	switch (status) {
 	case MQTT_CONNECTION_TIMEOUT:		  return "MQTT_CONNECTION_TIMEOUT"; 
 	case MQTT_CONNECTION_LOST:			  return "MQTT_CONNECTION_LOST"; 
