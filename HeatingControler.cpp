@@ -31,7 +31,7 @@ void HeatingControler::onRefreshDateTime(const TDateTime& dateTime) {
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::onRefreshIndoorTemp(float indoorTemp) {
-	if (round(currIndoorTemp * 10) != round(indoorTemp * 10) {
+	if (round(currIndoorTemp * 10) != round(indoorTemp * 10)) {
 		currIndoorTemp = indoorTemp;
 		//Serial.printf("HeatingControler::onRefreshIndoorTemp() %.1f\r\n", currIndoorTemp);
 		refresh();
