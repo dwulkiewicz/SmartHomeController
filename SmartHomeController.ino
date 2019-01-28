@@ -28,7 +28,7 @@ void TaskTempSensorLoop(void * pvParameters) {
 	Serial.printf("TaskTempSensorLoop() running on core %d\r\n", xPortGetCoreID());
 	while (true) {
 		xSemaphoreTake(xMutex, portMAX_DELAY);
-		eventsHandler.onRefreshIndoorTemperature();
+		sensorsHelper.loop();
 		xSemaphoreGive(xMutex);
 		vTaskDelay(pdMS_TO_TICKS(TASK_INDOOR_TEMP_SENSOR_LOOP));
 	}
@@ -115,7 +115,7 @@ void setup() {
 		Serial.println("done\n");
 
 	configuration.init();
-	SensorsHelper::init();
+	sensorsHelper.init();
 	displayControler.init();
 	networkControler.init();
 	lightsControler.init();

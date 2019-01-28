@@ -205,14 +205,14 @@ void onBathSwPush(void *ptr)
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {  
-  currHeatingStatus = heatingStatus;
+  curr.heatingStatus = heatingStatus;
   if (currentPage != PG_MAIN_ID)
     return;
   String statusStr = HeatingControler::heatingStatusName(heatingStatus);   
   Serial.printf("DisplayControler::refreshHeatingStatus() status: %s\r\n", statusStr.c_str());
-  if (screenHeatingStatus != currHeatingStatus) {
-    if (currentPage == PG_MAIN_ID && objHeatingStatus.setPic(currHeatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_EMPTY)){
-      screenHeatingStatus = currHeatingStatus;
+  if (disp.heatingStatus != curr.heatingStatus) {
+    if (currentPage == PG_MAIN_ID && objHeatingStatus.setPic(curr.heatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_EMPTY)){
+      disp.heatingStatus = curr.heatingStatus;
     }
   }
 }
@@ -569,66 +569,76 @@ void DisplayControler::onRefreshDateTime(const TDateTime& dateTime) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshIndoorTemperature() {
-	if (currentPage != PG_MAIN_ID)
-		return;
-	char buf[10];
-	/*Indoor temperature*/
-	uint16_t t = SensorsHelper::getTemperature();
-	uint8_t t1 = t / 10;
-	uint8_t t2 = t % 10;
-	if (lastTemp1 != t1) {
-		sprintf(buf, "%02d", t1);
-		if (currentPage == PG_MAIN_ID && tIndoorTemp1.setText(buf))
-			lastTemp1 = t1;
-	}
-	if (lastTemp2 != t2) {
-		sprintf(buf, "%01d", t2);
-		if (currentPage == PG_MAIN_ID && tIndoorTemp2.setText(buf))
-			lastTemp2 = t2;
-	}
-	/*Indoor humanidity*/
-	uint16_t h = SensorsHelper::getHumidity();
-	if (lastHumidity != h) {
-		sprintf(buf, "%02d%%", h);
-		if (currentPage == PG_MAIN_ID && tIndoorHumidity.setText(buf))
-			lastHumidity = h;
-	}
-	/*Indoor preasure*/
-	uint16_t p = SensorsHelper::getPreasure();
+void DisplayControler::onRefreshIndoorTemperature(float indoorTemp) {  
+  curr.indoorTemperature = round(indoorTemp * 10);  
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::onRefresIndoorHumidity(float indoorHumidity) {
+  curr.indoorHumidity = round(indoorHumidity);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::onRefreshIndoorPreasure(float indoorPressure) {
+  curr.pressure = round(indoorPressure); 
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onRefreshOutdoorTemperature(float outdoorTemp) {
-  currOutdoorTemp = outdoorTemp;
+  curr.outdoorTemperature = round(outdoorTemp * 10); ;  
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onRefreshOutdoorHumidity(float outdoorHumidity) {
-  currOutdoorHumidity = outdoorHumidity;
+  curr.outdoorHumidity = round(outdoorHumidity);
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::onRefreshOutdoorPreasure(float outdoorPressure) {
-  currOutdoorPressure = outdoorPressure;
+void DisplayControler::onRefreshOutdoorPreasure(float outdoorPressure) {  
+  //wewnętrzny sensor BME280 będzie dokładniejszy bo ma stałą temperaturę działania
+  //curr.pressure = round(outdoorPressure);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshIndoorTemperature() {  
+  if (currentPage == PG_MAIN_ID && disp.indoorTemperature != curr.indoorTemperature){      
+    uint8_t t1 = curr.indoorTemperature / 10;
+    uint8_t t2 = curr.indoorTemperature % 10;
+    char buf1[3];
+    char buf2[3];  
+    sprintf(buf1, "%02d", t1);  
+    sprintf(buf2, "%01d", t2);
+    Serial.printf("DisplayControler::refreshIndoorTemperature() %s.%s*C\r\n", buf1, buf2);     
+    if (currentPage == PG_MAIN_ID && tIndoorTemp1.setText(buf1) && tIndoorTemp2.setText(buf2)){
+      disp.indoorTemperature = curr.indoorTemperature;    
+    }      
+  }
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshIndoorHumidity() {
+  if (currentPage == PG_MAIN_ID && disp.indoorHumidity != curr.indoorHumidity){  
+    Serial.printf("DisplayControler::refreshIndoorHumidity() %2d%%\r\n", curr.indoorHumidity);       
+    char buf[5];
+    sprintf(buf, "%02d%%", curr.indoorHumidity);
+    if (currentPage == PG_MAIN_ID && tIndoorHumidity.setText(buf))
+      disp.indoorHumidity = curr.indoorHumidity;    
+  }
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshOutdoorTemperature() {  
-  if (currentPage == PG_MAIN_ID && screenOutdoorTemp != currOutdoorTemp){
-    Serial.printf("DisplayControler::refreshOutdoorTemperature() %.1f\r\n", currOutdoorTemp); 	
+  if (currentPage == PG_MAIN_ID && disp.outdoorTemperature != curr.outdoorTemperature){         
+    Serial.printf("DisplayControler::refreshOutdoorTemperature() %.1f*C\r\n", curr.outdoorTemperature/10); 	    
+    
     bool ret1 = false;
     bool ret2 = false;
     bool ret3 = false;    
-  	int outdoorTempInt = abs(currOutdoorTemp * 10);  
+  	int outdoorTempInt = abs(curr.outdoorTemperature);  
   	//poniżej -10.0
-  	if (currOutdoorTemp <= -10.0){
+  	if (curr.outdoorTemperature <= -100){
   		ret1 = tOutdoorTempSymbol.setText("-");
   		ret2 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
   	}
     //od -9.9 do -1.0
-    else if (currOutdoorTemp >= -9.9 & currOutdoorTemp <= -1.0){
+    else if (curr.outdoorTemperature >= -99 & curr.outdoorTemperature <= -10){
       ret1 = tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
       ret2 = tOutdoorTempSymbol.setText("");     
     }
   	//od -0.9 do -0.1
-  	else if (currOutdoorTemp >= -0.9 & currOutdoorTemp <= -0.1){
+  	else if (curr.outdoorTemperature >= -9 & curr.outdoorTemperature <= -1){
       char buf[3];
       sprintf(buf, "-%01d%", outdoorTempInt / 10);      
   		ret1 = tOutdoorTemp1.setText(buf);
@@ -641,31 +651,28 @@ void DisplayControler::refreshOutdoorTemperature() {
   	}
   	ret3 = tOutdoorTemp2.setText(String(outdoorTempInt % 10).c_str());
     if (ret1 && ret2 && ret3){
-      screenOutdoorTemp = currOutdoorTemp;    
+      disp.outdoorTemperature = curr.outdoorTemperature;    
     }
   }
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshOutdoorHumidity() {
-  if (currentPage == PG_MAIN_ID && screenOutdoorHumidity != currOutdoorHumidity)
-  {
-      Serial.printf("DisplayControler::refreshOutdoorHumidity() %.1f\r\n", currOutdoorHumidity);
-      int ih = round(currOutdoorHumidity);
-      char buf[10];
-      sprintf(buf, "%02d%%", ih);
-      if (tOutdoorHumidity.setText(buf))
-        screenOutdoorHumidity = currOutdoorHumidity;   
+  if (currentPage == PG_MAIN_ID && disp.outdoorHumidity != curr.outdoorHumidity){
+    Serial.printf("DisplayControler::refreshOutdoorHumidity() %2d%%\r\n", curr.outdoorHumidity);
+    char buf[10];
+    sprintf(buf, "%02d%%", curr.outdoorHumidity);
+    if (tOutdoorHumidity.setText(buf))
+      disp.outdoorHumidity = curr.outdoorHumidity;   
   }
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshOutdoorPreasure() {
-  if (currentPage == PG_MAIN_ID && screenOutdoorPressure != currOutdoorPressure){
-	Serial.printf("DisplayControler::onRefreshOutdoorPreasure() %.1f\r\n", currOutdoorPressure);
-	int ip = round(currOutdoorPressure);
-	char buf[10];
-	sprintf(buf, "%02dhPa", ip);
-	if(tOutdoorPreasure.setText(buf))
-    screenOutdoorPressure = currOutdoorPressure;
+void DisplayControler::refreshPreasure() {
+  if (currentPage == PG_MAIN_ID && disp.pressure != curr.pressure){
+  	Serial.printf("DisplayControler::refreshPreasure() %3dhPa\r\n", curr.pressure);
+  	char buf[10];
+  	sprintf(buf, "%03dhPa", curr.pressure);
+  	if(tOutdoorPreasure.setText(buf))
+      disp.pressure = curr.pressure;
   }
 }
 //----------------------------------------------------------------------------------------
@@ -725,11 +732,6 @@ DisplayControler::DisplayControler()
 {
 	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
 
-  //disp;
-  //TDisplayBuffer disp;
-  //TDisplayBuffer curr;
-
-  
 	screenDateTime.minute = 99;
 	screenDateTime.hour = 99;
 	screenDateTime.day = 99;
@@ -742,12 +744,13 @@ DisplayControler::DisplayControler()
 	currDateTime.month = 99;
 	currDateTime.dayOfWeek = 99;
 
-  screenOutdoorTemp = 99;
-  screenOutdoorHumidity = 0;
-  screenOutdoorPressure = 0;  
-  currOutdoorTemp = 99;
-  currOutdoorHumidity = 0;
-  currOutdoorPressure = 0;  
+  disp.outdoorTemperature = 99;
+  disp.outdoorHumidity = 0;
+  disp.pressure = 0;  
+  
+  curr.outdoorTemperature = 99;
+  curr.outdoorHumidity = 0;
+  curr.pressure = 0;  
 
 	lastSw1State = SW_ON;
 	lastSw2State = SW_ON;
@@ -757,8 +760,8 @@ DisplayControler::DisplayControler()
 	sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 
-  currHeatingStatus = HEATING_STATUS_HEAT;
-  screenHeatingStatus = HEATING_STATUS_HEAT; 
+  curr.heatingStatus = HEATING_STATUS_HEAT;
+  disp.heatingStatus = HEATING_STATUS_HEAT; 
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::init() {
@@ -865,14 +868,20 @@ void DisplayControler::loop() {
 		refreshBathSw2();
 	if (sw3State != lastSw3State)
 		refreshBathSw3();
-  if (screenOutdoorTemp != currOutdoorTemp)
-    refreshOutdoorTemperature();
-  if (screenOutdoorHumidity != currOutdoorHumidity)
+
+  if (disp.indoorTemperature != curr.indoorTemperature)
+    refreshIndoorTemperature();  
+  if (disp.indoorHumidity != curr.indoorHumidity)
+    refreshIndoorHumidity();     
+  if (disp.outdoorTemperature != curr.outdoorTemperature)
+    refreshOutdoorTemperature();  
+  if (disp.outdoorHumidity != curr.outdoorHumidity)
     refreshOutdoorHumidity();
-  if (screenOutdoorPressure != currOutdoorPressure)
-    refreshOutdoorPreasure();   
-  if(currHeatingStatus != screenHeatingStatus)
-    refreshHeatingStatus(currHeatingStatus);              
+  if (disp.pressure != curr.pressure)
+    refreshPreasure();   
+    
+  if(disp.heatingStatus != curr.heatingStatus)
+    refreshHeatingStatus(curr.heatingStatus);              
 }
 
 DisplayControler displayControler;

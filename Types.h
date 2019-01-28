@@ -21,13 +21,15 @@ typedef struct {
 	//Time
 	TDateTime dateTime;
 	//Indoor sensor
-	float indoorTemperature;
-	float indoorHumidity;
-	float indoorPressure;  
+	uint16_t indoorTemperature;
+	uint8_t indoorHumidity;
 	//Outdoor sensor
-	float outdoorTemperature;
-	float outdoorHumidity;
-	float outdoorPressure;  
+	int outdoorTemperature;
+	uint8_t outdoorHumidity;
+  //
+  uint16_t pressure;    
+  //uint16_t indoorPressure;    
+	//uint16_t outdoorPressure;  
 	//Heating
 	uint8_t heatingStatus;
 	//Network

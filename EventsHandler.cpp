@@ -5,18 +5,20 @@
 #include "NetworkControler.h"
 #include "SensorsHelper.h"
 
-EventsHandler::EventsHandler()
-{  
+EventsHandler::EventsHandler(){  
 }
 //----------------------------------------------------------------------------------------
-void EventsHandler::onRefreshIndoorTemperature(){
-    //TODO: dodać klasę SensorControler 
-	
-	displayControler.refreshIndoorTemperature(); 
-
-	float indoorTemp = SensorsHelper::getTemperature() / 10;
-
-	heatingControler.onRefreshIndoorTemp(indoorTemp);
+void EventsHandler::onRefreshIndoorTemperature(float value){
+ 	displayControler.onRefreshIndoorTemperature(value); 
+  heatingControler.onRefreshIndoorTemp(value);  
+}
+//----------------------------------------------------------------------------------------
+void EventsHandler::onRefreshIndoorPreasure(float value){
+  displayControler.onRefreshIndoorPreasure(value); 
+}
+//----------------------------------------------------------------------------------------
+void EventsHandler::onRefreshIndoorHumidity(float value){
+  displayControler.onRefresIndoorHumidity(value);
 }
 //----------------------------------------------------------------------------------------
 void EventsHandler::onHeatingStatusChange(uint8_t status) {

@@ -24,32 +24,35 @@ void HeatingControler::init() {
 void HeatingControler::onRefreshDateTime(const TDateTime& dateTime) {	
 	if (currDateTime.minute != dateTime.minute || currDateTime.hour != dateTime.hour || currDateTime.dayOfWeek != dateTime.dayOfWeek) {
 		currDateTime = dateTime;  
-    String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfWeek);  
-		Serial.printf("HeatingControler::onRefreshDateTime() %s %02d:%02d\r\n", dayOfWeekStr.c_str(), currDateTime.hour, dateTime.minute);
+    //String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfWeek);  
+		//Serial.printf("HeatingControler::onRefreshDateTime() %s %02d:%02d\r\n", dayOfWeekStr.c_str(), currDateTime.hour, dateTime.minute);
 		refresh();
 	}
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::onRefreshIndoorTemp(float indoorTemp) {
-
-	if (currIndoorTemp != indoorTemp) {
+	if (round(currIndoorTemp * 10) != round(indoorTemp * 10) {
 		currIndoorTemp = indoorTemp;
-		Serial.printf("HeatingControler::onRefreshIndoorTemp() %.1f\r\n", currIndoorTemp);
+		//Serial.printf("HeatingControler::onRefreshIndoorTemp() %.1f\r\n", currIndoorTemp);
 		refresh();
 	}
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::onConfigurationChange(){
-  Serial.printf("HeatingControler::onConfigurationChange()\r\n");
+  //Serial.printf("HeatingControler::onConfigurationChange()\r\n");
   refresh();  
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::refresh() {	
-	//TODO: oczywiście to poniżej do zmiany
 	float dayTemp = configuration.getDayTemperature();
   float histeresisTemp = configuration.getHisteresisTemp();
-	Serial.printf("HeatingControler::refresh() currTemp: %.1f dayTemp: %.1f histeresisTemp: %.1f\r\n", currIndoorTemp, dayTemp, histeresisTemp);
-	if (currIndoorTemp < dayTemp) {
+  String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfWeek);   
+	Serial.printf("HeatingControler::refresh() time: %s %02d:%02d currTemp: %f dayTemp: %f histeresisTemp: %f\r\n", dayOfWeekStr.c_str(), currDateTime.hour, currDateTime.minute, currIndoorTemp, dayTemp, histeresisTemp);
+	
+  //TODO: oczywiście to poniżej do zmiany
+  
+	
+	if (currIndoorTemp < dayTemp){
     setStatus(HEATING_STATUS_HEAT);
 		digitalWrite(GPIO_RELAY, HIGH);
 	}

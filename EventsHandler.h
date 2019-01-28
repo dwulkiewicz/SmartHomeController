@@ -10,14 +10,22 @@ class EventsHandler
 public:
 	EventsHandler();
 public:
-  void onRefreshIndoorTemperature();
+  //DateTime
   void onRefreshDateTime(const TDateTime& dateTime);
+  //Switches
   void onSwitchChange(uint8_t switchId, uint8_t switchState); 
+  //Heating
   void onHeatingStatusChange(uint8_t status);
   void onHeatingConfigurationChange(void);  
+  //Indoor
+  void onRefreshIndoorTemperature(float value);
+  void onRefreshIndoorPreasure(float value);
+  void onRefreshIndoorHumidity(float value);  
+  //Outdoor
   void onRefreshOutdoorTemperature(float value);
   void onRefreshOutdoorHumidity(float value);
   void onRefreshOutdoorPressure(float value);
+  //Network connectiom
   void onWiFiStatusChange(uint8_t status);
   void onMQTTStatusChange(int status);     
 };

@@ -21,13 +21,15 @@ public:
 	void loop();
 public:
 	void onRefreshDateTime(const TDateTime& dateTime);
+  void onRefreshIndoorTemperature(float indoorTemp);
+  void onRefresIndoorHumidity(float indoorHumidity);
+  void onRefreshIndoorPreasure(float indoorPressure);  
   void onRefreshOutdoorTemperature(float outdoorTemp);
   void onRefreshOutdoorHumidity(float outdoorHumidity);
   void onRefreshOutdoorPreasure(float outdoorPressure);
   void onSwitchChanged(uint8_t switchId, uint8_t switchState);
   void refreshHeatingStatus(uint8_t heatingStatus);
-  
-	void refreshIndoorTemperature();
+
 	void refresMainPage();
 	void refreshHeatingPage();
 	void refreshLightsPage();
@@ -49,12 +51,14 @@ private:
   static void onBtnTempPush(void *ptr);
   
 private:
-	void refreshBathSw1(void);
-	void refreshBathSw2(void);
-	void refreshBathSw3(void);
-  void refreshOutdoorTemperature(void);
-  void refreshOutdoorHumidity(void);
-  void refreshOutdoorPreasure(void);
+	void refreshBathSw1();
+	void refreshBathSw2();
+	void refreshBathSw3();
+  void refreshIndoorTemperature();
+  void refreshIndoorHumidity();  
+  void refreshOutdoorTemperature();
+  void refreshOutdoorHumidity();
+  void refreshPreasure();
   void decHeatingTime(uint8_t idx, class NexText* obj);
   void incHeatingTime(uint8_t idx, class NexText* obj);
   void showHeatingTime(uint8_t idx, NexText* obj);
@@ -62,31 +66,15 @@ private:
   TDisplayBuffer disp;
   TDisplayBuffer curr;
 
-
   //TODO: zmienne przenieść do struktury
 	//Time
 	TDateTime screenDateTime;
 	TDateTime currDateTime;
-	//Indoor sensor
-	uint8_t lastTemp1 = 255;
-	uint8_t lastTemp2 = 255;
-	uint16_t lastHumidity = 999;
-  //Outdoor sensor
-  float screenOutdoorTemp;
-  float screenOutdoorHumidity;
-  float screenOutdoorPressure;  
-  float currOutdoorTemp;
-  float currOutdoorHumidity;
-  float currOutdoorPressure;    
-  //Heating
-  uint8_t currHeatingStatus;
-  uint8_t screenHeatingStatus;
+
   //Switch
 	uint8_t lastSw1State;
 	uint8_t lastSw2State;
 	uint8_t lastSw3State;
-
-
  
 };
 extern DisplayControler displayControler;
