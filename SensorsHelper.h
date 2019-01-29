@@ -11,10 +11,10 @@ public:
 	SensorsHelper();
 public:
 	void init();
-  void loop();
+	void loop();
 	float getTemperature();
-  float getHumidity();
-  float getPreasure();  
+	float getHumidity();
+	float getPreasure();  
 private:
   Adafruit_BME280 bme; // I2C
 };

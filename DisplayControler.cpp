@@ -109,11 +109,15 @@ NexPage pgOther = NexPage(PG_OTHER_ID, 0, PG_OTHER_NAME);
 NexText tYear = NexText(PG_OTHER_ID, OBJ_TIME_YEAR_ID, OBJ_TIME_YEAR_NAME);
 NexText tMonth = NexText(PG_OTHER_ID, OBJ_TIME_MONTH_ID, OBJ_TIME_MONTH_NAME);
 NexText tDay = NexText(PG_OTHER_ID, OBJ_TIME_DAY_ID, OBJ_TIME_DAY_NAME);
-NexText tDayW = NexText(PG_OTHER_ID, OBJ_TIME_DAY_OF_WEEK_ID, OBJ_TIME_DAY_OF_WEEK_NAME);
+//NexText tDayW = NexText(PG_OTHER_ID, OBJ_TIME_DAY_OF_WEEK_ID, OBJ_TIME_DAY_OF_WEEK_NAME);
 NexText tHour = NexText(PG_OTHER_ID, OBJ_TIME_HOUR_ID, OBJ_TIME_HOUR_NAME);
 NexText tMinute = NexText(PG_OTHER_ID, OBJ_TIME_MINUTE_ID, OBJ_TIME_MINUTE_NAME);
 NexButton bDateTimeNext = NexButton(PG_OTHER_ID, OBJ_TIME_NEXT_ID, OBJ_TIME_NEXT_NAME);
 NexButton bDateTimeSet = NexButton(PG_OTHER_ID, OBJ_TIME_SET_ID, OBJ_TIME_SET_NAME);
+//Histereza ogrzewania
+NexText objHeatingHisteresisVal(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_VAL_ID, OBJ_HEATING_HISTERESIS_VAL_NAME);
+NexButton objHeatingHisteresisDec(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_DEC_ID, OBJ_HEATING_HISTERESIS_DEC_NAME);
+NexButton objHeatingHisteresisInc(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_INC_ID, OBJ_HEATING_HISTERESIS_INC_NAME);
 
 /*
   Register a button object to the touch event list.
@@ -153,7 +157,9 @@ NexTouch *nex_listen_list[] =
   &objHeatingWeekendAfternoonOnDec,
   &objHeatingWeekendAfternoonOnInc,
   &objHeatingWeekendAfternoonOffDec,
-  &objHeatingWeekendAfternoonOffInc, 
+  &objHeatingWeekendAfternoonOffInc,
+  &objHeatingHisteresisDec,
+  &objHeatingHisteresisInc,
   NULL
 };
 //----------------------------------------------------------------------------------------
@@ -349,6 +355,29 @@ void DisplayControler::onBtnTempPush(void *ptr) {
   eventsHandler.onHeatingConfigurationChange();
 }
 //----------------------------------------------------------------------------------------
+void DisplayControler::onBtnTempHisteresisPush(void *ptr) {
+	NexButton *btn = (NexButton *)ptr;
+	Serial.printf("onBtnTempHisteresisPush(): pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
+
+	char buf[8];
+	switch (btn->getObjCid()) {
+	case OBJ_HEATING_HISTERESIS_INC_ID:
+		if (configuration.incrementHisteresisTemperature()) {				
+			dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
+			objHeatingHisteresisVal.setText(buf);
+			eventsHandler.onHeatingConfigurationChange();
+		}
+		break;
+	case OBJ_HEATING_HISTERESIS_DEC_ID:
+		if (configuration.decrementHisteresisTemperature()) {
+			dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
+			objHeatingHisteresisVal.setText(buf);
+			eventsHandler.onHeatingConfigurationChange();
+		}
+		break;
+	}
+}
+//----------------------------------------------------------------------------------------
 void DisplayControler::decHeatingTime(uint8_t idx, class NexText* obj){
   if (configuration.decrementHeatingTime(idx)) {
     showHeatingTime(idx,obj);
@@ -399,18 +428,21 @@ void DisplayControler::refreshOtherPage()
 	currentTimeComponent = SETUP_DATETIME_YEAR;
 
 	char buf[5];
-	sprintf(buf, "%02d", rtc.year());
+	sprintf(buf, "%02d", curr.dateTime.year);
 	tYear.setText(buf);
-	sprintf(buf, "%02d", rtc.month());
+	sprintf(buf, "%02d", curr.dateTime.month);
 	tMonth.setText(buf);
-	sprintf(buf, "%02d", rtc.day());
+	sprintf(buf, "%02d", curr.dateTime.day);
 	tDay.setText(buf);
-	sprintf(buf, "%02d", rtc.hour());
+	sprintf(buf, "%02d", curr.dateTime.hour);
 	tHour.setText(buf);
-	sprintf(buf, "%02d", rtc.minute());
+	sprintf(buf, "%02d", curr.dateTime.minute);
 	tMinute.setText(buf);
-	RtcControler::dayOfWeekName(buf, rtc.dayOfWeek());
-	tDayW.setText(buf);
+	//RtcControler::dayOfWeekName(buf, curr.dateTime.dayOfTheWeek);
+	//tDayW.setText(buf);
+
+	dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
+	objHeatingHisteresisVal.setText(buf);
 }
 //----------------------------------------------------------------------------------------
 void onBtnbDateTimeNextPush(void *ptr)
@@ -431,11 +463,6 @@ void onBtnbDateTimeNextPush(void *ptr)
 		break;
 	case SETUP_DATETIME_DAY:
 		tDay.Set_font_color_pco(COLOR_YELLOW);
-		tDayW.Set_font_color_pco(COLOR_RED);
-		displayControler.currentTimeComponent = SETUP_DATETIME_DAY_OF_WEEK;
-		break;
-	case SETUP_DATETIME_DAY_OF_WEEK:
-		tDayW.Set_font_color_pco(COLOR_YELLOW);
 		tHour.Set_font_color_pco(COLOR_RED);
 		displayControler.currentTimeComponent = SETUP_DATETIME_HOUR;
 		break;
@@ -456,116 +483,142 @@ void onBtnbDateTimeNextPush(void *ptr)
 	}
 }
 //----------------------------------------------------------------------------------------
-void onBtnbDateTimeSetPush(void *ptr)
+void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 {
 	NexButton *btn = (NexButton *)ptr;
 	Serial.printf("onBtnbDateTimeSetPush: %s\r\n", btn->getObjName());
 
-	rtc.refresh();
 	char buf[10];
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_YEAR) {
-		uint8_t year = rtc.year();
+		uint8_t year = displayControler.curr.dateTime.year;
 		if (year == 99)
 			year = 0;
 		else
 			year++;
-
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), year);
+		
+		DateTime dateTime(year + 2000,
+						  displayControler.curr.dateTime.month, 
+						  displayControler.curr.dateTime.day,
+						  displayControler.curr.dateTime.hour,
+						  displayControler.curr.dateTime.minute,
+						  0);
+		rtcControler.adjust(dateTime);
+		
+		//rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), year);
 
 		sprintf(buf, "%02d", year);
 		tYear.setText(buf);
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_MONTH) {
-		uint8_t month = rtc.month();
+		uint8_t month = displayControler.curr.dateTime.month;
 		if (month == 12)
 			month = 1;
 		else
 			month++;
 
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), month, rtc.year());
+		DateTime dateTime(displayControler.curr.dateTime.year + 2000,
+			month,
+			displayControler.curr.dateTime.day,
+			displayControler.curr.dateTime.hour,
+			displayControler.curr.dateTime.minute,
+			0);
+		rtcControler.adjust(dateTime);
+
+		//rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), month, rtc.year());
 
 		sprintf(buf, "%02d", month);
 		tMonth.setText(buf);
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_DAY) {
-		uint8_t day = rtc.day();
+		uint8_t day = displayControler.curr.dateTime.day;
 		if (day == 31)
 			day = 1;
 		else
 			day++;
 
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), day, rtc.month(), rtc.year());
+		DateTime dateTime(displayControler.curr.dateTime.year + 2000,
+			displayControler.curr.dateTime.month,
+			day,
+			displayControler.curr.dateTime.hour,
+			displayControler.curr.dateTime.minute,
+			0);
+		rtcControler.adjust(dateTime);
+
+		//rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), day, rtc.month(), rtc.year());
 
 		sprintf(buf, "%02d", day);
 		tDay.setText(buf);
 	}
-	if (displayControler.currentTimeComponent == SETUP_DATETIME_DAY_OF_WEEK) {
-		uint8_t dayOfWeek = rtc.dayOfWeek();
-		if (dayOfWeek == 7)
-			dayOfWeek = 1;
-		else
-			dayOfWeek++;
-
-		rtc.set(rtc.second(), rtc.minute(), rtc.hour(), dayOfWeek, rtc.day(), rtc.month(), rtc.year());
-
-		RtcControler::dayOfWeekName(buf, dayOfWeek);
-		tDayW.setText(buf);
-	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_HOUR) {
-		uint8_t hour = rtc.hour();
+		uint8_t hour = displayControler.curr.dateTime.hour;
 		if (hour == 23)
 			hour = 0;
 		else
 			hour++;
 
-		rtc.set(rtc.second(), rtc.minute(), hour, rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
+		DateTime dateTime(displayControler.curr.dateTime.year + 2000,
+			displayControler.curr.dateTime.month,
+			displayControler.curr.dateTime.day,
+			hour,
+			displayControler.curr.dateTime.minute,
+			0);
+		rtcControler.adjust(dateTime);
+
+		//rtc.set(rtc.second(), rtc.minute(), hour, rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
 
 		sprintf(buf, "%02d", hour);
 		tHour.setText(buf);
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_MINUTE) {
-		uint8_t minute = rtc.minute();
+		uint8_t minute = displayControler.curr.dateTime.minute;
 		if (minute == 59)
 			minute = 0;
 		else
 			minute++;
 
-		rtc.set(0, minute, rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
+		DateTime dateTime(displayControler.curr.dateTime.year + 2000,
+			displayControler.curr.dateTime.month,
+			displayControler.curr.dateTime.day,
+			displayControler.curr.dateTime.hour,
+			minute,
+			0);
+		rtcControler.adjust(dateTime);
+		//rtc.set(0, minute, rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), rtc.year());
 
 		sprintf(buf, "%02d", minute);
 		tMinute.setText(buf);
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::onRefreshDateTime(const TDateTime& dateTime) {
-	currDateTime = dateTime;
+void DisplayControler::onRefreshDateTime(const DateTime& dateTime) {
+	curr.set(dateTime);
 	//i tak się nie uda przesłać danych do Nextion jeżeli nie jest obecnie aktywna głowna strona
 	if (currentPage != PG_MAIN_ID)
 		return;
 	/*Hour*/
-	if (screenDateTime.hour != currDateTime.hour) {
-		if (currentPage == PG_MAIN_ID && tTime1.setText(String(currDateTime.hour / 10).c_str()) && tTime2.setText(String(currDateTime.hour % 10).c_str()))
-			screenDateTime.hour = currDateTime.hour;
+	if (disp.dateTime.hour != curr.dateTime.hour) {
+		if (currentPage == PG_MAIN_ID && tTime1.setText(String(curr.dateTime.hour / 10).c_str()) && tTime2.setText(String(curr.dateTime.hour % 10).c_str()))
+			disp.dateTime.hour = curr.dateTime.hour;
 	}
 	/*Minute*/
-	if (screenDateTime.minute != currDateTime.minute) {
-		if (currentPage == PG_MAIN_ID && tTime3.setText(String(currDateTime.minute / 10).c_str()) && tTime4.setText(String(currDateTime.minute % 10).c_str()))
-			screenDateTime.minute = currDateTime.minute;
+	if (disp.dateTime.minute != curr.dateTime.minute) {
+		if (currentPage == PG_MAIN_ID && tTime3.setText(String(curr.dateTime.minute / 10).c_str()) && tTime4.setText(String(curr.dateTime.minute % 10).c_str()))
+			disp.dateTime.minute = curr.dateTime.minute;
 	}
 	/*Month*/
-	if (screenDateTime.month != currDateTime.month) {
-		if (currentPage == PG_MAIN_ID && pMonth.setPic(monthPic(currDateTime.month)))
-			screenDateTime.month = currDateTime.month;
+	if (disp.dateTime.month != curr.dateTime.month) {
+		if (currentPage == PG_MAIN_ID && pMonth.setPic(monthPic(curr.dateTime.month)))
+			disp.dateTime.month = curr.dateTime.month;
 	}
 	/*Day of month*/
-	if (screenDateTime.day != currDateTime.day) {
-		if (currentPage == PG_MAIN_ID && pDayOfMonth1.setPic(dayOfMonthPic(currDateTime.day / 10)) && pDayOfMonth2.setPic(dayOfMonthPic(currDateTime.day % 10)))
-			screenDateTime.day = currDateTime.day;
+	if (disp.dateTime.day != curr.dateTime.day) {
+		if (currentPage == PG_MAIN_ID && pDayOfMonth1.setPic(dayOfMonthPic(curr.dateTime.day / 10)) && pDayOfMonth2.setPic(dayOfMonthPic(curr.dateTime.day % 10)))
+			disp.dateTime.day = curr.dateTime.day;
 	}
 	/*Day of week*/
-	if (screenDateTime.dayOfWeek != currDateTime.dayOfWeek) {
-		if (currentPage == PG_MAIN_ID && pDayOfWeek.setPic(dayOfWeekPic(currDateTime.dayOfWeek)))
-			screenDateTime.dayOfWeek = currDateTime.dayOfWeek;
+	if (disp.dateTime.dayOfTheWeek != curr.dateTime.dayOfTheWeek) {
+		if (currentPage == PG_MAIN_ID && pDayOfWeek.setPic(dayOfWeekPic(curr.dateTime.dayOfTheWeek)))
+			disp.dateTime.dayOfTheWeek = curr.dateTime.dayOfTheWeek;
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -732,25 +785,13 @@ DisplayControler::DisplayControler()
 {
 	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
 
-	screenDateTime.minute = 99;
-	screenDateTime.hour = 99;
-	screenDateTime.day = 99;
-	screenDateTime.month = 99;
-	screenDateTime.dayOfWeek = 99;
-
-	currDateTime.minute = 99;
-	currDateTime.hour = 99;
-	currDateTime.day = 99;
-	currDateTime.month = 99;
-	currDateTime.dayOfWeek = 99;
-
-  disp.outdoorTemperature = 99;
-  disp.outdoorHumidity = 0;
-  disp.pressure = 0;  
+	disp.outdoorTemperature = 99;
+	disp.outdoorHumidity = 0;
+	disp.pressure = 0;  
   
-  curr.outdoorTemperature = 99;
-  curr.outdoorHumidity = 0;
-  curr.pressure = 0;  
+	curr.outdoorTemperature = 99;
+	curr.outdoorHumidity = 0;
+	curr.pressure = 0;  
 
 	lastSw1State = SW_ON;
 	lastSw2State = SW_ON;
@@ -760,8 +801,8 @@ DisplayControler::DisplayControler()
 	sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 
-  curr.heatingStatus = HEATING_STATUS_HEAT;
-  disp.heatingStatus = HEATING_STATUS_HEAT; 
+	curr.heatingStatus = HEATING_STATUS_HEAT;
+	disp.heatingStatus = HEATING_STATUS_HEAT; 
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::init() {
@@ -803,6 +844,8 @@ void DisplayControler::init() {
 
 	bDateTimeNext.attachPush(onBtnbDateTimeNextPush, &bDateTimeNext);
 	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);
+	objHeatingHisteresisDec.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisDec);
+	objHeatingHisteresisInc.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisInc);
 
 	sldMain1.attachPop(onSliderLightPop, &sldMain1);
 	sldAdd1.attachPop(onSliderLightPop, &sldAdd1);

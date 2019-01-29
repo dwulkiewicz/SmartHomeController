@@ -11,7 +11,7 @@ public:
 	EventsHandler();
 public:
   //DateTime
-  void onRefreshDateTime(const TDateTime& dateTime);
+  void onRefreshDateTime(const DateTime& dateTime);
   //Switches
   void onSwitchChange(uint8_t switchId, uint8_t switchState); 
   //Heating

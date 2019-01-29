@@ -26,11 +26,11 @@ void EventsHandler::onHeatingStatusChange(uint8_t status) {
 }
 //----------------------------------------------------------------------------------------
 void EventsHandler::onHeatingConfigurationChange(void){
-  heatingControler.onConfigurationChange();  
+	heatingControler.onConfigurationChange();  
 }  
 //----------------------------------------------------------------------------------------
-void EventsHandler::onRefreshDateTime(const TDateTime& dateTime){
-  displayControler.onRefreshDateTime(dateTime);
+void EventsHandler::onRefreshDateTime(const DateTime& dateTime){
+	displayControler.onRefreshDateTime(dateTime);
 	heatingControler.onRefreshDateTime(dateTime);
 }
 //----------------------------------------------------------------------------------------

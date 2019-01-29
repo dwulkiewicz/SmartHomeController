@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 #include <Nextion.h>
-#include "RtcControler.h"
+
+#include "DisplayBuffer.h"
 
 #define SETUP_DATETIME_YEAR         0
 #define SETUP_DATETIME_MONTH        1
@@ -11,6 +12,9 @@
 #define SETUP_DATETIME_DAY_OF_WEEK  3
 #define SETUP_DATETIME_HOUR         4
 #define SETUP_DATETIME_MINUTE       5
+
+
+
 
 class DisplayControler
 {
@@ -20,15 +24,15 @@ public:
 	void init();
 	void loop();
 public:
-	void onRefreshDateTime(const TDateTime& dateTime);
-  void onRefreshIndoorTemperature(float indoorTemp);
-  void onRefresIndoorHumidity(float indoorHumidity);
-  void onRefreshIndoorPreasure(float indoorPressure);  
-  void onRefreshOutdoorTemperature(float outdoorTemp);
-  void onRefreshOutdoorHumidity(float outdoorHumidity);
-  void onRefreshOutdoorPreasure(float outdoorPressure);
-  void onSwitchChanged(uint8_t switchId, uint8_t switchState);
-  void refreshHeatingStatus(uint8_t heatingStatus);
+	void onRefreshDateTime(const DateTime& dateTime);
+	void onRefreshIndoorTemperature(float indoorTemp);
+	void onRefresIndoorHumidity(float indoorHumidity);
+	void onRefreshIndoorPreasure(float indoorPressure);  
+	void onRefreshOutdoorTemperature(float outdoorTemp);
+	void onRefreshOutdoorHumidity(float outdoorHumidity);
+	void onRefreshOutdoorPreasure(float outdoorPressure);
+	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+	void refreshHeatingStatus(uint8_t heatingStatus);
 
 	void refresMainPage();
 	void refreshHeatingPage();
@@ -48,29 +52,27 @@ private:
 	static uint8_t monthPic(uint8_t month);
 	static uint8_t dayOfMonthPic(uint8_t digit); 
 
-  static void onBtnTempPush(void *ptr);
+	static void onBtnTempPush(void *ptr);
+	static void onBtnbDateTimeSetPush(void *ptr);
+	static void onBtnTempHisteresisPush(void *ptr);
   
 private:
 	void refreshBathSw1();
 	void refreshBathSw2();
 	void refreshBathSw3();
-  void refreshIndoorTemperature();
-  void refreshIndoorHumidity();  
-  void refreshOutdoorTemperature();
-  void refreshOutdoorHumidity();
-  void refreshPreasure();
-  void decHeatingTime(uint8_t idx, class NexText* obj);
-  void incHeatingTime(uint8_t idx, class NexText* obj);
-  void showHeatingTime(uint8_t idx, NexText* obj);
+	void refreshIndoorTemperature();
+	void refreshIndoorHumidity();  
+	void refreshOutdoorTemperature();
+	void refreshOutdoorHumidity();
+	void refreshPreasure();
+	void decHeatingTime(uint8_t idx, class NexText* obj);
+	void incHeatingTime(uint8_t idx, class NexText* obj);
+	void showHeatingTime(uint8_t idx, NexText* obj);
 private:
-  TDisplayBuffer disp;
-  TDisplayBuffer curr;
+	DisplayBuffer disp;
+	DisplayBuffer curr;
 
   //TODO: zmienne przenieść do struktury
-	//Time
-	TDateTime screenDateTime;
-	TDateTime currDateTime;
-
   //Switch
 	uint8_t lastSw1State;
 	uint8_t lastSw2State;

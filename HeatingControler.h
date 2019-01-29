@@ -7,8 +7,8 @@ class HeatingControler
 {
 public:
 	HeatingControler();
-	void init();
-	void onRefreshDateTime(const TDateTime& dateTime);
+	void init(const DateTime& dateTime, float indoorTemp);
+	void onRefreshDateTime(const DateTime& dateTime);
 	void onRefreshIndoorTemp(float indoorTemp);
   void onConfigurationChange();
 public:
@@ -18,7 +18,7 @@ private:
   void setStatus(uint8_t status);
 private:
   uint8_t status;
-	TDateTime currDateTime;
+	DateTime currDateTime;
 	float currIndoorTemp;
 };
 extern HeatingControler heatingControler;

@@ -22,13 +22,13 @@ void SensorsHelper::loop(){
 }
 //----------------------------------------------------------------------------------------
 float SensorsHelper::getTemperature(){
-    float t = bme.readTemperature();
+    float t = round(bme.readTemperature() * 10.0) / 10.0;
     //Serial.printf("SensorsHelper::getTemperature() -> %f°C\r\n",t);   
     return t;    
 }
 //----------------------------------------------------------------------------------------
 float SensorsHelper::getHumidity(){
-    float h = bme.readHumidity();
+    float h = round(bme.readHumidity() * 10.0) / 10.0;
     //Serial.printf("SensorsHelper::getHumidity() -> %f%%\r\n", h);   
     return h;
 }

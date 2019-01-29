@@ -39,6 +39,7 @@ void TaskTimeLoop(void * pvParameters) {
 	while (true) {
 		xSemaphoreTake(xMutex, portMAX_DELAY);
 		rtcControler.loop();
+		sensorsHelper.loop();
 		xSemaphoreGive(xMutex);
 		vTaskDelay(pdMS_TO_TICKS(TASK_DATATIME_LOOP));
 	}
@@ -76,7 +77,7 @@ void setup() {
 	pinMode(GPIO_BUZZER, OUTPUT);
 
 	digitalWrite(GPIO_BUZZER, HIGH);
-	delay(50);
+	delay(20);
 	digitalWrite(GPIO_BUZZER, LOW);
 
 	Wire.begin(I2C_SDA, I2C_SCL);
@@ -115,19 +116,23 @@ void setup() {
 		Serial.println("done\n");
 
 	configuration.init();
-	sensorsHelper.init();
+	rtcControler.init();
+	sensorsHelper.init();	
 	displayControler.init();
-	networkControler.init();
 	lightsControler.init();
-	heatingControler.init();
+	heatingControler.init(rtcControler.now(), sensorsHelper.getTemperature());
 
 	/* create Mutex */
 	xMutex = xSemaphoreCreateMutex();
-	xTaskCreatePinnedToCore(TaskNextionLoop, "TaskNextionLoop", 4096, NULL, 1, NULL, CORE_1);
 	xTaskCreatePinnedToCore(TaskTimeLoop, "TaskTimeLoop", 4096, NULL, 1, NULL, CORE_1);
-	xTaskCreatePinnedToCore(TaskTempSensorLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
-	xTaskCreatePinnedToCore(TaskNetworkControlerLoop, "TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_2);
+	//xTaskCreatePinnedToCore(TaskTempSensorLoop, "TaskTempSensorLoop", 4096, NULL, 1, NULL, CORE_1);
+	xTaskCreatePinnedToCore(TaskNextionLoop, "TaskNextionLoop", 4096, NULL, 1, NULL, CORE_1);
 	xTaskCreatePinnedToCore(TaskLightsControlerLoop, "TaskLightsControlerLoop", 4096, NULL, 1, NULL, CORE_1);
+	
+	networkControler.init();
+	xTaskCreatePinnedToCore(TaskNetworkControlerLoop, "TaskNetworkControlerLoop", 4096, NULL, 1, NULL, CORE_2);
+	
+	heatingControler.onConfigurationChange();
 }
 
 //----------------------------------------------------------------------------------------

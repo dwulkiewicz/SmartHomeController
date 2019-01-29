@@ -54,13 +54,13 @@
 #define HEATING_STATUS_COOL 0
 #define HEATING_STATUS_HEAT 1
 
+#define DAY_OF_WEEK_SUN 0
 #define DAY_OF_WEEK_MO 1
 #define DAY_OF_WEEK_TUE 2
 #define DAY_OF_WEEK_WE 3
 #define DAY_OF_WEEK_THU 4
 #define DAY_OF_WEEK_FRI 5
 #define DAY_OF_WEEK_SAT 6
-#define DAY_OF_WEEK_SUN 7
 
 #define COLOR_RED    63488
 #define COLOR_YELLOW 65504
@@ -124,9 +124,9 @@
 #define OBJ_BATH_SW_3_NAME			"pBathSw3"
 
 #define OBJ_DAY_OF_MONTH1_ID                     39
-#define OBJ_DAY_OF_MONTH1_NAME				        "p4"
+#define OBJ_DAY_OF_MONTH1_NAME				   "p4"
 #define OBJ_DAY_OF_MONTH2_ID                     40
-#define OBJ_DAY_OF_MONTH2_NAME				        "p5"
+#define OBJ_DAY_OF_MONTH2_NAME				   "p5"
 
 #define OBJ_MONTH_ID                             38
 #define OBJ_MONTH_NAME                         "p3"
@@ -209,7 +209,6 @@
 #define OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_ID       15
 #define OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_NAME   "b7"
 
-
 #define OBJ_HEATING_WEEKEND_MORNING_ON_VAL_ID        20
 #define OBJ_HEATING_WEEKEND_MORNING_ON_VAL_NAME    "t4"
 #define OBJ_HEATING_WEEKEND_MORNING_ON_DEC_ID        19
@@ -269,11 +268,19 @@
 #define OBJ_TIME_MONTH_NAME         "lblMonth"
 #define OBJ_TIME_DAY_ID                     10
 #define OBJ_TIME_DAY_NAME             "lblDay"
-#define OBJ_TIME_DAY_OF_WEEK_ID             11
-#define OBJ_TIME_DAY_OF_WEEK_NAME    "lblDayW"
+//#define OBJ_TIME_DAY_OF_WEEK_ID             11
+//#define OBJ_TIME_DAY_OF_WEEK_NAME    "lblDayW"
 #define OBJ_TIME_HOUR_ID				     1
 #define OBJ_TIME_HOUR_NAME           "lblHour"
 #define OBJ_TIME_MINUTE_ID			         3
 #define OBJ_TIME_MINUTE_NAME       "lblMinute"
+
+#define OBJ_HEATING_HISTERESIS_VAL_ID       16
+#define OBJ_HEATING_HISTERESIS_VAL_NAME   "t0"
+#define OBJ_HEATING_HISTERESIS_DEC_ID       14
+#define OBJ_HEATING_HISTERESIS_DEC_NAME   "b18"
+#define OBJ_HEATING_HISTERESIS_INC_ID       15
+#define OBJ_HEATING_HISTERESIS_INC_NAME   "b19"
+
 
 #endif /* #ifndef __CONSTANTS_H__ */

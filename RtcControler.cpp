@@ -1,33 +1,56 @@
 
-#include <uRTCLib.h>
+#include <Wire.h>
+
 #include "RtcControler.h"
 #include "Constants.h"
 #include "EventsHandler.h"
 
-uRTCLib rtc(I2C_ADDRESS_D1307, I2C_ADDRESS_AT24C32);
 //----------------------------------------------------------------------------------------
-RtcControler::RtcControler()
-{
+RtcControler::RtcControler(){
 }
 //----------------------------------------------------------------------------------------
-void RtcControler::init()
-{
+void RtcControler::init(){
+	if (!rtc.begin()) {
+		Serial.println("RtcControler::init() Couldn't find RTC");
+	}
+
+	if (!rtc.isrunning()) {
+		Serial.println("RtcControler::init() RTC is NOT running!");
+		// following line sets the RTC to the date & time this sketch was compiled
+		rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+		// This line sets the RTC with an explicit date & time, for example to set
+		// January 21, 2014 at 3am you would call:
+		// rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+	}
 }
 //----------------------------------------------------------------------------------------
-void RtcControler::loop()
-{
-	rtc.refresh();	
-	dateTime.year = rtc.year();
-	dateTime.month = rtc.month();
-	dateTime.dayOfWeek = rtc.dayOfWeek();
-	dateTime.month = rtc.month();
-	dateTime.day = rtc.day();
-	dateTime.dayOfWeek = rtc.dayOfWeek();
-	dateTime.hour = rtc.hour();
-	dateTime.minute = rtc.minute();
-	dateTime.second = rtc.second();
- 
+DateTime RtcControler::now() {
+	return rtc.now();
+}
+//----------------------------------------------------------------------------------------
+void RtcControler::loop(){
+	dateTime = rtc.now();
+/*
+	Serial.print(dateTime.year(), DEC);
+	Serial.print('.');
+	Serial.print(dateTime.month(), DEC);
+	Serial.print('.');
+	Serial.print(dateTime.day(), DEC);
+	Serial.print(" (");
+	Serial.print(dayOfWeekName(dateTime.dayOfTheWeek()));
+	Serial.print(") ");
+	Serial.print(dateTime.hour(), DEC);
+	Serial.print(':');
+	Serial.print(dateTime.minute(), DEC);
+	Serial.print(':');
+	Serial.print(dateTime.second(), DEC);
+	Serial.println();
+*/
 	eventsHandler.onRefreshDateTime(dateTime);
+}
+//----------------------------------------------------------------------------------------
+void RtcControler::adjust(const DateTime& dateTime) {
+	rtc.adjust(dateTime);
 }
 //----------------------------------------------------------------------------------------
 void RtcControler::dayOfWeekName(char* buf, uint8_t dayOfWeek) {

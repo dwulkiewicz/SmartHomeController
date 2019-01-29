@@ -229,7 +229,10 @@ bool Configuration::incrementHisteresisTemperature() {
 bool Configuration::decrementHisteresisTemperature() {
 	//min histereza 0.4*C (+/-0.2*C)
 	if (hysteresisTemp >= 6) {
-		hysteresisTemp -= 2;
+		if((hysteresisTemp % 2) == 0)
+			hysteresisTemp -= 2;
+		else
+			hysteresisTemp -= 1;
 		EEPROM.write(EEPROM_ADDR_HYSTERESIS_TEMP, hysteresisTemp);
 		EEPROM.commit();
 		return true;
@@ -342,7 +345,6 @@ void Configuration::print() {
 	Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_ON: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].hour, heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].minute);
 	Serial.printf("HEATING_WORKING_DAYS_AFTERNOON_OFF: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].hour, heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].minute);
 	Serial.printf("HEATING_WEEKEND_MORNING_ON: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_ON].hour, heatingTimes[HEATING_WEEKEND_MORNING_ON].minute);
-	Serial.printf("HEATING_WORKING_DAYS_MORNING_ON: %02d:%02d\r\n", heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour, heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute);
 	Serial.printf("HEATING_WEEKEND_MORNING_OFF: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_MORNING_OFF].hour, heatingTimes[HEATING_WEEKEND_MORNING_OFF].minute);
 	Serial.printf("HEATING_WEEKEND_AFTERNOON_ON: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour, heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute);
 	Serial.printf("HEATING_WEEKEND_AFTERNOON_OFF: %02d:%02d\r\n", heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour, heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute);
