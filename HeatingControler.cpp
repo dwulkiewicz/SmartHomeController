@@ -19,7 +19,7 @@ void HeatingControler::onRefreshDateTime(const DateTime& dateTime) {
 	if (currDateTime.minute() != dateTime.minute() || currDateTime.hour() != dateTime.hour() || currDateTime.dayOfTheWeek() != dateTime.dayOfTheWeek() ) {
 		currDateTime = dateTime;  
 		//String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfWeek);  
-		//Serial.printf("HeatingControler::onRefreshDateTime() %s %02d:%02d\r\n", dayOfWeekStr.c_str(), currDateTime.hour, dateTime.minute);
+		//logger.log(debug, "HeatingControler::onRefreshDateTime() %s %02d:%02d\r\n", dayOfWeekStr.c_str(), currDateTime.hour, dateTime.minute);
 		refresh();
 	}
 }
@@ -27,32 +27,65 @@ void HeatingControler::onRefreshDateTime(const DateTime& dateTime) {
 void HeatingControler::onRefreshIndoorTemp(float indoorTemp) {
 	if (round(currIndoorTemp * 10) != round(indoorTemp * 10)) {
 		currIndoorTemp = indoorTemp;
-		//Serial.printf("HeatingControler::onRefreshIndoorTemp() %.1f\r\n", currIndoorTemp);
+		//logger.log(debug, "HeatingControler::onRefreshIndoorTemp() %.1f\r\n", currIndoorTemp);
 		refresh();
 	}
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::onConfigurationChange(){
-	//Serial.printf("HeatingControler::onConfigurationChange()\r\n");
+	//logger.log(debug,"HeatingControler::onConfigurationChange()\r\n");
 	refresh();  
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::refresh() {	
-	float dayTemp = configuration.getDayTemperature();
-	float histeresisTemp = configuration.getHisteresisTemp();
-	String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfTheWeek() );   
-	Serial.printf("HeatingControler::refresh() time: %s %02d:%02d currTemp: %.1f dayTemp: %.1f histeresisTemp: %.1f\r\n", dayOfWeekStr.c_str(), currDateTime.hour(), currDateTime.minute(), currIndoorTemp, dayTemp, histeresisTemp);
-	
-	//TODO: oczywiście to poniżej do zmiany  
-	
-	if (currIndoorTemp < dayTemp){
-		setStatus(HEATING_STATUS_HEAT);
-		digitalWrite(GPIO_RELAY, HIGH);
+	uint16_t minuteOfTheDay = currDateTime.hour() * 60 + currDateTime.minute();
+	//weekend
+	if (currDateTime.dayOfTheWeek() == DAY_OF_WEEK_SAT || currDateTime.dayOfTheWeek() == DAY_OF_WEEK_SUN) {
+		if ((configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF).minuteOfTheDay) ||
+			(configuration.getHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF).minuteOfTheDay))
+			period = HEATING_PERIOD_DAY;
+		else
+			period = HEATING_PERIOD_NIGHT;
 	}
+	//working day
 	else {
-		setStatus(HEATING_STATUS_COOL);
-		digitalWrite(GPIO_RELAY, LOW);
+		if ((configuration.getHeatingTime(HEATING_WEEKEND_MORNING_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WEEKEND_MORNING_OFF).minuteOfTheDay) ||
+			(configuration.getHeatingTime(HEATING_WEEKEND_AFTERNOON_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF).minuteOfTheDay))
+			period = HEATING_PERIOD_DAY;
+		else
+			period = HEATING_PERIOD_NIGHT;
 	}
+
+	float requiredTemp = (period == HEATING_PERIOD_DAY) ? configuration.getDayTemperature() : configuration.getNightTemperature();	   
+	//grzeje
+	if (status == HEATING_STATUS_HEAT) {
+		requiredTemp += configuration.getHisteresisTemp() / 2.0;
+		//i osiągnęło wymaganą temperaturę to wyłącz ....
+		if (currIndoorTemp >= requiredTemp) {
+			setStatus(HEATING_STATUS_COOL);
+			digitalWrite(GPIO_RELAY, LOW);
+		}
+		//jeszcze nie nagrzało, ma grzać dalej
+		else {
+			//sprawdzenie czy faktycznie grzeje
+		}
+	}
+	//chłodzi
+	else {
+		requiredTemp -= configuration.getHisteresisTemp() / 2.0;
+		//i osiągnęło minimalną temperaturę to włącz ....
+		if (currIndoorTemp <= requiredTemp) {
+			setStatus(HEATING_STATUS_HEAT);
+			digitalWrite(GPIO_RELAY, HIGH);
+		}
+		//jeszcze nie słodziło, ma schładzać dalej
+		else {
+			//sprawdzenie czy faktycznie grzeje
+		}
+	}
+
+	String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfTheWeek());
+	logger.log(info, "HeatingControler::refresh() time: %s %02d:%02d period: %s status: %s requiredTemp: %.1f currTemp: %.1f \r\n", dayOfWeekStr.c_str(), currDateTime.hour(), currDateTime.minute(), periodToStr(period).c_str(), statusToStr(status).c_str(), requiredTemp, currIndoorTemp);
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::setStatus(uint8_t status){
@@ -62,14 +95,20 @@ void HeatingControler::setStatus(uint8_t status){
   }  
 }  
 //----------------------------------------------------------------------------------------
-String HeatingControler::heatingStatusName(uint8_t status) {
-  switch(status){
+String HeatingControler::statusToStr(uint8_t value) {
+  switch(value){
     case HEATING_STATUS_HEAT: return "HEATING_STATUS_HEAT"; 
     case HEATING_STATUS_COOL: return "HEATING_STATUS_COOL";
     default: return "HEATING_STATUS_???";    
   }
 }
-
-
+//----------------------------------------------------------------------------------------
+String HeatingControler::periodToStr(uint8_t value) {
+	switch (value) {
+	case HEATING_PERIOD_DAY: return "HEATING_PERIOD_DAY";
+	case HEATING_PERIOD_NIGHT: return "HEATING_PERIOD_NIGHT";
+	default: return "HEATING_PERIOD_???";
+	}
+}
 
 HeatingControler heatingControler;

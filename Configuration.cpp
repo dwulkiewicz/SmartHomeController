@@ -155,6 +155,16 @@ bool Configuration::loadFromEEPROM() {
 	heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_ON_M);
 	heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_H);
 	heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute = EEPROM.read(EEPROM_ADDR_HEATING_WEEKEND_AFTERNOON_OFF_M);
+
+	heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minuteOfTheDay = heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].hour * 60 + heatingTimes[HEATING_WORKING_DAYS_MORNING_ON].minute;
+	heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].minuteOfTheDay = heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].hour * 60 + heatingTimes[HEATING_WORKING_DAYS_MORNING_OFF].minute;
+	heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].minuteOfTheDay = heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].hour * 60 + heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_ON].minute;
+	heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].minuteOfTheDay = heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].hour * 60 + heatingTimes[HEATING_WORKING_DAYS_AFTERNOON_OFF].minute;
+	heatingTimes[HEATING_WEEKEND_MORNING_ON].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_MORNING_ON].hour * 60 + heatingTimes[HEATING_WEEKEND_MORNING_ON].minute;
+	heatingTimes[HEATING_WEEKEND_MORNING_OFF].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_MORNING_OFF].hour * 60 + heatingTimes[HEATING_WEEKEND_MORNING_OFF].minute;
+	heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour * 60 + heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute;
+	heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour * 60 + heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute;
+
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -258,6 +268,8 @@ bool Configuration::incrementHeatingTime(uint8_t idx) {
 		else
 			heatingTimes[idx].hour = 0;
 	}
+
+	heatingTimes[idx].minuteOfTheDay = heatingTimes[idx].hour * 60 + heatingTimes[idx].minute;
 	saveHeatingTime(idx);
 	return true;
 }
@@ -276,8 +288,10 @@ bool Configuration::decrementHeatingTime(uint8_t idx) {
 		heatingTimes[idx].minute = 15;
 	else if (heatingTimes[idx].minute > 30 && heatingTimes[idx].minute <= 45)
 		heatingTimes[idx].minute = 30;
-	else if (heatingTimes[idx].minute > 45)
+	else if (heatingTimes[idx].minute > 45) 
 		heatingTimes[idx].minute = 45;
+	
+	heatingTimes[idx].minuteOfTheDay = heatingTimes[idx].hour * 60 + heatingTimes[idx].minute;
 	saveHeatingTime(idx);
 	return true;
 }

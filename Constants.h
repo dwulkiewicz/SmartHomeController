@@ -54,6 +54,9 @@
 #define HEATING_STATUS_COOL 0
 #define HEATING_STATUS_HEAT 1
 
+#define HEATING_PERIOD_DAY 0
+#define HEATING_PERIOD_NIGHT 1
+
 #define DAY_OF_WEEK_SUN 0
 #define DAY_OF_WEEK_MO 1
 #define DAY_OF_WEEK_TUE 2
@@ -71,7 +74,7 @@
 #define PICTURE_SWITCH_OFF 6
 
 #define PIC_HEATING_HEAT 12
-#define PIC_EMPTY        51 //TODO: do zmiany na pusty obrazek
+#define PIC_EMPTY        51 
 
 
 #define PIC_DAY_MON 18

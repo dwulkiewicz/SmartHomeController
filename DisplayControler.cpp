@@ -214,7 +214,7 @@ void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {
   curr.heatingStatus = heatingStatus;
   if (currentPage != PG_MAIN_ID)
     return;
-  String statusStr = HeatingControler::heatingStatusName(heatingStatus);   
+  String statusStr = HeatingControler::statusToStr(heatingStatus);   
   Serial.printf("DisplayControler::refreshHeatingStatus() status: %s\r\n", statusStr.c_str());
   if (disp.heatingStatus != curr.heatingStatus) {
     if (currentPage == PG_MAIN_ID && objHeatingStatus.setPic(curr.heatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_EMPTY)){
@@ -825,22 +825,22 @@ void DisplayControler::init() {
 	btnNightTempInc.attachPush(onBtnTempPush, &btnNightTempInc);
 	btnNightTempDec.attachPush(onBtnTempPush, &btnNightTempDec);
 
-  objHeatingWorkingDaysMorningOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnDec);
-  objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc); 
-  objHeatingWorkingDaysMorningOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffDec);
-  objHeatingWorkingDaysMorningOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffInc);  
-  objHeatingWorkingDaysAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnDec);
-  objHeatingWorkingDaysAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnInc);  
-  objHeatingWorkingDaysAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffDec);
-  objHeatingWorkingDaysAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffInc);  
-  objHeatingWeekendMorningOnDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnDec);
-  objHeatingWeekendMorningOnInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnInc); 
-  objHeatingWeekendMorningOffDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffDec);
-  objHeatingWeekendMorningOffInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffInc);  
-  objHeatingWeekendAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnDec);
-  objHeatingWeekendAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnInc);  
-  objHeatingWeekendAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffDec);
-  objHeatingWeekendAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffInc); 
+	objHeatingWorkingDaysMorningOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnDec);
+	objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc); 
+	objHeatingWorkingDaysMorningOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffDec);
+	objHeatingWorkingDaysMorningOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffInc);  
+	objHeatingWorkingDaysAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnDec);
+	objHeatingWorkingDaysAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnInc);  
+	objHeatingWorkingDaysAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffDec);
+	objHeatingWorkingDaysAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffInc);  
+	objHeatingWeekendMorningOnDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnDec);
+	objHeatingWeekendMorningOnInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnInc); 
+	objHeatingWeekendMorningOffDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffDec);
+	objHeatingWeekendMorningOffInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffInc);  
+	objHeatingWeekendAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnDec);
+	objHeatingWeekendAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnInc);  
+	objHeatingWeekendAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffDec);
+	objHeatingWeekendAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffInc); 
 
 	bDateTimeNext.attachPush(onBtnbDateTimeNextPush, &bDateTimeNext);
 	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);

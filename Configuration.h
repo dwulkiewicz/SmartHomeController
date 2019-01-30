@@ -2,6 +2,7 @@
 #define __CONFIGURATION_H__
 
 #include <Arduino.h>
+#include "Logger.h"
 #include "Types.h"
 
 #define HEATING_WORKING_DAYS_MORNING_ON     0 

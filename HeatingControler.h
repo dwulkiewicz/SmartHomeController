@@ -10,14 +10,16 @@ public:
 	void init(const DateTime& dateTime, float indoorTemp);
 	void onRefreshDateTime(const DateTime& dateTime);
 	void onRefreshIndoorTemp(float indoorTemp);
-  void onConfigurationChange();
+	void onConfigurationChange();
 public:
-  static String heatingStatusName(uint8_t status);
+	static String statusToStr(uint8_t value);
+	static String periodToStr(uint8_t value);
 private:
-  void refresh(); 
-  void setStatus(uint8_t status);
+	void refresh();
+	void setStatus(uint8_t status);
 private:
-  uint8_t status;
+	uint8_t status;
+	uint8_t period;
 	DateTime currDateTime;
 	float currIndoorTemp;
 };

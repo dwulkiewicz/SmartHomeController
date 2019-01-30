@@ -15,6 +15,7 @@ typedef struct {
 typedef struct {
   uint8_t minute;
   uint8_t hour;
+  uint16_t minuteOfTheDay;
 }   TShortTime;
 
 

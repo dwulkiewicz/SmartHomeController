@@ -18,7 +18,6 @@
 #include "EventsHandler.h"
 #include "Configuration.h"
 #include "Constants.h"
-#include "Logger.h"
 
 WiFiClient espClient;
 PubSubClient client(espClient);
