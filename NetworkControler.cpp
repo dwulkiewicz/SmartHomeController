@@ -18,6 +18,7 @@
 #include "EventsHandler.h"
 #include "Configuration.h"
 #include "Constants.h"
+#include "Logger.h"
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -55,7 +56,7 @@ void NetworkControler::init() {
 //----------------------------------------------------------------------------------------
 void NetworkControler::initWiFi(){ 
   // We start by connecting to a WiFi network
-  Serial.printf("\r\nConnecting to %s\r\n", configuration.wifiSSID.c_str());
+  logger.log(info,"\r\nConnecting to %s\r\n", configuration.wifiSSID.c_str());
   String hostname = NetworkControler::getHostName();
   WiFi.begin(configuration.wifiSSID.c_str(), configuration.wifiPassword.c_str());
   WiFi.setHostname(hostname.c_str());
@@ -68,9 +69,7 @@ void NetworkControler::initWiFi(){
     Serial.print(".");
   }  
   eventsHandler.onWiFiStatusChange(WiFi.status());    
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.printf("IP address: %s Hostname: %s\r\n", WiFi.localIP().toString().c_str(), hostname.c_str());  
+  logger.log(info,"WiFi connected: IP: %s Host: %s\r\n", WiFi.localIP().toString().c_str(), hostname.c_str());
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::initMQTT(){
@@ -110,13 +109,13 @@ void NetworkControler::initOTA(){
 //----------------------------------------------------------------------------------------
 bool NetworkControler::reconnect() {
 	if (!client.connected()) {
-		Serial.printf("MQTT state: %s, attempting connection...\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
+		logger.log(info, "MQTT state: %s, attempting connection...\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
     eventsHandler.onMQTTStatusChange(client.state()); 
 		// Attempt to connect
 		String hostname = NetworkControler::getHostName();
 		if (client.connect(hostname.c_str())) {				
-			Serial.printf("MQTT connected as %s\r\n", hostname.c_str());
-      eventsHandler.onMQTTStatusChange(client.state());
+			logger.log(info, "MQTT connected as %s\r\n", hostname.c_str());
+			eventsHandler.onMQTTStatusChange(client.state());
       
 			//TODO: przerobić na oczyt stanu 
 			//Po ponownym podłączeniu wysyłam ostatni stan     
@@ -132,11 +131,11 @@ bool NetworkControler::reconnect() {
 			return true;
 		}
 		else {   
-			Serial.printf("MQTT reconnect failed, state: %s\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
-      eventsHandler.onMQTTStatusChange(client.state());       
+			logger.log(warning, "MQTT reconnect failed, state: %s\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
+			eventsHandler.onMQTTStatusChange(client.state());       
 			return false;
 		}
-	}
+	}	
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::loop() {
@@ -156,7 +155,7 @@ void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int len
 	String mqttTopic = topic;
 	String mqttMessage = (char*)payload;
 
-	Serial.printf("MQTT received topic:[%s], msg: %s\r\n", topic, mqttMessage.c_str());
+	logger.log(info, "MQTT received topic:[%s], msg: %s\r\n", topic, mqttMessage.c_str());
 
 	if (mqttTopic.equals(switchesReqChannel01)) {
 		eventsHandler.onSwitchChange(SWITCH_BATH_1_ID, mqttMessage.equals("on") ? SW_ON : SW_OFF);
@@ -195,7 +194,7 @@ void NetworkControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 		topic = switchesRespChannel03;
 		break;
 	}
-  Serial.printf("NetworkControler::onSwitchChanged() MQTT send topic:[%s], msg: %s\r\n", topic, msg.c_str()); 
+	logger.log(info, "NetworkControler::onSwitchChanged() MQTT send topic:[%s], msg: %s\r\n", topic, msg.c_str());
 	client.publish(topic, msg.c_str());
 }
 //----------------------------------------------------------------------------------------
