@@ -16,6 +16,7 @@ public:
   void onSwitchChange(uint8_t switchId, uint8_t switchState); 
   //Heating
   void onHeatingStatusChange(uint8_t status);
+  void onHeatingPeriodChange(uint8_t period);
   void onHeatingConfigurationChange(void);  
   //Indoor
   void onRefreshIndoorTemperature(float value);

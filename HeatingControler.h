@@ -17,6 +17,7 @@ public:
 private:
 	void refresh();
 	void setStatus(uint8_t status);
+	void setPeriod(uint8_t status);
 private:
 	uint8_t status;
 	uint8_t period;

@@ -15,8 +15,14 @@
 //ESP32 I2C
 //#define I2C_SDA 4
 //#define I2C_SCL 15
-#define I2C_SCL 13 //21
-#define I2C_SDA 14 //22
+#define I2C_SCL 13
+#define I2C_SDA 14
+
+#define I2C_SCL_1 22
+#define I2C_SDA_1 21
+
+
+
 
 //ESP32 UART1
 #define UART1_BAUND 57600
@@ -41,7 +47,7 @@
 
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
-#define TASK_INDOOR_TEMP_SENSOR_LOOP 4000 //ms
+#define TASK_INDOOR_TEMP_SENSOR_LOOP 5000 //ms
 #define TASK_DATATIME_LOOP            500 //ms
 
 #define SWITCH_BATH_1_ID	1
@@ -76,6 +82,8 @@
 #define PIC_HEATING_HEAT 12
 #define PIC_EMPTY        51 
 
+#define PIC_HEATING_DAY		14
+#define PIC_HEATING_NIGHT   13 
 
 #define PIC_DAY_MON 18
 #define PIC_DAY_TUE 19
@@ -118,6 +126,10 @@
 
 #define OBJ_HEATING_STATUS_ID            7
 #define OBJ_HEATING_STATUS_NAME       "p0"
+#define OBJ_HEATING_PERIOD_ID           15
+#define OBJ_HEATING_PERIOD_NAME       "p1"
+#define OBJ_HEATING_SET_TEMP_ID			11
+#define OBJ_HEATING_SET_TEMP_NAME	  "t3"
 
 #define OBJ_BATH_SW_1_ID				         5
 #define OBJ_BATH_SW_1_NAME	  	"pBathSw1"

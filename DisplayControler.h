@@ -33,6 +33,7 @@ public:
 	void onRefreshOutdoorPreasure(float outdoorPressure);
 	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
 	void refreshHeatingStatus(uint8_t heatingStatus);
+	void refreshHeatingPeriod(uint8_t heatingPeriod);
 
 	void refresMainPage();
 	void refreshHeatingPage();

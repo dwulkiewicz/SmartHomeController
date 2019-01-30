@@ -25,6 +25,10 @@ void EventsHandler::onHeatingStatusChange(uint8_t status) {
    displayControler.refreshHeatingStatus(status);
 }
 //----------------------------------------------------------------------------------------
+void EventsHandler::onHeatingPeriodChange(uint8_t period) {
+	displayControler.refreshHeatingPeriod(period);
+}
+//----------------------------------------------------------------------------------------
 void EventsHandler::onHeatingConfigurationChange(void){
 	heatingControler.onConfigurationChange();  
 }  

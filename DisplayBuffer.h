@@ -23,6 +23,7 @@ public:
 	uint16_t pressure;
     //Heating
 	uint8_t heatingStatus;
+	uint8_t heatingPeriod;
 	//Network
 	uint8_t wifiStatus;
 	uint8_t mqttStatus;

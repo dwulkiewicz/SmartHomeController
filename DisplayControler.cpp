@@ -25,6 +25,10 @@ NexPage pgMain = NexPage(PG_MAIN_ID, 0, PG_MAIN_NAME);
 
 NexPicture objWiFiStatus(PG_MAIN_ID, OBJ_WIFI_STATUS_ID, OBJ_WIFI_STATUS_NAME);
 NexPicture objHeatingStatus(PG_MAIN_ID, OBJ_HEATING_STATUS_ID, OBJ_HEATING_STATUS_NAME);
+NexPicture objHeatingPeriod(PG_MAIN_ID, OBJ_HEATING_PERIOD_ID, OBJ_HEATING_PERIOD_NAME);
+NexText objHeatingSetTemp(PG_MAIN_ID, OBJ_HEATING_SET_TEMP_ID, OBJ_HEATING_SET_TEMP_NAME);
+
+
 
 NexPicture pDayOfMonth1 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH1_ID, OBJ_DAY_OF_MONTH1_NAME);
 NexPicture pDayOfMonth2 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH2_ID, OBJ_DAY_OF_MONTH2_NAME);
@@ -194,7 +198,7 @@ void onBathSwPush(void *ptr)
 	switch (obj->getObjCid()) {
 	case OBJ_BATH_SW_1_ID:
 		switchId = SWITCH_BATH_1_ID;
-		switchState	= !displayControler.sw1State;
+		switchState = !displayControler.sw1State;
 		break;
 	case OBJ_BATH_SW_2_ID:
 		switchId = SWITCH_BATH_2_ID;
@@ -210,17 +214,35 @@ void onBathSwPush(void *ptr)
 	eventsHandler.onSwitchChange(switchId, switchState);
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {  
-  curr.heatingStatus = heatingStatus;
-  if (currentPage != PG_MAIN_ID)
-    return;
-  String statusStr = HeatingControler::statusToStr(heatingStatus);   
-  Serial.printf("DisplayControler::refreshHeatingStatus() status: %s\r\n", statusStr.c_str());
-  if (disp.heatingStatus != curr.heatingStatus) {
-    if (currentPage == PG_MAIN_ID && objHeatingStatus.setPic(curr.heatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_EMPTY)){
-      disp.heatingStatus = curr.heatingStatus;
-    }
-  }
+void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {
+	curr.heatingStatus = heatingStatus;
+	if (currentPage != PG_MAIN_ID)
+		return;
+	String statusStr = HeatingControler::statusToStr(heatingStatus);
+	logger.log(debug, "DisplayControler::refreshHeatingStatus() status: %s\r\n", statusStr.c_str());
+	if (disp.heatingStatus != curr.heatingStatus) {
+		if (currentPage == PG_MAIN_ID && objHeatingStatus.setPic(curr.heatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_EMPTY)) {
+			disp.heatingStatus = curr.heatingStatus;
+		}
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshHeatingPeriod(uint8_t heatingPeriod) {
+	curr.heatingPeriod = heatingPeriod;
+	if (currentPage != PG_MAIN_ID)
+		return;
+	String periodStr = HeatingControler::periodToStr(heatingPeriod);
+
+	char buf[10];
+	sprintf(buf, "%02.1fC", curr.heatingPeriod == HEATING_PERIOD_DAY ? configuration.getDayTemperature() : configuration.getNightTemperature());
+	   	logger.log(debug, "DisplayControler::refreshHeatingPeriod() period: %s\r\n", periodStr.c_str());
+	if (disp.heatingPeriod != curr.heatingPeriod) {
+		if (currentPage == PG_MAIN_ID 
+			&& objHeatingPeriod.setPic(curr.heatingPeriod == HEATING_PERIOD_DAY ? PIC_HEATING_DAY : PIC_HEATING_NIGHT)
+			&& objHeatingSetTemp.setText(buf)) {
+			disp.heatingPeriod = curr.heatingPeriod;
+		}
+	}
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
@@ -246,8 +268,8 @@ void DisplayControler::refreshBathSw1(void) {
 		return;
 	Serial.printf("DisplayControler::refreshBathSw1()\r\n");
 	if (lastSw1State != sw1State) {
-		if (currentPage == PG_MAIN_ID){
-      objBathSw1.setPic(sw1State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+		if (currentPage == PG_MAIN_ID) {
+			objBathSw1.setPic(sw1State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
 			lastSw1State = sw1State;
 		}
 	}
@@ -258,8 +280,8 @@ void DisplayControler::refreshBathSw2(void) {
 		return;
 	Serial.printf("DisplayControler::refreshBathSw2()\r\n");
 	if (lastSw2State != sw2State) {
-		if (currentPage == PG_MAIN_ID){
-      objBathSw2.setPic(sw2State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+		if (currentPage == PG_MAIN_ID) {
+			objBathSw2.setPic(sw2State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
 			lastSw2State = sw2State;
 		}
 	}
@@ -270,8 +292,8 @@ void DisplayControler::refreshBathSw3(void) {
 		return;
 	Serial.printf("DisplayControler::refreshBathSw3()\r\n");
 	if (lastSw3State != sw3State) {
-		if (currentPage == PG_MAIN_ID){
-      objBathSw3.setPic(sw3State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu 
+		if (currentPage == PG_MAIN_ID) {
+			objBathSw3.setPic(sw3State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu 
 			lastSw3State = sw3State;
 		}
 	}
@@ -281,7 +303,6 @@ void DisplayControler::onBtnTempPush(void *ptr) {
 	NexButton *btn = (NexButton *)ptr;
 	Serial.printf("onBtnTempPush: pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
 
-  char buf[8];
 	switch (btn->getObjCid()) {
 	case OBJ_DAY_TEMP_INC_ID:
 		if (configuration.incrementDayTemperature()) {
@@ -302,57 +323,57 @@ void DisplayControler::onBtnTempPush(void *ptr) {
 		if (configuration.decrementNightTemperature()) {
 			lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 		}
-		break;	
-  case OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
-    break;
-  case OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID:
-    displayControler.incHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
-    break;
-  case OBJ_HEATING_WORKING_DAYS_MORNING_OFF_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
-    break;
-  case OBJ_HEATING_WORKING_DAYS_MORNING_OFF_INC_ID:
-    displayControler.incHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
-    break;
-  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
-    break;
-  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_INC_ID:
-    displayControler.incHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
-    break;
-  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
-    break;
-  case OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_ID:
-    displayControler.incHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
-    break;
-  case OBJ_HEATING_WEEKEND_MORNING_ON_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
-    break;
-  case OBJ_HEATING_WEEKEND_MORNING_ON_INC_ID:
-    displayControler.incHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
-    break;
-  case OBJ_HEATING_WEEKEND_MORNING_OFF_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
-    break;
-  case OBJ_HEATING_WEEKEND_MORNING_OFF_INC_ID:
-    displayControler.incHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
-    break;
-  case OBJ_HEATING_WEEKEND_AFTERNOON_ON_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
-    break;
-  case OBJ_HEATING_WEEKEND_AFTERNOON_ON_INC_ID:
-    displayControler.incHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
-    break;
-  case OBJ_HEATING_WEEKEND_AFTERNOON_OFF_DEC_ID:
-    displayControler.decHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
-    break;
-  case OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_ID:
-    displayControler.incHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
-    break;    
-  }
-  eventsHandler.onHeatingConfigurationChange();
+		break;
+	case OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
+		break;
+	case OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID:
+		displayControler.incHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
+		break;
+	case OBJ_HEATING_WORKING_DAYS_MORNING_OFF_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
+		break;
+	case OBJ_HEATING_WORKING_DAYS_MORNING_OFF_INC_ID:
+		displayControler.incHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
+		break;
+	case OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
+		break;
+	case OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_INC_ID:
+		displayControler.incHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
+		break;
+	case OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
+		break;
+	case OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_ID:
+		displayControler.incHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
+		break;
+	case OBJ_HEATING_WEEKEND_MORNING_ON_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
+		break;
+	case OBJ_HEATING_WEEKEND_MORNING_ON_INC_ID:
+		displayControler.incHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
+		break;
+	case OBJ_HEATING_WEEKEND_MORNING_OFF_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
+		break;
+	case OBJ_HEATING_WEEKEND_MORNING_OFF_INC_ID:
+		displayControler.incHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
+		break;
+	case OBJ_HEATING_WEEKEND_AFTERNOON_ON_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
+		break;
+	case OBJ_HEATING_WEEKEND_AFTERNOON_ON_INC_ID:
+		displayControler.incHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
+		break;
+	case OBJ_HEATING_WEEKEND_AFTERNOON_OFF_DEC_ID:
+		displayControler.decHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
+		break;
+	case OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_ID:
+		displayControler.incHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
+		break;
+	}
+	eventsHandler.onHeatingConfigurationChange();
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onBtnTempHisteresisPush(void *ptr) {
@@ -362,7 +383,7 @@ void DisplayControler::onBtnTempHisteresisPush(void *ptr) {
 	char buf[8];
 	switch (btn->getObjCid()) {
 	case OBJ_HEATING_HISTERESIS_INC_ID:
-		if (configuration.incrementHisteresisTemperature()) {				
+		if (configuration.incrementHisteresisTemperature()) {
 			dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
 			objHeatingHisteresisVal.setText(buf);
 			eventsHandler.onHeatingConfigurationChange();
@@ -378,40 +399,40 @@ void DisplayControler::onBtnTempHisteresisPush(void *ptr) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::decHeatingTime(uint8_t idx, class NexText* obj){
-  if (configuration.decrementHeatingTime(idx)) {
-    showHeatingTime(idx,obj);
-  }
+void DisplayControler::decHeatingTime(uint8_t idx, class NexText* obj) {
+	if (configuration.decrementHeatingTime(idx)) {
+		showHeatingTime(idx, obj);
+	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::incHeatingTime(uint8_t idx, class NexText* obj){
-  if (configuration.incrementHeatingTime(idx)) {
-    showHeatingTime(idx,obj);
-  }
+void DisplayControler::incHeatingTime(uint8_t idx, class NexText* obj) {
+	if (configuration.incrementHeatingTime(idx)) {
+		showHeatingTime(idx, obj);
+	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::showHeatingTime(uint8_t idx, NexText* obj){
-  char buf[8];
-  sprintf(buf,"%02d:%02d", configuration.getHeatingTime(idx).hour, configuration.getHeatingTime(idx).minute);
-  obj->setText(buf);
+void DisplayControler::showHeatingTime(uint8_t idx, NexText* obj) {
+	char buf[8];
+	sprintf(buf, "%02d:%02d", configuration.getHeatingTime(idx).hour, configuration.getHeatingTime(idx).minute);
+	obj->setText(buf);
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refresMainPage(){
+void DisplayControler::refresMainPage() {
 	//TODO: 
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshHeatingPage(){
-  lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
-  lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str()); 
+void DisplayControler::refreshHeatingPage() {
+	lblDayTempValue.setText(Configuration::temperatureAsString(configuration.getDayTemperature()).c_str());
+	lblNightTempValue.setText(Configuration::temperatureAsString(configuration.getNightTemperature()).c_str());
 
-  showHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
-  showHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
-  showHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
-  showHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
-  showHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
-  showHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
-  showHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
-  showHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);  
+	showHeatingTime(HEATING_WORKING_DAYS_MORNING_ON, &objHeatingWorkingDaysMorningOnVal);
+	showHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF, &objHeatingWorkingDaysMorningOffVal);
+	showHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON, &objHeatingWorkingDaysAfternoonOnVal);
+	showHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF, &objHeatingWorkingDaysAfternoonOffVal);
+	showHeatingTime(HEATING_WEEKEND_MORNING_ON, &objHeatingWeekendMorningOnVal);
+	showHeatingTime(HEATING_WEEKEND_MORNING_OFF, &objHeatingWeekendMorningOffVal);
+	showHeatingTime(HEATING_WEEKEND_AFTERNOON_ON, &objHeatingWeekendAfternoonOnVal);
+	showHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshLightsPage()
@@ -491,19 +512,19 @@ void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 	char buf[10];
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_YEAR) {
 		uint8_t year = displayControler.curr.dateTime.year;
-		if (year == 99)
+		if (year >= 99)
 			year = 0;
 		else
 			year++;
-		
+
 		DateTime dateTime(year + 2000,
-						  displayControler.curr.dateTime.month, 
-						  displayControler.curr.dateTime.day,
-						  displayControler.curr.dateTime.hour,
-						  displayControler.curr.dateTime.minute,
-						  0);
+			displayControler.curr.dateTime.month,
+			displayControler.curr.dateTime.day,
+			displayControler.curr.dateTime.hour,
+			displayControler.curr.dateTime.minute,
+			0);
 		rtcControler.adjust(dateTime);
-		
+
 		//rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), year);
 
 		sprintf(buf, "%02d", year);
@@ -511,7 +532,7 @@ void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_MONTH) {
 		uint8_t month = displayControler.curr.dateTime.month;
-		if (month == 12)
+		if (month >= 12)
 			month = 1;
 		else
 			month++;
@@ -531,7 +552,7 @@ void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_DAY) {
 		uint8_t day = displayControler.curr.dateTime.day;
-		if (day == 31)
+		if (day >= 31)
 			day = 1;
 		else
 			day++;
@@ -551,7 +572,7 @@ void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_HOUR) {
 		uint8_t hour = displayControler.curr.dateTime.hour;
-		if (hour == 23)
+		if (hour >= 23)
 			hour = 0;
 		else
 			hour++;
@@ -571,7 +592,7 @@ void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_MINUTE) {
 		uint8_t minute = displayControler.curr.dateTime.minute;
-		if (minute == 59)
+		if (minute >= 59)
 			minute = 0;
 		else
 			minute++;
@@ -622,111 +643,111 @@ void DisplayControler::onRefreshDateTime(const DateTime& dateTime) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::onRefreshIndoorTemperature(float indoorTemp) {  
-  curr.indoorTemperature = round(indoorTemp * 10);  
+void DisplayControler::onRefreshIndoorTemperature(float indoorTemp) {
+	curr.indoorTemperature = round(indoorTemp * 10);
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onRefresIndoorHumidity(float indoorHumidity) {
-  curr.indoorHumidity = round(indoorHumidity);
+	curr.indoorHumidity = round(indoorHumidity);
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onRefreshIndoorPreasure(float indoorPressure) {
-  curr.pressure = round(indoorPressure); 
+	curr.pressure = round(indoorPressure);
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onRefreshOutdoorTemperature(float outdoorTemp) {
-  curr.outdoorTemperature = round(outdoorTemp * 10); ;  
+	curr.outdoorTemperature = round(outdoorTemp * 10); ;
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onRefreshOutdoorHumidity(float outdoorHumidity) {
-  curr.outdoorHumidity = round(outdoorHumidity);
+	curr.outdoorHumidity = round(outdoorHumidity);
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::onRefreshOutdoorPreasure(float outdoorPressure) {  
-  //wewnętrzny sensor BME280 będzie dokładniejszy bo ma stałą temperaturę działania
-  //curr.pressure = round(outdoorPressure);
+void DisplayControler::onRefreshOutdoorPreasure(float outdoorPressure) {
+	//wewnętrzny sensor BME280 będzie dokładniejszy bo ma stałą temperaturę działania
+	//curr.pressure = round(outdoorPressure);
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshIndoorTemperature() {  
-  if (currentPage == PG_MAIN_ID && disp.indoorTemperature != curr.indoorTemperature){      
-    uint8_t t1 = curr.indoorTemperature / 10;
-    uint8_t t2 = curr.indoorTemperature % 10;
-    char buf1[3];
-    char buf2[3];  
-    sprintf(buf1, "%02d", t1);  
-    sprintf(buf2, "%01d", t2);
-    Serial.printf("DisplayControler::refreshIndoorTemperature() %s.%s*C\r\n", buf1, buf2);     
-    if (currentPage == PG_MAIN_ID && tIndoorTemp1.setText(buf1) && tIndoorTemp2.setText(buf2)){
-      disp.indoorTemperature = curr.indoorTemperature;    
-    }      
-  }
+void DisplayControler::refreshIndoorTemperature() {
+	if (currentPage == PG_MAIN_ID && disp.indoorTemperature != curr.indoorTemperature) {
+		uint8_t t1 = curr.indoorTemperature / 10;
+		uint8_t t2 = curr.indoorTemperature % 10;
+		char buf1[3];
+		char buf2[3];
+		sprintf(buf1, "%02d", t1);
+		sprintf(buf2, "%01d", t2);
+		Serial.printf("DisplayControler::refreshIndoorTemperature() %s.%s*C\r\n", buf1, buf2);
+		if (currentPage == PG_MAIN_ID && tIndoorTemp1.setText(buf1) && tIndoorTemp2.setText(buf2)) {
+			disp.indoorTemperature = curr.indoorTemperature;
+		}
+	}
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshIndoorHumidity() {
-  if (currentPage == PG_MAIN_ID && disp.indoorHumidity != curr.indoorHumidity){  
-    Serial.printf("DisplayControler::refreshIndoorHumidity() %2d%%\r\n", curr.indoorHumidity);       
-    char buf[5];
-    sprintf(buf, "%02d%%", curr.indoorHumidity);
-    if (currentPage == PG_MAIN_ID && tIndoorHumidity.setText(buf))
-      disp.indoorHumidity = curr.indoorHumidity;    
-  }
+	if (currentPage == PG_MAIN_ID && disp.indoorHumidity != curr.indoorHumidity) {
+		Serial.printf("DisplayControler::refreshIndoorHumidity() %2d%%\r\n", curr.indoorHumidity);
+		char buf[5];
+		sprintf(buf, "%02d%%", curr.indoorHumidity);
+		if (currentPage == PG_MAIN_ID && tIndoorHumidity.setText(buf))
+			disp.indoorHumidity = curr.indoorHumidity;
+	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshOutdoorTemperature() {  
-  if (currentPage == PG_MAIN_ID && disp.outdoorTemperature != curr.outdoorTemperature){         
-    Serial.printf("DisplayControler::refreshOutdoorTemperature() %.1f*C\r\n", curr.outdoorTemperature/10); 	    
-    
-    bool ret1 = false;
-    bool ret2 = false;
-    bool ret3 = false;    
-  	int outdoorTempInt = abs(curr.outdoorTemperature);  
-  	//poniżej -10.0
-  	if (curr.outdoorTemperature <= -100){
-  		ret1 = tOutdoorTempSymbol.setText("-");
-  		ret2 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
-  	}
-    //od -9.9 do -1.0
-    else if (curr.outdoorTemperature >= -99 & curr.outdoorTemperature <= -10){
-      ret1 = tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
-      ret2 = tOutdoorTempSymbol.setText("");     
-    }
-  	//od -0.9 do -0.1
-  	else if (curr.outdoorTemperature >= -9 & curr.outdoorTemperature <= -1){
-      char buf[3];
-      sprintf(buf, "-%01d%", outdoorTempInt / 10);      
-  		ret1 = tOutdoorTemp1.setText(buf);
-      ret2 = tOutdoorTempSymbol.setText("");     
-  	}
-  	//od 0 w górę
-  	else{
-  		ret1 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
-  		ret2 = tOutdoorTempSymbol.setText("");
-  	}
-  	ret3 = tOutdoorTemp2.setText(String(outdoorTempInt % 10).c_str());
-    if (ret1 && ret2 && ret3){
-      disp.outdoorTemperature = curr.outdoorTemperature;    
-    }
-  }
+void DisplayControler::refreshOutdoorTemperature() {
+	if (currentPage == PG_MAIN_ID && disp.outdoorTemperature != curr.outdoorTemperature) {
+		Serial.printf("DisplayControler::refreshOutdoorTemperature() %.1f*C\r\n", (float)curr.outdoorTemperature / 10.0);
+
+		bool ret1 = false;
+		bool ret2 = false;
+		bool ret3 = false;
+		int outdoorTempInt = abs(curr.outdoorTemperature);
+		//poniżej -10.0
+		if (curr.outdoorTemperature <= -100) {
+			ret1 = tOutdoorTempSymbol.setText("-");
+			ret2 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+		}
+		//od -9.9 do -1.0
+		else if (curr.outdoorTemperature >= -99 & curr.outdoorTemperature <= -10) {
+			ret1 = tOutdoorTemp1.setText(String(-outdoorTempInt / 10).c_str());
+			ret2 = tOutdoorTempSymbol.setText("");
+		}
+		//od -0.9 do -0.1
+		else if (curr.outdoorTemperature >= -9 & curr.outdoorTemperature <= -1) {
+			char buf[3];
+			sprintf(buf, "-%01d%", outdoorTempInt / 10);
+			ret1 = tOutdoorTemp1.setText(buf);
+			ret2 = tOutdoorTempSymbol.setText("");
+		}
+		//od 0 w górę
+		else {
+			ret1 = tOutdoorTemp1.setText(String(outdoorTempInt / 10).c_str());
+			ret2 = tOutdoorTempSymbol.setText("");
+		}
+		ret3 = tOutdoorTemp2.setText(String(outdoorTempInt % 10).c_str());
+		if (ret1 && ret2 && ret3) {
+			disp.outdoorTemperature = curr.outdoorTemperature;
+		}
+	}
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshOutdoorHumidity() {
-  if (currentPage == PG_MAIN_ID && disp.outdoorHumidity != curr.outdoorHumidity){
-    Serial.printf("DisplayControler::refreshOutdoorHumidity() %2d%%\r\n", curr.outdoorHumidity);
-    char buf[10];
-    sprintf(buf, "%02d%%", curr.outdoorHumidity);
-    if (tOutdoorHumidity.setText(buf))
-      disp.outdoorHumidity = curr.outdoorHumidity;   
-  }
+	if (currentPage == PG_MAIN_ID && disp.outdoorHumidity != curr.outdoorHumidity) {
+		Serial.printf("DisplayControler::refreshOutdoorHumidity() %2d%%\r\n", curr.outdoorHumidity);
+		char buf[10];
+		sprintf(buf, "%02d%%", curr.outdoorHumidity);
+		if (tOutdoorHumidity.setText(buf))
+			disp.outdoorHumidity = curr.outdoorHumidity;
+	}
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshPreasure() {
-  if (currentPage == PG_MAIN_ID && disp.pressure != curr.pressure){
-  	Serial.printf("DisplayControler::refreshPreasure() %3dhPa\r\n", curr.pressure);
-  	char buf[10];
-  	sprintf(buf, "%03dhPa", curr.pressure);
-  	if(tOutdoorPreasure.setText(buf))
-      disp.pressure = curr.pressure;
-  }
+	if (currentPage == PG_MAIN_ID && disp.pressure != curr.pressure) {
+		Serial.printf("DisplayControler::refreshPreasure() %3dhPa\r\n", curr.pressure);
+		char buf[10];
+		sprintf(buf, "%03dhPa", curr.pressure);
+		if (tOutdoorPreasure.setText(buf))
+			disp.pressure = curr.pressure;
+	}
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::showWiFiStatus(int8_t status) {
@@ -750,34 +771,34 @@ void DisplayControler::showMQTTStatus(int status) {
 //----------------------------------------------------------------------------------------
 void onSliderLightPop(void *ptr)
 {
-  //TODO: poprawić zapamiętywanie w EEPROM  !!!!  
+	//TODO: poprawić zapamiętywanie w EEPROM  !!!!  
 	NexSlider *obj = (NexSlider *)ptr;
-  Serial.printf("onSliderLightPop() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
+	Serial.printf("onSliderLightPop() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
 	uint32_t value;
 	bool ret = obj->getValue(&value);
 	if (ret) {
 		switch (obj->getObjCid()) {
 		case OBJ_LIGHT_BATH_MAIN_1_ID:
 			lightsControler.bathroomMainLight.setBrightness(value);
-      configuration.setParam(0,value);
+			configuration.setParam(0, value);
 			break;
 		case OBJ_LIGHT_BATH_ADD_1_ID:
 			lightsControler.bathroomAdditionalLight.setBrightness(value);
-      configuration.setParam(1,value);     
+			configuration.setParam(1, value);
 			break;
 		case OBJ_LIGHT_BATH_TAPE_1_ID:
 			lightsControler.bathroomTapeLight.setBrightness(value);
-      configuration.setParam(2,value);     
+			configuration.setParam(2, value);
 			break;
 		case OBJ_LIGHT_BATH_RGB_V_1_ID:
 			lightsControler.bathroomRGBTapeLight.setBrightness(value);
-      configuration.setParam(3,value);      
+			configuration.setParam(3, value);
 			break;
 		case OBJ_LIGHT_BATH_RGB_H_1_ID:
 			lightsControler.bathroomRGBTapeLight.setHue(value);
-      configuration.setParam(4,value);     
+			configuration.setParam(4, value);
 			break;
-		}   
+		}
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -787,11 +808,11 @@ DisplayControler::DisplayControler()
 
 	disp.outdoorTemperature = 99;
 	disp.outdoorHumidity = 0;
-	disp.pressure = 0;  
-  
+	disp.pressure = 0;
+
 	curr.outdoorTemperature = 99;
 	curr.outdoorHumidity = 0;
-	curr.pressure = 0;  
+	curr.pressure = 0;
 
 	lastSw1State = SW_ON;
 	lastSw2State = SW_ON;
@@ -802,7 +823,7 @@ DisplayControler::DisplayControler()
 	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 
 	curr.heatingStatus = HEATING_STATUS_HEAT;
-	disp.heatingStatus = HEATING_STATUS_HEAT; 
+	disp.heatingStatus = HEATING_STATUS_HEAT;
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::init() {
@@ -826,21 +847,21 @@ void DisplayControler::init() {
 	btnNightTempDec.attachPush(onBtnTempPush, &btnNightTempDec);
 
 	objHeatingWorkingDaysMorningOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnDec);
-	objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc); 
+	objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc);
 	objHeatingWorkingDaysMorningOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffDec);
-	objHeatingWorkingDaysMorningOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffInc);  
+	objHeatingWorkingDaysMorningOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffInc);
 	objHeatingWorkingDaysAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnDec);
-	objHeatingWorkingDaysAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnInc);  
+	objHeatingWorkingDaysAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnInc);
 	objHeatingWorkingDaysAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffDec);
-	objHeatingWorkingDaysAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffInc);  
+	objHeatingWorkingDaysAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffInc);
 	objHeatingWeekendMorningOnDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnDec);
-	objHeatingWeekendMorningOnInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnInc); 
+	objHeatingWeekendMorningOnInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnInc);
 	objHeatingWeekendMorningOffDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffDec);
-	objHeatingWeekendMorningOffInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffInc);  
+	objHeatingWeekendMorningOffInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffInc);
 	objHeatingWeekendAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnDec);
-	objHeatingWeekendAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnInc);  
+	objHeatingWeekendAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnInc);
 	objHeatingWeekendAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffDec);
-	objHeatingWeekendAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffInc); 
+	objHeatingWeekendAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffInc);
 
 	bDateTimeNext.attachPush(onBtnbDateTimeNextPush, &bDateTimeNext);
 	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);
@@ -912,19 +933,21 @@ void DisplayControler::loop() {
 	if (sw3State != lastSw3State)
 		refreshBathSw3();
 
-  if (disp.indoorTemperature != curr.indoorTemperature)
-    refreshIndoorTemperature();  
-  if (disp.indoorHumidity != curr.indoorHumidity)
-    refreshIndoorHumidity();     
-  if (disp.outdoorTemperature != curr.outdoorTemperature)
-    refreshOutdoorTemperature();  
-  if (disp.outdoorHumidity != curr.outdoorHumidity)
-    refreshOutdoorHumidity();
-  if (disp.pressure != curr.pressure)
-    refreshPreasure();   
-    
-  if(disp.heatingStatus != curr.heatingStatus)
-    refreshHeatingStatus(curr.heatingStatus);              
+	if (disp.indoorTemperature != curr.indoorTemperature)
+		refreshIndoorTemperature();
+	if (disp.indoorHumidity != curr.indoorHumidity)
+		refreshIndoorHumidity();
+	if (disp.outdoorTemperature != curr.outdoorTemperature)
+		refreshOutdoorTemperature();
+	if (disp.outdoorHumidity != curr.outdoorHumidity)
+		refreshOutdoorHumidity();
+	if (disp.pressure != curr.pressure)
+		refreshPreasure();
+
+	if (disp.heatingStatus != curr.heatingStatus)
+		refreshHeatingStatus(curr.heatingStatus);
+	if (disp.heatingPeriod != curr.heatingPeriod)
+		refreshHeatingPeriod(curr.heatingPeriod);
 }
 
 DisplayControler displayControler;

@@ -30,7 +30,6 @@ DateTime RtcControler::now() {
 //----------------------------------------------------------------------------------------
 void RtcControler::loop(){
 	dateTime = rtc.now();
-/*
 	Serial.print(dateTime.year(), DEC);
 	Serial.print('.');
 	Serial.print(dateTime.month(), DEC);
@@ -45,7 +44,7 @@ void RtcControler::loop(){
 	Serial.print(':');
 	Serial.print(dateTime.second(), DEC);
 	Serial.println();
-*/
+
 	eventsHandler.onRefreshDateTime(dateTime);
 }
 //----------------------------------------------------------------------------------------

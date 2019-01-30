@@ -164,7 +164,7 @@ bool Configuration::loadFromEEPROM() {
 	heatingTimes[HEATING_WEEKEND_MORNING_OFF].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_MORNING_OFF].hour * 60 + heatingTimes[HEATING_WEEKEND_MORNING_OFF].minute;
 	heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour * 60 + heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute;
 	heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour * 60 + heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute;
-
+	
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------

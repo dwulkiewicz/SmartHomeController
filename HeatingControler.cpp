@@ -5,7 +5,8 @@
 
 HeatingControler::HeatingControler()
 {
-	status = HEATING_STATUS_COOL;	
+	status = HEATING_STATUS_COOL;
+	period = HEATING_PERIOD_DAY;
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::init(const DateTime& dateTime, float indoorTemp) {
@@ -40,23 +41,23 @@ void HeatingControler::onConfigurationChange(){
 void HeatingControler::refresh() {	
 	uint16_t minuteOfTheDay = currDateTime.hour() * 60 + currDateTime.minute();
 	//weekend
+	uint8_t currPeriod;
 	if (currDateTime.dayOfTheWeek() == DAY_OF_WEEK_SAT || currDateTime.dayOfTheWeek() == DAY_OF_WEEK_SUN) {
 		if ((configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WORKING_DAYS_MORNING_OFF).minuteOfTheDay) ||
 			(configuration.getHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WORKING_DAYS_AFTERNOON_OFF).minuteOfTheDay))
-			period = HEATING_PERIOD_DAY;
+			currPeriod = HEATING_PERIOD_DAY;
 		else
-			period = HEATING_PERIOD_NIGHT;
+			currPeriod = HEATING_PERIOD_NIGHT;
 	}
 	//working day
 	else {
 		if ((configuration.getHeatingTime(HEATING_WEEKEND_MORNING_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WEEKEND_MORNING_OFF).minuteOfTheDay) ||
 			(configuration.getHeatingTime(HEATING_WEEKEND_AFTERNOON_ON).minuteOfTheDay <= minuteOfTheDay && minuteOfTheDay <= configuration.getHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF).minuteOfTheDay))
-			period = HEATING_PERIOD_DAY;
+			currPeriod = HEATING_PERIOD_DAY;
 		else
-			period = HEATING_PERIOD_NIGHT;
+			currPeriod = HEATING_PERIOD_NIGHT;
 	}
-
-	float requiredTemp = (period == HEATING_PERIOD_DAY) ? configuration.getDayTemperature() : configuration.getNightTemperature();	   
+	float requiredTemp = (currPeriod == HEATING_PERIOD_DAY) ? configuration.getDayTemperature() : configuration.getNightTemperature();
 	//grzeje
 	if (status == HEATING_STATUS_HEAT) {
 		requiredTemp += configuration.getHisteresisTemp() / 2.0;
@@ -83,9 +84,9 @@ void HeatingControler::refresh() {
 			//sprawdzenie czy faktycznie grzeje
 		}
 	}
-
+	setPeriod(currPeriod);
 	String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfTheWeek());
-	logger.log(info, "HeatingControler::refresh() time: %s %02d:%02d period: %s status: %s requiredTemp: %.1f currTemp: %.1f \r\n", dayOfWeekStr.c_str(), currDateTime.hour(), currDateTime.minute(), periodToStr(period).c_str(), statusToStr(status).c_str(), requiredTemp, currIndoorTemp);
+	logger.log(info,"HeatingControler::refresh() time: %s %02d:%02d period: %s status: %s requiredTemp: %.1f currTemp: %.1f \r\n", dayOfWeekStr.c_str(), currDateTime.hour(), currDateTime.minute(), periodToStr(period).c_str(), statusToStr(status).c_str(), requiredTemp, currIndoorTemp);
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::setStatus(uint8_t status){
@@ -93,21 +94,28 @@ void HeatingControler::setStatus(uint8_t status){
     this->status = status;
     eventsHandler.onHeatingStatusChange(status);    
   }  
-}  
+} 
+//----------------------------------------------------------------------------------------
+void HeatingControler::setPeriod(uint8_t period) {
+	if (this->period != period) {
+		this->period = period;
+		eventsHandler.onHeatingPeriodChange(period);
+	}
+}
 //----------------------------------------------------------------------------------------
 String HeatingControler::statusToStr(uint8_t value) {
   switch(value){
-    case HEATING_STATUS_HEAT: return "HEATING_STATUS_HEAT"; 
-    case HEATING_STATUS_COOL: return "HEATING_STATUS_COOL";
-    default: return "HEATING_STATUS_???";    
+    case HEATING_STATUS_HEAT: return "HEAT"; 
+    case HEATING_STATUS_COOL: return "COOL";
+    default: return "["+String(value)+"]";    
   }
 }
 //----------------------------------------------------------------------------------------
 String HeatingControler::periodToStr(uint8_t value) {
 	switch (value) {
-	case HEATING_PERIOD_DAY: return "HEATING_PERIOD_DAY";
-	case HEATING_PERIOD_NIGHT: return "HEATING_PERIOD_NIGHT";
-	default: return "HEATING_PERIOD_???";
+	case HEATING_PERIOD_DAY: return "DAY";
+	case HEATING_PERIOD_NIGHT: return "NIGHT";
+	default: return "[" + String(value) + "]";
 	}
 }
 
