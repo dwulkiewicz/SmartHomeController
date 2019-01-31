@@ -11,7 +11,7 @@ void SensorsHelper::init() {
   // (you can also pass in a Wire library object like &Wire2)
   bool status = bme.begin(I2C_ADDRESS_BME280, &Wire1);
   if (!status) {
-    Serial.println("Could not find a valid BME280 sensor, check wiring!");
+    logger.log(error,"Could not find a valid BME280 sensor, check wiring!\r\n");
   }
 }
 //----------------------------------------------------------------------------------------

@@ -165,6 +165,9 @@ bool Configuration::loadFromEEPROM() {
 	heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].hour * 60 + heatingTimes[HEATING_WEEKEND_AFTERNOON_ON].minute;
 	heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minuteOfTheDay = heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].hour * 60 + heatingTimes[HEATING_WEEKEND_AFTERNOON_OFF].minute;
 	
+	for (uint8_t i = 0 ; i < LIGHT_MAX_SAFEGUARD ; i++)
+		lightValues[i] = EEPROM.read(EEPROM_ADDR_PARAMS_OFFSET + i);
+
 	return true;
 }
 //-----------------------------------------------------------------------------------------------------
@@ -335,16 +338,15 @@ void Configuration::saveHeatingTime(uint8_t idx) {
 	EEPROM.commit();
 }
 //-----------------------------------------------------------------------------------------------------
-void Configuration::setParam(uint8_t paramId, uint8_t value) {
-	Serial.printf("Configuration::setParam() paramId: %d value: %d\r\n", paramId, value);
-	EEPROM.write(EEPROM_ADDR_PARAMS_OFFSET + paramId, value);
-	EEPROM.commit();
+uint8_t Configuration::getLightsBathValue(uint8_t idx) {	
+	return lightValues[idx];
 }
 //-----------------------------------------------------------------------------------------------------
-uint8_t Configuration::getParam(uint8_t paramId) {
-	uint8_t value = EEPROM.read(EEPROM_ADDR_PARAMS_OFFSET + paramId);
-	Serial.printf("Configuration::getParam() paramId: %d value: %d\r\n", paramId, value);
-	return value;
+void Configuration::setLightsBathValue(uint8_t idx, uint8_t value) {
+	lightValues[idx] = value;
+	logger.log(debug,"Configuration::setLightsBathValue() idx: %d value: %d\r\n", idx, value);
+	EEPROM.write(EEPROM_ADDR_PARAMS_OFFSET + idx, value);
+	EEPROM.commit();
 }
 //-----------------------------------------------------------------------------------------------------
 void Configuration::print() {

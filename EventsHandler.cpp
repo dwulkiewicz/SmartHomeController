@@ -64,6 +64,8 @@ void EventsHandler::onMQTTStatusChange(int status){
   //TODO: zmienić na status
   displayControler.showMQTTStatus(status);    
 }
-
-
+//----------------------------------------------------------------------------------------
+void EventsHandler::onLightValueChange(uint8_t idx, uint8_t value) {
+	lightsControler.onLightValueChange(idx, value);
+}
 EventsHandler eventsHandler;

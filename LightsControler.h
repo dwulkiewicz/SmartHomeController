@@ -3,6 +3,21 @@
 
 #include "RGBLightDevice.h"
 
+#define LIGHTS_BATH_SCENARIO_COUNT 3
+
+#define LIGHTS_BATH_SCENARIO_1 0
+#define LIGHTS_BATH_SCENARIO_2 1
+#define LIGHTS_BATH_SCENARIO_3 2
+
+
+typedef struct {
+	LightDevice main;
+	LightDevice holder;
+	LightDevice tapeWhite;
+	RGBLightDevice tapeRgb; 
+} 	lightBath_t;
+
+
 class LightsControler
 {
 public:
@@ -11,15 +26,14 @@ public:
 	void init();
 	void loop();
 	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+	void onLightValueChange(uint8_t idx, uint8_t value);
 private:
 	SwitchDevice swBath1;
 	SwitchDevice swBath2;
-	SwitchDevice swBath3;
+	SwitchDevice swBath3;	
+	lightBath_t lightsBath[LIGHTS_BATH_SCENARIO_COUNT];
 public:	 
-	LightDevice bathroomMainLight; //TODO: do przerobienia
-	LightDevice bathroomAdditionalLight; //TODO: do przerobienia
-	LightDevice bathroomTapeLight; //TODO: do przerobienia
-	RGBLightDevice bathroomRGBTapeLight; //TODO: do przerobienia
+
 private:
 	void setPWM(uint8_t mainLigt, uint8_t additionalLight, uint8_t tapeWhite, uint8_t tapeRed, uint8_t tapeGreen, uint8_t tapeBlue);
 private:

@@ -22,98 +22,106 @@
 
 //------------/*Strona główna*/------------//
 NexPage pgMain = NexPage(PG_MAIN_ID, 0, PG_MAIN_NAME);
-
+//Status WiFI
 NexPicture objWiFiStatus(PG_MAIN_ID, OBJ_WIFI_STATUS_ID, OBJ_WIFI_STATUS_NAME);
+//Status ogrzewania
 NexPicture objHeatingStatus(PG_MAIN_ID, OBJ_HEATING_STATUS_ID, OBJ_HEATING_STATUS_NAME);
 NexPicture objHeatingPeriod(PG_MAIN_ID, OBJ_HEATING_PERIOD_ID, OBJ_HEATING_PERIOD_NAME);
 NexText objHeatingSetTemp(PG_MAIN_ID, OBJ_HEATING_SET_TEMP_ID, OBJ_HEATING_SET_TEMP_NAME);
-
-
-
+//Data i czas
 NexPicture pDayOfMonth1 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH1_ID, OBJ_DAY_OF_MONTH1_NAME);
 NexPicture pDayOfMonth2 = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_MONTH2_ID, OBJ_DAY_OF_MONTH2_NAME);
 NexPicture pMonth = NexPicture(PG_MAIN_ID, OBJ_MONTH_ID, OBJ_MONTH_NAME);
 NexPicture pDayOfWeek = NexPicture(PG_MAIN_ID, OBJ_DAY_OF_WEEK_ID, OBJ_DAY_OF_WEEK_NAME);
-
 NexText tTime1 = NexText(PG_MAIN_ID, OBJ_TIME1_ID, OBJ_TIME1_NAME);
 NexText tTime2 = NexText(PG_MAIN_ID, OBJ_TIME2_ID, OBJ_TIME2_NAME);
 NexText tTime3 = NexText(PG_MAIN_ID, OBJ_TIME3_ID, OBJ_TIME3_NAME);
 NexText tTime4 = NexText(PG_MAIN_ID, OBJ_TIME4_ID, OBJ_TIME4_NAME);
-
+//Temperatura i wilgotność wewnątrz
 NexText tIndoorTemp1 = NexText(PG_MAIN_ID, OBJ_INDOOR_TEMP1_ID, OBJ_INDOOR_TEMP1_NAME);
 NexText tIndoorTemp2 = NexText(PG_MAIN_ID, OBJ_INDOOR_TEMP2_ID, OBJ_INDOOR_TEMP2_NAME);
 NexText tIndoorHumidity = NexText(PG_MAIN_ID, OBJ_INDOOR_HUMIDITY_ID, OBJ_INDOOR_HUMIDITY_NAME);
-
+//PArametry zewnętrzne
 NexText tOutdoorTemp1 = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP1_ID, OBJ_OUTDOOR_TEMP1_NAME);
 NexText tOutdoorTemp2 = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP2_ID, OBJ_OUTDOOR_TEMP2_NAME);
 NexText tOutdoorTempSymbol = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP_SYMBOL_ID, OBJ_OUTDOOR_TEMP_SYMBOL_NAME);
 NexText tOutdoorHumidity = NexText(PG_MAIN_ID, OBJ_OUTDOOR_HUMIDITY_ID, OBJ_OUTDOOR_HUMIDITY_NAME);
 NexText tOutdoorPreasure = NexText(PG_MAIN_ID, OBJ_OUTDOOR_PREASURE_ID, OBJ_OUTDOOR_PREASURE_NAME);
-
-
-
+//Zał/Wył
 NexPicture objBathSw1 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_1_ID, OBJ_BATH_SW_1_NAME);
 NexPicture objBathSw2 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_2_ID, OBJ_BATH_SW_2_NAME);
 NexPicture objBathSw3 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_3_ID, OBJ_BATH_SW_3_NAME);
 
 //------------/*Ogrzewanie*/------------
 NexPage pgHeating = NexPage(PG_HEATING_ID, 0, PG_HEATING_NAME);
-/*Temperatura w dzień*/
+//Temperatura w dzień
 NexText lblDayTempValue = NexText(PG_HEATING_ID, OBJ_DAY_TEMP_VALUE_ID, OBJ_DAY_TEMP_VALUE_NAME);
 NexButton btnDayTempDec = NexButton(PG_HEATING_ID, OBJ_DAY_TEMP_DEC_ID, OBJ_DAY_TEMP_DEC_NAME);
 NexButton btnDayTempInc = NexButton(PG_HEATING_ID, OBJ_DAY_TEMP_INC_ID, OBJ_DAY_TEMP_INC_NAME);
-/*Temperatura w noc*/
+//Temperatura w noc
 NexText lblNightTempValue = NexText(PG_HEATING_ID, OBJ_NIGHT_TEMP_VALUE_ID, OBJ_NIGHT_TEMP_VALUE_NAME);
 NexButton btnNightTempDec = NexButton(PG_HEATING_ID, OBJ_NIGHT_TEMP_DEC_ID, OBJ_NIGHT_TEMP_DEC_NAME);
 NexButton btnNightTempInc = NexButton(PG_HEATING_ID, OBJ_NIGHT_TEMP_INC_ID, OBJ_NIGHT_TEMP_INC_NAME);
-/*Włącz ogrzewanie rano w tygodniu*/
+//Włącz ogrzewanie rano w tygodniu
 NexText objHeatingWorkingDaysMorningOnVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_VAL_NAME);
 NexButton objHeatingWorkingDaysMorningOnDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_DEC_NAME);
 NexButton objHeatingWorkingDaysMorningOnInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_ON_INC_NAME);
-/*Wyłącz ogrzewanie rano w tygodniu*/
+//Wyłącz ogrzewanie rano w tygodniu
 NexText objHeatingWorkingDaysMorningOffVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_VAL_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_VAL_NAME);
 NexButton objHeatingWorkingDaysMorningOffDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_DEC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_DEC_NAME);
 NexButton objHeatingWorkingDaysMorningOffInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_INC_ID, OBJ_HEATING_WORKING_DAYS_MORNING_OFF_INC_NAME);
-/*Włącz ogrzewanie popołudniu w tygodniu*/
+//Włącz ogrzewanie popołudniu w tygodniu
 NexText objHeatingWorkingDaysAfternoonOnVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_VAL_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_VAL_NAME);
 NexButton objHeatingWorkingDaysAfternoonOnDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_DEC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_DEC_NAME);
 NexButton objHeatingWorkingDaysAfternoonOnInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_INC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_ON_INC_NAME);
-/*Wyłącz ogrzewanie popołudniu w tygodniu*/
+//Wyłącz ogrzewanie popołudniu w tygodniu
 NexText objHeatingWorkingDaysAfternoonOffVal(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_VAL_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_VAL_NAME);
 NexButton objHeatingWorkingDaysAfternoonOffDec(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_DEC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_DEC_NAME);
 NexButton objHeatingWorkingDaysAfternoonOffInc(PG_HEATING_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_ID, OBJ_HEATING_WORKING_DAYS_AFTERNOON_OFF_INC_NAME);
-/*Włącz ogrzewanie rano w weekend*/
+//Włącz ogrzewanie rano w weekend
 NexText objHeatingWeekendMorningOnVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_ON_VAL_ID, OBJ_HEATING_WEEKEND_MORNING_ON_VAL_NAME);
 NexButton objHeatingWeekendMorningOnDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_ON_DEC_ID, OBJ_HEATING_WEEKEND_MORNING_ON_DEC_NAME);
 NexButton objHeatingWeekendMorningOnInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_ON_INC_ID, OBJ_HEATING_WEEKEND_MORNING_ON_INC_NAME);
-/*Wyłącz ogrzewanie rano w weekend*/
+//Wyłącz ogrzewanie rano w weekend
 NexText objHeatingWeekendMorningOffVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_VAL_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_VAL_NAME);
 NexButton objHeatingWeekendMorningOffDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_DEC_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_DEC_NAME);
 NexButton objHeatingWeekendMorningOffInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_INC_ID, OBJ_HEATING_WEEKEND_MORNING_OFF_INC_NAME);
-/*Włącz ogrzewanie popołudniu w weekend*/
+//Włącz ogrzewanie popołudniu w weekend
 NexText objHeatingWeekendAfternoonOnVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_VAL_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_VAL_NAME);
 NexButton objHeatingWeekendAfternoonOnDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_DEC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_DEC_NAME);
 NexButton objHeatingWeekendAfternoonOnInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_INC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_ON_INC_NAME);
-/*Wyłącz ogrzewanie popołudniu w weekend*/
+//Wyłącz ogrzewanie popołudniu w weekend
 NexText objHeatingWeekendAfternoonOffVal(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_VAL_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_VAL_NAME);
 NexButton objHeatingWeekendAfternoonOffDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_DEC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_DEC_NAME);
 NexButton objHeatingWeekendAfternoonOffInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_NAME);
 
 //------------/*Oświetlenie*/------------
 NexPage pgLights = NexPage(PG_LIGHTS_ID, 0, PG_LIGHTS_NAME);
-NexSlider sldMain1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_MAIN_1_ID, OBJ_LIGHT_BATH_MAIN_1_NAME);
-NexSlider sldAdd1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_ADD_1_ID, OBJ_LIGHT_BATH_ADD_1_NAME);
-NexSlider sldTape1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_TAPE_1_ID, OBJ_LIGHT_BATH_TAPE_1_NAME);
-NexSlider sldRgbV1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_RGB_V_1_ID, OBJ_LIGHT_BATH_RGB_V_1_NAME);
-NexSlider sldRgbH1(PG_LIGHTS_ID, OBJ_LIGHT_BATH_RGB_H_1_ID, OBJ_LIGHT_BATH_RGB_H_1_NAME);
+//Scenariusz 1
+NexSlider compLightBathMainVal1(PG_LIGHTS_ID, COMP_LIGHT_BATH_MAIN_1_ID, COMP_LIGHT_BATH_MAIN_1_NAME);
+NexSlider compLightBathHolderVal1(PG_LIGHTS_ID, COMP_LIGHT_BATH_HOLDER_1_ID, COMP_LIGHT_BATH_HOLDER_1_NAME);
+NexSlider compLightBathTapeWhiteVal1(PG_LIGHTS_ID, COMP_LIGHT_BATH_TAPE_1_ID, COMP_LIGHT_BATH_TAPE_1_NAME);
+NexSlider compLightBathTapeRgbVal1(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_V_1_ID, COMP_LIGHT_BATH_RGB_V_1_NAME);
+NexSlider compLightBathTapeRgbHue1(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_H_1_ID, COMP_LIGHT_BATH_RGB_H_1_NAME);
+//Scenariusz 2
+NexSlider compLightBathMainVal2(PG_LIGHTS_ID, COMP_LIGHT_BATH_MAIN_2_ID, COMP_LIGHT_BATH_MAIN_2_NAME);
+NexSlider compLightBathHolderVal2(PG_LIGHTS_ID, COMP_LIGHT_BATH_HOLDER_2_ID, COMP_LIGHT_BATH_HOLDER_2_NAME);
+NexSlider compLightBathTapeWhiteVal2(PG_LIGHTS_ID, COMP_LIGHT_BATH_TAPE_2_ID, COMP_LIGHT_BATH_TAPE_2_NAME);
+NexSlider compLightBathTapeRgbVal2(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_V_2_ID, COMP_LIGHT_BATH_RGB_V_2_NAME);
+NexSlider compLightBathTapeRgbHue2(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_H_2_ID, COMP_LIGHT_BATH_RGB_H_2_NAME);
+//Scenariusz 3
+NexSlider compLightBathMainVal3(PG_LIGHTS_ID, COMP_LIGHT_BATH_MAIN_3_ID, COMP_LIGHT_BATH_MAIN_3_NAME);
+NexSlider compLightBathHolderVal3(PG_LIGHTS_ID, COMP_LIGHT_BATH_HOLDER_3_ID, COMP_LIGHT_BATH_HOLDER_3_NAME);
+NexSlider compLightBathTapeWhiteVal3(PG_LIGHTS_ID, COMP_LIGHT_BATH_TAPE_3_ID, COMP_LIGHT_BATH_TAPE_3_NAME);
+NexSlider compLightBathTapeRgbVal3(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_V_3_ID, COMP_LIGHT_BATH_RGB_V_3_NAME);
+NexSlider compLightBathTapeRgbHue3(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_H_3_ID, COMP_LIGHT_BATH_RGB_H_3_NAME);
 
 //------------/*Czas i inne*/------------
 NexPage pgOther = NexPage(PG_OTHER_ID, 0, PG_OTHER_NAME);
-/*Ustawianie czasu*/
+//Ustawianie czasu
 NexText tYear = NexText(PG_OTHER_ID, OBJ_TIME_YEAR_ID, OBJ_TIME_YEAR_NAME);
 NexText tMonth = NexText(PG_OTHER_ID, OBJ_TIME_MONTH_ID, OBJ_TIME_MONTH_NAME);
 NexText tDay = NexText(PG_OTHER_ID, OBJ_TIME_DAY_ID, OBJ_TIME_DAY_NAME);
-//NexText tDayW = NexText(PG_OTHER_ID, OBJ_TIME_DAY_OF_WEEK_ID, OBJ_TIME_DAY_OF_WEEK_NAME);
 NexText tHour = NexText(PG_OTHER_ID, OBJ_TIME_HOUR_ID, OBJ_TIME_HOUR_NAME);
 NexText tMinute = NexText(PG_OTHER_ID, OBJ_TIME_MINUTE_ID, OBJ_TIME_MINUTE_NAME);
 NexButton bDateTimeNext = NexButton(PG_OTHER_ID, OBJ_TIME_NEXT_ID, OBJ_TIME_NEXT_NAME);
@@ -141,11 +149,21 @@ NexTouch *nex_listen_list[] =
   &btnNightTempDec,
   &bDateTimeNext,
   &bDateTimeSet,
-  &sldMain1,
-  &sldAdd1,
-  &sldTape1,
-  &sldRgbV1,
-  &sldRgbH1,
+  &compLightBathMainVal1,
+  &compLightBathHolderVal1,
+  &compLightBathTapeWhiteVal1,
+  &compLightBathTapeRgbVal1,
+  &compLightBathTapeRgbHue1,
+  &compLightBathMainVal2,
+  &compLightBathHolderVal2,
+  &compLightBathTapeWhiteVal2,
+  &compLightBathTapeRgbVal2,
+  &compLightBathTapeRgbHue2,
+  &compLightBathMainVal3,
+  &compLightBathHolderVal3,
+  &compLightBathTapeWhiteVal3,
+  &compLightBathTapeRgbVal3,
+  &compLightBathTapeRgbHue3,
   &objHeatingWorkingDaysMorningOnDec,
   &objHeatingWorkingDaysMorningOnInc,
   &objHeatingWorkingDaysMorningOffDec,
@@ -437,19 +455,32 @@ void DisplayControler::refreshHeatingPage() {
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshLightsPage()
 {
-	sldMain1.setValue(lightsControler.bathroomMainLight.getBrightness());
-	sldAdd1.setValue(lightsControler.bathroomAdditionalLight.getBrightness());
-	sldTape1.setValue(lightsControler.bathroomTapeLight.getBrightness());
-	sldRgbV1.setValue(lightsControler.bathroomRGBTapeLight.getBrightness());
-	sldRgbH1.setValue(lightsControler.bathroomRGBTapeLight.getHue());
+	compLightBathMainVal1.setValue(configuration.getLightsBathValue(LIGHT_BATH_MAIN_1_IDX));
+	compLightBathHolderVal1.setValue(configuration.getLightsBathValue(LIGHT_BATH_HOLDER_1_IDX));
+	compLightBathTapeWhiteVal1.setValue(configuration.getLightsBathValue(LIGHT_BATH_TAPE_1_IDX));
+	compLightBathTapeRgbVal1.setValue(configuration.getLightsBathValue(LIGHT_BATH_RGB_V_1_IDX));
+	compLightBathTapeRgbHue1.setValue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_1_IDX));
+
+	compLightBathMainVal2.setValue(configuration.getLightsBathValue(LIGHT_BATH_MAIN_2_IDX));
+	compLightBathHolderVal2.setValue(configuration.getLightsBathValue(LIGHT_BATH_HOLDER_2_IDX));
+	compLightBathTapeWhiteVal2.setValue(configuration.getLightsBathValue(LIGHT_BATH_TAPE_2_IDX));
+	compLightBathTapeRgbVal2.setValue(configuration.getLightsBathValue(LIGHT_BATH_RGB_V_2_IDX));
+	compLightBathTapeRgbHue2.setValue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_2_IDX));
+
+	compLightBathMainVal3.setValue(configuration.getLightsBathValue(LIGHT_BATH_MAIN_3_IDX));
+	compLightBathHolderVal3.setValue(configuration.getLightsBathValue(LIGHT_BATH_HOLDER_3_IDX));
+	compLightBathTapeWhiteVal3.setValue(configuration.getLightsBathValue(LIGHT_BATH_TAPE_3_IDX));
+	compLightBathTapeRgbVal3.setValue(configuration.getLightsBathValue(LIGHT_BATH_RGB_V_3_IDX));
+	compLightBathTapeRgbHue3.setValue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_3_IDX));
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshOtherPage()
 {
 	currentTimeComponent = SETUP_DATETIME_YEAR;
+	tYear.Set_font_color_pco(COLOR_RED);
 
 	char buf[5];
-	sprintf(buf, "%02d", curr.dateTime.year);
+	sprintf(buf, "%04d", curr.dateTime.year + 2000);
 	tYear.setText(buf);
 	sprintf(buf, "%02d", curr.dateTime.month);
 	tMonth.setText(buf);
@@ -459,8 +490,6 @@ void DisplayControler::refreshOtherPage()
 	tHour.setText(buf);
 	sprintf(buf, "%02d", curr.dateTime.minute);
 	tMinute.setText(buf);
-	//RtcControler::dayOfWeekName(buf, curr.dateTime.dayOfTheWeek);
-	//tDayW.setText(buf);
 
 	dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
 	objHeatingHisteresisVal.setText(buf);
@@ -473,27 +502,27 @@ void onBtnbDateTimeNextPush(void *ptr)
 
 	switch (displayControler.currentTimeComponent) {
 	case SETUP_DATETIME_YEAR:
-		tYear.Set_font_color_pco(COLOR_YELLOW);
+		tYear.Set_font_color_pco(COLOR_BLACK);
 		tMonth.Set_font_color_pco(COLOR_RED);
 		displayControler.currentTimeComponent = SETUP_DATETIME_MONTH;
 		break;
 	case SETUP_DATETIME_MONTH:
-		tMonth.Set_font_color_pco(COLOR_YELLOW);
+		tMonth.Set_font_color_pco(COLOR_BLACK);
 		tDay.Set_font_color_pco(COLOR_RED);
 		displayControler.currentTimeComponent = SETUP_DATETIME_DAY;
 		break;
 	case SETUP_DATETIME_DAY:
-		tDay.Set_font_color_pco(COLOR_YELLOW);
+		tDay.Set_font_color_pco(COLOR_BLACK);
 		tHour.Set_font_color_pco(COLOR_RED);
 		displayControler.currentTimeComponent = SETUP_DATETIME_HOUR;
 		break;
 	case SETUP_DATETIME_HOUR:
-		tHour.Set_font_color_pco(COLOR_YELLOW);
+		tHour.Set_font_color_pco(COLOR_BLACK);
 		tMinute.Set_font_color_pco(COLOR_RED);
 		displayControler.currentTimeComponent = SETUP_DATETIME_MINUTE;
 		break;
 	case SETUP_DATETIME_MINUTE:
-		tMinute.Set_font_color_pco(COLOR_YELLOW);
+		tMinute.Set_font_color_pco(COLOR_BLACK);
 		tYear.Set_font_color_pco(COLOR_RED);
 		displayControler.currentTimeComponent = SETUP_DATETIME_YEAR;
 		break;
@@ -511,13 +540,13 @@ void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 
 	char buf[10];
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_YEAR) {
-		uint8_t year = displayControler.curr.dateTime.year;
+		uint16_t year = displayControler.curr.dateTime.year;
 		if (year >= 99)
 			year = 0;
 		else
 			year++;
 
-		DateTime dateTime(year + 2000,
+		DateTime dateTime(year,
 			displayControler.curr.dateTime.month,
 			displayControler.curr.dateTime.day,
 			displayControler.curr.dateTime.hour,
@@ -527,7 +556,7 @@ void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 
 		//rtc.set(rtc.second(), rtc.minute(), rtc.hour(), rtc.dayOfWeek(), rtc.day(), rtc.month(), year);
 
-		sprintf(buf, "%02d", year);
+		sprintf(buf, "%04d", year + 2000);
 		tYear.setText(buf);
 	}
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_MONTH) {
@@ -771,34 +800,32 @@ void DisplayControler::showMQTTStatus(int status) {
 //----------------------------------------------------------------------------------------
 void onSliderLightPop(void *ptr)
 {
-	//TODO: poprawić zapamiętywanie w EEPROM  !!!!  
 	NexSlider *obj = (NexSlider *)ptr;
 	Serial.printf("onSliderLightPop() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
 	uint32_t value;
 	bool ret = obj->getValue(&value);
+	uint8_t idx;
 	if (ret) {
 		switch (obj->getObjCid()) {
-		case OBJ_LIGHT_BATH_MAIN_1_ID:
-			lightsControler.bathroomMainLight.setBrightness(value);
-			configuration.setParam(0, value);
-			break;
-		case OBJ_LIGHT_BATH_ADD_1_ID:
-			lightsControler.bathroomAdditionalLight.setBrightness(value);
-			configuration.setParam(1, value);
-			break;
-		case OBJ_LIGHT_BATH_TAPE_1_ID:
-			lightsControler.bathroomTapeLight.setBrightness(value);
-			configuration.setParam(2, value);
-			break;
-		case OBJ_LIGHT_BATH_RGB_V_1_ID:
-			lightsControler.bathroomRGBTapeLight.setBrightness(value);
-			configuration.setParam(3, value);
-			break;
-		case OBJ_LIGHT_BATH_RGB_H_1_ID:
-			lightsControler.bathroomRGBTapeLight.setHue(value);
-			configuration.setParam(4, value);
-			break;
+		case COMP_LIGHT_BATH_MAIN_1_ID: idx = LIGHT_BATH_MAIN_1_IDX; break;
+		case COMP_LIGHT_BATH_HOLDER_1_ID: idx = LIGHT_BATH_HOLDER_1_IDX; break;
+		case COMP_LIGHT_BATH_TAPE_1_ID: idx = LIGHT_BATH_TAPE_1_IDX; break;
+		case COMP_LIGHT_BATH_RGB_V_1_ID: idx = LIGHT_BATH_RGB_V_1_IDX; break;
+		case COMP_LIGHT_BATH_RGB_H_1_ID: idx = LIGHT_BATH_RGB_H_1_IDX; break;
+		case COMP_LIGHT_BATH_MAIN_2_ID: idx = LIGHT_BATH_MAIN_2_IDX; break;
+		case COMP_LIGHT_BATH_HOLDER_2_ID: idx = LIGHT_BATH_HOLDER_2_IDX; break;
+		case COMP_LIGHT_BATH_TAPE_2_ID: idx = LIGHT_BATH_TAPE_2_IDX; break;
+		case COMP_LIGHT_BATH_RGB_V_2_ID: idx = LIGHT_BATH_RGB_V_2_IDX; break;
+		case COMP_LIGHT_BATH_RGB_H_2_ID: idx = LIGHT_BATH_RGB_H_2_IDX; break;
+		case COMP_LIGHT_BATH_MAIN_3_ID: idx = LIGHT_BATH_MAIN_3_IDX; break;
+		case COMP_LIGHT_BATH_HOLDER_3_ID: idx = LIGHT_BATH_HOLDER_3_IDX; break;
+		case COMP_LIGHT_BATH_TAPE_3_ID: idx = LIGHT_BATH_TAPE_3_IDX; break;
+		case COMP_LIGHT_BATH_RGB_V_3_ID: idx = LIGHT_BATH_RGB_V_3_IDX; break;
+		case COMP_LIGHT_BATH_RGB_H_3_ID: idx = LIGHT_BATH_RGB_H_3_IDX; break;
+		default:
+			return;
 		}
+		eventsHandler.onLightValueChange(idx, value);
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -868,11 +895,24 @@ void DisplayControler::init() {
 	objHeatingHisteresisDec.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisDec);
 	objHeatingHisteresisInc.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisInc);
 
-	sldMain1.attachPop(onSliderLightPop, &sldMain1);
-	sldAdd1.attachPop(onSliderLightPop, &sldAdd1);
-	sldTape1.attachPop(onSliderLightPop, &sldTape1);
-	sldRgbV1.attachPop(onSliderLightPop, &sldRgbV1);
-	sldRgbH1.attachPop(onSliderLightPop, &sldRgbH1);
+	compLightBathMainVal1.attachPop(onSliderLightPop, &compLightBathMainVal1);
+	compLightBathHolderVal1.attachPop(onSliderLightPop, &compLightBathHolderVal1);
+	compLightBathTapeWhiteVal1.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal1);
+	compLightBathTapeRgbVal1.attachPop(onSliderLightPop, &compLightBathTapeRgbVal1);
+	compLightBathTapeRgbHue1.attachPop(onSliderLightPop, &compLightBathTapeRgbHue1);
+
+	compLightBathMainVal2.attachPop(onSliderLightPop, &compLightBathMainVal2);
+	compLightBathHolderVal2.attachPop(onSliderLightPop, &compLightBathHolderVal2);
+	compLightBathTapeWhiteVal2.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal2);
+	compLightBathTapeRgbVal2.attachPop(onSliderLightPop, &compLightBathTapeRgbVal2);
+	compLightBathTapeRgbHue2.attachPop(onSliderLightPop, &compLightBathTapeRgbHue2);
+
+	compLightBathMainVal3.attachPop(onSliderLightPop, &compLightBathMainVal3);
+	compLightBathHolderVal3.attachPop(onSliderLightPop, &compLightBathHolderVal3);
+	compLightBathTapeWhiteVal3.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal3);
+	compLightBathTapeRgbVal3.attachPop(onSliderLightPop, &compLightBathTapeRgbVal3);
+	compLightBathTapeRgbHue3.attachPop(onSliderLightPop, &compLightBathTapeRgbHue3);
+
 }
 //----------------------------------------------------------------------------------------
 uint8_t DisplayControler::dayOfWeekPic(uint8_t dayOfWeek) {

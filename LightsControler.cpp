@@ -22,13 +22,24 @@ void LightsControler::init() {
 	pinMode(GPIO_SW_2, INPUT);
 	pinMode(GPIO_SW_3, INPUT);
 	pinMode(GPIO_SW_4, INPUT);
-	//TODO:
-	//wczytać konfigurację
-  bathroomMainLight.setBrightness(configuration.getParam(0));
-  bathroomAdditionalLight.setBrightness(configuration.getParam(1));
-  bathroomTapeLight.setBrightness(configuration.getParam(2));
-  bathroomRGBTapeLight.setBrightness(configuration.getParam(3));
-  bathroomRGBTapeLight.setHue(configuration.getParam(4)); 
+
+	lightsBath[LIGHTS_BATH_SCENARIO_1].main.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_MAIN_1_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_1].holder.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_HOLDER_1_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_1].tapeWhite.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_TAPE_1_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_1].tapeRgb.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_RGB_V_1_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_1].tapeRgb.setHue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_1_IDX));
+
+	lightsBath[LIGHTS_BATH_SCENARIO_2].main.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_MAIN_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_2].holder.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_HOLDER_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_2].tapeWhite.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_TAPE_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_2].tapeRgb.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_RGB_V_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_2].tapeRgb.setHue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_2_IDX));
+
+	lightsBath[LIGHTS_BATH_SCENARIO_3].main.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_MAIN_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_3].holder.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_HOLDER_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_3].tapeWhite.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_TAPE_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_3].tapeRgb.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_RGB_V_2_IDX));
+	lightsBath[LIGHTS_BATH_SCENARIO_3].tapeRgb.setHue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_2_IDX));
 }
 //----------------------------------------------------------------------------------------
 void LightsControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
@@ -42,6 +53,28 @@ void LightsControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 	case SWITCH_BATH_3_ID:
 		swBath3.setState(switchState);
 		break;
+	}
+}
+//----------------------------------------------------------------------------------------
+void LightsControler::onLightValueChange(uint8_t idx, uint8_t value) {
+	logger.log(debug,"LightsControler::onLightValueChange() idx: %d val: %d\r\n", idx, value);
+	configuration.setLightsBathValue(idx,value);
+	switch(idx){
+		case LIGHT_BATH_MAIN_1_IDX: lightsBath[LIGHTS_BATH_SCENARIO_1].main.setBrightness(value); break;
+		case LIGHT_BATH_HOLDER_1_IDX: lightsBath[LIGHTS_BATH_SCENARIO_1].holder.setBrightness(value); break;
+		case LIGHT_BATH_TAPE_1_IDX: lightsBath[LIGHTS_BATH_SCENARIO_1].tapeWhite.setBrightness(value); break;
+		case LIGHT_BATH_RGB_V_1_IDX: lightsBath[LIGHTS_BATH_SCENARIO_1].tapeRgb.setBrightness(value); break;
+		case LIGHT_BATH_RGB_H_1_IDX: lightsBath[LIGHTS_BATH_SCENARIO_1].tapeRgb.setHue(value); break;
+		case LIGHT_BATH_MAIN_2_IDX: lightsBath[LIGHTS_BATH_SCENARIO_2].main.setBrightness(value); break;
+		case LIGHT_BATH_HOLDER_2_IDX: lightsBath[LIGHTS_BATH_SCENARIO_2].holder.setBrightness(value); break;
+		case LIGHT_BATH_TAPE_2_IDX: lightsBath[LIGHTS_BATH_SCENARIO_2].tapeWhite.setBrightness(value); break;
+		case LIGHT_BATH_RGB_V_2_IDX: lightsBath[LIGHTS_BATH_SCENARIO_2].tapeRgb.setBrightness(value); break;
+		case LIGHT_BATH_RGB_H_2_IDX: lightsBath[LIGHTS_BATH_SCENARIO_2].tapeRgb.setHue(value); break;
+		case LIGHT_BATH_MAIN_3_IDX: lightsBath[LIGHTS_BATH_SCENARIO_3].main.setBrightness(value); break;
+		case LIGHT_BATH_HOLDER_3_IDX: lightsBath[LIGHTS_BATH_SCENARIO_3].holder.setBrightness(value); break;
+		case LIGHT_BATH_TAPE_3_IDX: lightsBath[LIGHTS_BATH_SCENARIO_3].tapeWhite.setBrightness(value); break;
+		case LIGHT_BATH_RGB_V_3_IDX: lightsBath[LIGHTS_BATH_SCENARIO_3].tapeRgb.setBrightness(value); break;
+		case LIGHT_BATH_RGB_H_3_IDX: lightsBath[LIGHTS_BATH_SCENARIO_3].tapeRgb.setHue(value); break;
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -67,14 +100,21 @@ void LightsControler::setPWM(uint8_t mainLigt, uint8_t additionalLight, uint8_t 
 //----------------------------------------------------------------------------------------
 void LightsControler::loop() {
 	//if (digitalRead(GPIO_SW_1) || digitalRead(GPIO_SW_2) || digitalRead(GPIO_SW_3) || digitalRead(GPIO_SW_4)) {
-	if(swBath1.getState() == SW_ON){
-		RgbColor color = bathroomRGBTapeLight.getRGBColor();
-		setPWM(bathroomMainLight.getBrightness(), bathroomAdditionalLight.getBrightness(), bathroomTapeLight.getBrightness(), color.r, color.g, color.b);
-	}
-	else
-	{
+
+	uint8_t scenario;
+	if (swBath1.getState() == SW_ON && swBath2.getState() == SW_OFF)
+		scenario = LIGHTS_BATH_SCENARIO_1;
+	else if (swBath1.getState() == SW_OFF && swBath2.getState() == SW_ON)
+		scenario = LIGHTS_BATH_SCENARIO_2;
+	else if (swBath1.getState() == SW_ON && swBath2.getState() == SW_ON)
+		scenario = LIGHTS_BATH_SCENARIO_3;
+	else {
+		//TODO: wymagana optymalizacja
 		setPWM(0, 0, 0, 0, 0, 0);
+		return;
 	}
+	RgbColor color = lightsBath[scenario].tapeRgb.getRGBColor();
+	setPWM(lightsBath[scenario].main.getBrightness(), lightsBath[scenario].holder.getBrightness(), lightsBath[scenario].tapeWhite.getBrightness(), color.r, color.g, color.b);
 }
 
 LightsControler lightsControler;

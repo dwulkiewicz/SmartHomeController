@@ -1,8 +1,7 @@
-#pragma once
-
 #ifndef __CONSTANTS_H__
 #define __CONSTANTS_H__
 
+#include "Logger.h"
 
 #define CORE_1 0
 #define CORE_2 1
@@ -17,33 +16,23 @@
 //#define I2C_SCL 15
 #define I2C_SCL 13
 #define I2C_SDA 14
-
 #define I2C_SCL_1 22
 #define I2C_SDA_1 21
-
-
-
 
 //ESP32 UART1
 #define UART1_BAUND 57600
 //#define UART1_TX 21
 //#define UART1_RX 13
-#define UART1_TX 16
-#define UART1_RX 17
-
-#define DS18B20_PIN 4
-
-#define GPIO_CLK 26       
-#define GPIO_DIO 27
-
-#define GPIO_SW_1 36
-#define GPIO_SW_2 39
-#define GPIO_SW_3 34
-#define GPIO_SW_4 32
-
-#define GPIO_BUZZER 2
-
-#define GPIO_RELAY 15
+#define UART1_TX		16
+#define UART1_RX		17
+#define GPIO_CLK		26       
+#define GPIO_DIO		27
+#define GPIO_SW_1		36
+#define GPIO_SW_2		39
+#define GPIO_SW_3		34
+#define GPIO_SW_4		32
+#define GPIO_BUZZER		 2
+#define GPIO_RELAY		15
 
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
@@ -73,6 +62,7 @@
 
 #define COLOR_RED    63488
 #define COLOR_YELLOW 65504
+#define COLOR_BLACK      0
 
 #define PICTURE_WIFI_ON  5
 #define PICTURE_WIFI_OFF 4
@@ -132,11 +122,11 @@
 #define OBJ_HEATING_SET_TEMP_NAME	  "t3"
 
 #define OBJ_BATH_SW_1_ID				         5
-#define OBJ_BATH_SW_1_NAME	  	"pBathSw1"
+#define OBJ_BATH_SW_1_NAME	  			"pBathSw1"
 #define OBJ_BATH_SW_2_ID				        32
-#define OBJ_BATH_SW_2_NAME			"pBathSw2"
+#define OBJ_BATH_SW_2_NAME				"pBathSw2"
 #define OBJ_BATH_SW_3_ID				        33
-#define OBJ_BATH_SW_3_NAME			"pBathSw3"
+#define OBJ_BATH_SW_3_NAME				"pBathSw3"
 
 #define OBJ_DAY_OF_MONTH1_ID                     39
 #define OBJ_DAY_OF_MONTH1_NAME				   "p4"
@@ -256,46 +246,63 @@
 //------------/*Oświetlenie*/----------------
 #define PG_LIGHTS_ID                  2
 #define PG_LIGHTS_NAME       "pgLights"
-
-#define OBJ_LIGHT_BATH_MAIN_1_ID         6
-#define OBJ_LIGHT_BATH_MAIN_1_NAME    "h1"
-#define OBJ_LIGHT_BATH_ADD_1_ID          7
-#define OBJ_LIGHT_BATH_ADD_1_NAME     "h4"
-#define OBJ_LIGHT_BATH_TAPE_1_ID         4
-#define OBJ_LIGHT_BATH_TAPE_1_NAME    "h2"
-#define OBJ_LIGHT_BATH_TAPE_1_ID         4
-#define OBJ_LIGHT_BATH_TAPE_1_NAME    "h2"
-#define OBJ_LIGHT_BATH_RGB_V_1_ID        2
-#define OBJ_LIGHT_BATH_RGB_V_1_NAME   "h0"
-#define OBJ_LIGHT_BATH_RGB_H_1_ID        5
-#define OBJ_LIGHT_BATH_RGB_H_1_NAME   "h3"
+/*Scenariusz1*/
+#define COMP_LIGHT_BATH_MAIN_1_ID         6
+#define COMP_LIGHT_BATH_MAIN_1_NAME    "h1"
+#define COMP_LIGHT_BATH_HOLDER_1_ID       7
+#define COMP_LIGHT_BATH_HOLDER_1_NAME  "h4"
+#define COMP_LIGHT_BATH_TAPE_1_ID         4
+#define COMP_LIGHT_BATH_TAPE_1_NAME    "h2"
+#define COMP_LIGHT_BATH_RGB_V_1_ID        2
+#define COMP_LIGHT_BATH_RGB_V_1_NAME   "h0"
+#define COMP_LIGHT_BATH_RGB_H_1_ID        5
+#define COMP_LIGHT_BATH_RGB_H_1_NAME   "h3"
+/*Scenariusz2*/
+#define COMP_LIGHT_BATH_MAIN_2_ID        11
+#define COMP_LIGHT_BATH_MAIN_2_NAME    "h8"
+#define COMP_LIGHT_BATH_HOLDER_2_ID      12
+#define COMP_LIGHT_BATH_HOLDER_2_NAME  "h9"
+#define COMP_LIGHT_BATH_TAPE_2_ID         9
+#define COMP_LIGHT_BATH_TAPE_2_NAME    "h6"
+#define COMP_LIGHT_BATH_RGB_V_2_ID        8
+#define COMP_LIGHT_BATH_RGB_V_2_NAME   "h5"
+#define COMP_LIGHT_BATH_RGB_H_2_ID       10
+#define COMP_LIGHT_BATH_RGB_H_2_NAME   "h7"
+/*Scenariusz3*/
+#define COMP_LIGHT_BATH_MAIN_3_ID         16
+#define COMP_LIGHT_BATH_MAIN_3_NAME    "h13"
+#define COMP_LIGHT_BATH_HOLDER_3_ID       17
+#define COMP_LIGHT_BATH_HOLDER_3_NAME  "h14"
+#define COMP_LIGHT_BATH_TAPE_3_ID         14
+#define COMP_LIGHT_BATH_TAPE_3_NAME    "h11"
+#define COMP_LIGHT_BATH_RGB_V_3_ID        13
+#define COMP_LIGHT_BATH_RGB_V_3_NAME   "h10"
+#define COMP_LIGHT_BATH_RGB_H_3_ID        15
+#define COMP_LIGHT_BATH_RGB_H_3_NAME   "h12"
 //------------/*Inne*/----------------
-#define PG_OTHER_ID			          3
-#define PG_OTHER_NAME         "pgOther"
+#define PG_OTHER_ID							 3
+#define PG_OTHER_NAME				 "pgOther"
 /*Zegar*/
-#define OBJ_TIME_SET_ID						 4
-#define OBJ_TIME_SET_NAME			      "b6"
-#define OBJ_TIME_NEXT_ID					 5
-#define OBJ_TIME_NEXT_NAME				  "b7" 
-#define OBJ_TIME_YEAR_ID			         6
-#define OBJ_TIME_YEAR_NAME			 "lblYear"
+#define OBJ_TIME_YEAR_ID			         7
+#define OBJ_TIME_YEAR_NAME				  "t1"
 #define OBJ_TIME_MONTH_ID                    8
-#define OBJ_TIME_MONTH_NAME         "lblMonth"
-#define OBJ_TIME_DAY_ID                     10
-#define OBJ_TIME_DAY_NAME             "lblDay"
-//#define OBJ_TIME_DAY_OF_WEEK_ID             11
-//#define OBJ_TIME_DAY_OF_WEEK_NAME    "lblDayW"
-#define OBJ_TIME_HOUR_ID				     1
-#define OBJ_TIME_HOUR_NAME           "lblHour"
-#define OBJ_TIME_MINUTE_ID			         3
-#define OBJ_TIME_MINUTE_NAME       "lblMinute"
-
-#define OBJ_HEATING_HISTERESIS_VAL_ID       16
-#define OBJ_HEATING_HISTERESIS_VAL_NAME   "t0"
-#define OBJ_HEATING_HISTERESIS_DEC_ID       14
+#define OBJ_TIME_MONTH_NAME				  "t2"
+#define OBJ_TIME_DAY_ID                      9
+#define OBJ_TIME_DAY_NAME				  "t3"
+#define OBJ_TIME_HOUR_ID				    10
+#define OBJ_TIME_HOUR_NAME				  "t5"
+#define OBJ_TIME_MINUTE_ID			        11
+#define OBJ_TIME_MINUTE_NAME			  "t6"
+#define OBJ_TIME_SET_ID						12
+#define OBJ_TIME_SET_NAME			      "b0"
+#define OBJ_TIME_NEXT_ID					 1
+#define OBJ_TIME_NEXT_NAME				  "b7" 
+/*Histereza ogrzewania*/
+#define OBJ_HEATING_HISTERESIS_VAL_ID         6
+#define OBJ_HEATING_HISTERESIS_VAL_NAME    "t0"
+#define OBJ_HEATING_HISTERESIS_DEC_ID         4
 #define OBJ_HEATING_HISTERESIS_DEC_NAME   "b18"
-#define OBJ_HEATING_HISTERESIS_INC_ID       15
+#define OBJ_HEATING_HISTERESIS_INC_ID         5
 #define OBJ_HEATING_HISTERESIS_INC_NAME   "b19"
-
 
 #endif /* #ifndef __CONSTANTS_H__ */

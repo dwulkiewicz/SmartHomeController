@@ -29,6 +29,9 @@ public:
   //Network connectiom
   void onWiFiStatusChange(uint8_t status);
   void onMQTTStatusChange(int status);     
+  //Lights
+  void onLightValueChange(uint8_t idx, uint8_t value);
+
 };
 extern EventsHandler eventsHandler;
 #endif /* #ifndef __EventsHandler_H__ */
