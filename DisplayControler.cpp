@@ -18,7 +18,7 @@
 #include "Configuration.h"
 #include "RtcControler.h"
 #include "SensorsHelper.h"
-#include "EventsHandler.h"
+#include "EventDispatcher.h"
 
 //------------/*Strona główna*/------------//
 NexPage pgMain = NexPage(PG_MAIN_ID, 0, PG_MAIN_NAME);
@@ -96,7 +96,7 @@ NexButton objHeatingWeekendAfternoonOffDec(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AF
 NexButton objHeatingWeekendAfternoonOffInc(PG_HEATING_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_ID, OBJ_HEATING_WEEKEND_AFTERNOON_OFF_INC_NAME);
 
 //------------/*Oświetlenie*/------------
-NexPage pgLights = NexPage(PG_LIGHTS_ID, 0, PG_LIGHTS_NAME);
+NexPage pgLightsBath(PG_LIGHTS_ID, 0, PG_LIGHTS_NAME);
 //Scenariusz 1
 NexSlider compLightBathMainVal1(PG_LIGHTS_ID, COMP_LIGHT_BATH_MAIN_1_ID, COMP_LIGHT_BATH_MAIN_1_NAME);
 NexSlider compLightBathHolderVal1(PG_LIGHTS_ID, COMP_LIGHT_BATH_HOLDER_1_ID, COMP_LIGHT_BATH_HOLDER_1_NAME);
@@ -117,16 +117,30 @@ NexSlider compLightBathTapeRgbVal3(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_V_3_ID, COM
 NexSlider compLightBathTapeRgbHue3(PG_LIGHTS_ID, COMP_LIGHT_BATH_RGB_H_3_ID, COMP_LIGHT_BATH_RGB_H_3_NAME);
 
 //------------/*Czas i inne*/------------
-NexPage pgOther = NexPage(PG_OTHER_ID, 0, PG_OTHER_NAME);
+NexPage pgTime(PG_TIME_ID, 0, PG_TIME_NAME);
 //Ustawianie czasu
-NexText tYear = NexText(PG_OTHER_ID, OBJ_TIME_YEAR_ID, OBJ_TIME_YEAR_NAME);
-NexText tMonth = NexText(PG_OTHER_ID, OBJ_TIME_MONTH_ID, OBJ_TIME_MONTH_NAME);
-NexText tDay = NexText(PG_OTHER_ID, OBJ_TIME_DAY_ID, OBJ_TIME_DAY_NAME);
-NexText tHour = NexText(PG_OTHER_ID, OBJ_TIME_HOUR_ID, OBJ_TIME_HOUR_NAME);
-NexText tMinute = NexText(PG_OTHER_ID, OBJ_TIME_MINUTE_ID, OBJ_TIME_MINUTE_NAME);
-NexButton bDateTimeNext = NexButton(PG_OTHER_ID, OBJ_TIME_NEXT_ID, OBJ_TIME_NEXT_NAME);
-NexButton bDateTimeSet = NexButton(PG_OTHER_ID, OBJ_TIME_SET_ID, OBJ_TIME_SET_NAME);
+NexText tYear = NexText(PG_TIME_ID, OBJ_TIME_YEAR_ID, OBJ_TIME_YEAR_NAME);
+NexText tMonth = NexText(PG_TIME_ID, OBJ_TIME_MONTH_ID, OBJ_TIME_MONTH_NAME);
+NexText tDay = NexText(PG_TIME_ID, OBJ_TIME_DAY_ID, OBJ_TIME_DAY_NAME);
+NexText tHour = NexText(PG_TIME_ID, OBJ_TIME_HOUR_ID, OBJ_TIME_HOUR_NAME);
+NexText tMinute = NexText(PG_TIME_ID, OBJ_TIME_MINUTE_ID, OBJ_TIME_MINUTE_NAME);
+NexButton bDateTimeNext = NexButton(PG_TIME_ID, OBJ_TIME_NEXT_ID, OBJ_TIME_NEXT_NAME);
+NexButton bDateTimeSet = NexButton(PG_TIME_ID, OBJ_TIME_SET_ID, OBJ_TIME_SET_NAME);
+
+//------------/*Światło PIR*/----------------
+NexPage pgLightsBathAuto(PG_LIGHT_AUTO_ID, 0, PG_LIGHT_AUTO_NAME);
+
+
+//------------/*Sieć*/----------------
+NexPage pgNetwork(PG_NETWORK_ID, 0, PG_NETWORK_NAME);
+NexText objWiFiSsid(PG_NETWORK_ID, OBJ_NETWORK_WIFI_SSID_ID, OBJ_NETWORK_WIFI_SSID_NAME);
+NexText objWiFiPass(PG_NETWORK_ID, OBJ_NETWORK_WIFI_PASS_ID, OBJ_NETWORK_WIFI_PASS_NAME);
+NexText objMqttServer(PG_NETWORK_ID, OBJ_NETWORK_MQTT_SERVER_ID, OBJ_NETWORK_MQTT_SERVER_NAME);
+NexNumber objMqttPort(PG_NETWORK_ID, OBJ_NETWORK_MQTT_PORT_ID, OBJ_NETWORK_MQTT_PORT_NAME);
+
+//------------/*Pozostałe*/----------------
 //Histereza ogrzewania
+NexPage pgOther(PG_OTHER_ID, 0, PG_OTHER_NAME);
 NexText objHeatingHisteresisVal(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_VAL_ID, OBJ_HEATING_HISTERESIS_VAL_NAME);
 NexButton objHeatingHisteresisDec(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_DEC_ID, OBJ_HEATING_HISTERESIS_DEC_NAME);
 NexButton objHeatingHisteresisInc(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_INC_ID, OBJ_HEATING_HISTERESIS_INC_NAME);
@@ -138,7 +152,10 @@ NexTouch *nex_listen_list[] =
 {
   &pgMain,
   &pgHeating,
-  &pgLights,
+  &pgLightsBath,
+  &pgLightsBathAuto,
+  &pgTime,
+  &pgNetwork,
   &pgOther,
   &objBathSw1,
   &objBathSw2,
@@ -184,8 +201,97 @@ NexTouch *nex_listen_list[] =
   &objHeatingHisteresisInc,
   NULL
 };
+
 //----------------------------------------------------------------------------------------
-void onPageShow(void *ptr)
+DisplayControler::DisplayControler()
+{
+	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
+
+	disp.outdoorTemperature = 99;
+	disp.outdoorHumidity = 0;
+	disp.pressure = 0;
+
+	curr.outdoorTemperature = 99;
+	curr.outdoorHumidity = 0;
+	curr.pressure = 0;
+
+	lastSw1State = SW_ON;
+	lastSw2State = SW_ON;
+	lastSw3State = SW_ON;
+
+	sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+
+	curr.heatingStatus = HEATING_STATUS_HEAT;
+	disp.heatingStatus = HEATING_STATUS_HEAT;
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::init() {
+	/* Set the baudrate which is for debug and communicate with Nextion screen. */
+	nexInit(115200, UART1_BAUND, SERIAL_8N1, UART1_RX, UART1_TX);
+
+	/* Register the pop event callback function of the current button component. */
+	pgMain.attachOnShow(onPageShow, &pgMain);
+	pgHeating.attachOnShow(onPageShow, &pgHeating);
+	pgLightsBath.attachOnShow(onPageShow, &pgLightsBath);
+	pgLightsBathAuto.attachOnShow(onPageShow, &pgLightsBathAuto);	
+	pgTime.attachOnShow(onPageShow, &pgTime);
+	pgNetwork.attachOnShow(onPageShow, &pgNetwork);
+	pgOther.attachOnShow(onPageShow, &pgOther);
+
+	objBathSw1.attachPush(onSwitchPush, &objBathSw1);
+	objBathSw2.attachPush(onSwitchPush, &objBathSw2);
+	objBathSw3.attachPush(onSwitchPush, &objBathSw3);
+
+	btnDayTempInc.attachPush(onBtnTempPush, &btnDayTempInc);
+	btnDayTempDec.attachPush(onBtnTempPush, &btnDayTempDec);
+
+	btnNightTempInc.attachPush(onBtnTempPush, &btnNightTempInc);
+	btnNightTempDec.attachPush(onBtnTempPush, &btnNightTempDec);
+
+	objHeatingWorkingDaysMorningOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnDec);
+	objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc);
+	objHeatingWorkingDaysMorningOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffDec);
+	objHeatingWorkingDaysMorningOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffInc);
+	objHeatingWorkingDaysAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnDec);
+	objHeatingWorkingDaysAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnInc);
+	objHeatingWorkingDaysAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffDec);
+	objHeatingWorkingDaysAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffInc);
+	objHeatingWeekendMorningOnDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnDec);
+	objHeatingWeekendMorningOnInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnInc);
+	objHeatingWeekendMorningOffDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffDec);
+	objHeatingWeekendMorningOffInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffInc);
+	objHeatingWeekendAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnDec);
+	objHeatingWeekendAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnInc);
+	objHeatingWeekendAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffDec);
+	objHeatingWeekendAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffInc);
+
+	bDateTimeNext.attachPush(onDateTimeNextPush, &bDateTimeNext);
+	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);
+	objHeatingHisteresisDec.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisDec);
+	objHeatingHisteresisInc.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisInc);
+
+	compLightBathMainVal1.attachPop(onSliderLightPop, &compLightBathMainVal1);
+	compLightBathHolderVal1.attachPop(onSliderLightPop, &compLightBathHolderVal1);
+	compLightBathTapeWhiteVal1.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal1);
+	compLightBathTapeRgbVal1.attachPop(onSliderLightPop, &compLightBathTapeRgbVal1);
+	compLightBathTapeRgbHue1.attachPop(onSliderLightPop, &compLightBathTapeRgbHue1);
+
+	compLightBathMainVal2.attachPop(onSliderLightPop, &compLightBathMainVal2);
+	compLightBathHolderVal2.attachPop(onSliderLightPop, &compLightBathHolderVal2);
+	compLightBathTapeWhiteVal2.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal2);
+	compLightBathTapeRgbVal2.attachPop(onSliderLightPop, &compLightBathTapeRgbVal2);
+	compLightBathTapeRgbHue2.attachPop(onSliderLightPop, &compLightBathTapeRgbHue2);
+
+	compLightBathMainVal3.attachPop(onSliderLightPop, &compLightBathMainVal3);
+	compLightBathHolderVal3.attachPop(onSliderLightPop, &compLightBathHolderVal3);
+	compLightBathTapeWhiteVal3.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal3);
+	compLightBathTapeRgbVal3.attachPop(onSliderLightPop, &compLightBathTapeRgbVal3);
+	compLightBathTapeRgbHue3.attachPop(onSliderLightPop, &compLightBathTapeRgbHue3);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::onPageShow(void *ptr)
 {
 	NexPage *page = (NexPage *)ptr;
 	Serial.printf("onPageShow() %s\r\n", page->getObjName());
@@ -201,13 +307,22 @@ void onPageShow(void *ptr)
 	case PG_LIGHTS_ID:
 		displayControler.refreshLightsPage();
 		break;
+	case PG_TIME_ID:
+		displayControler.refreshTimePage();
+		break;
+	case PG_LIGHT_AUTO_ID:
+		displayControler.refreshLightsAutoPage();
+		break;
+	case PG_NETWORK_ID:
+		displayControler.refreshNetworkPage();
+		break;
 	case PG_OTHER_ID:
 		displayControler.refreshOtherPage();
 		break;
 	}
 }
 //----------------------------------------------------------------------------------------
-void onBathSwPush(void *ptr)
+void DisplayControler::onSwitchPush(void *ptr)
 {
 	NexPicture *obj = (NexPicture *)ptr;
 	Serial.printf("onBathSwPush() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
@@ -229,17 +344,20 @@ void onBathSwPush(void *ptr)
 	default:
 		return; //nieznany komponent
 	}
-	eventsHandler.onSwitchChange(switchId, switchState);
+	eventDispatcher.onSwitchChange(switchId, switchState);
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {
 	curr.heatingStatus = heatingStatus;
 	if (currentPage != PG_MAIN_ID)
 		return;
-	String statusStr = HeatingControler::statusToStr(heatingStatus);
-	logger.log(debug, "DisplayControler::refreshHeatingStatus() status: %s\r\n", statusStr.c_str());
 	if (disp.heatingStatus != curr.heatingStatus) {
-		if (currentPage == PG_MAIN_ID && objHeatingStatus.setPic(curr.heatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_EMPTY)) {
+		String statusStr = HeatingControler::statusToStr(curr.heatingStatus);
+		int icoId = curr.heatingStatus == HEATING_STATUS_HEAT ? PIC_HEATING_HEAT : PIC_HEATING_COOL;
+		logger.log(debug, "DisplayControler::refreshHeatingStatus() status: %s icoId: %d\r\n", statusStr.c_str(), icoId);
+
+		if (currentPage == PG_MAIN_ID 
+			&& objHeatingStatus.setPic(icoId)) {
 			disp.heatingStatus = curr.heatingStatus;
 		}
 	}
@@ -249,16 +367,27 @@ void DisplayControler::refreshHeatingPeriod(uint8_t heatingPeriod) {
 	curr.heatingPeriod = heatingPeriod;
 	if (currentPage != PG_MAIN_ID)
 		return;
-	String periodStr = HeatingControler::periodToStr(heatingPeriod);
-
-	char buf[10];
-	sprintf(buf, "%02.1fC", curr.heatingPeriod == HEATING_PERIOD_DAY ? configuration.getDayTemperature() : configuration.getNightTemperature());
-	   	logger.log(debug, "DisplayControler::refreshHeatingPeriod() period: %s\r\n", periodStr.c_str());
 	if (disp.heatingPeriod != curr.heatingPeriod) {
+		String periodStr = HeatingControler::periodToStr(heatingPeriod);
+		logger.log(debug, "DisplayControler::refreshHeatingPeriod() period: %s\r\n", periodStr.c_str());
 		if (currentPage == PG_MAIN_ID 
-			&& objHeatingPeriod.setPic(curr.heatingPeriod == HEATING_PERIOD_DAY ? PIC_HEATING_DAY : PIC_HEATING_NIGHT)
-			&& objHeatingSetTemp.setText(buf)) {
+			&& objHeatingPeriod.setPic(curr.heatingPeriod == HEATING_PERIOD_DAY ? PIC_HEATING_DAY : PIC_HEATING_NIGHT)) {
 			disp.heatingPeriod = curr.heatingPeriod;
+		}
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshHeatingRequiredTemp(float value) {
+	curr.heatingRequiredTemp = value;
+	if (currentPage != PG_MAIN_ID)
+		return;
+	if (disp.heatingRequiredTemp != curr.heatingRequiredTemp) {
+		char buf[10];
+		sprintf(buf, "%02.1fC", curr.heatingRequiredTemp);
+		logger.log(debug, "DisplayControler::refreshHeatingRequiredTemp() period: %.1f\r\n", curr.heatingRequiredTemp);
+		if (currentPage == PG_MAIN_ID
+			&& objHeatingSetTemp.setText(buf)) {
+			disp.heatingRequiredTemp = curr.heatingRequiredTemp;
 		}
 	}
 }
@@ -391,7 +520,7 @@ void DisplayControler::onBtnTempPush(void *ptr) {
 		displayControler.incHeatingTime(HEATING_WEEKEND_AFTERNOON_OFF, &objHeatingWeekendAfternoonOffVal);
 		break;
 	}
-	eventsHandler.onHeatingConfigurationChange();
+	eventDispatcher.onHeatingConfigurationChange();
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onBtnTempHisteresisPush(void *ptr) {
@@ -404,14 +533,14 @@ void DisplayControler::onBtnTempHisteresisPush(void *ptr) {
 		if (configuration.incrementHisteresisTemperature()) {
 			dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
 			objHeatingHisteresisVal.setText(buf);
-			eventsHandler.onHeatingConfigurationChange();
+			eventDispatcher.onHeatingConfigurationChange();
 		}
 		break;
 	case OBJ_HEATING_HISTERESIS_DEC_ID:
 		if (configuration.decrementHisteresisTemperature()) {
 			dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
 			objHeatingHisteresisVal.setText(buf);
-			eventsHandler.onHeatingConfigurationChange();
+			eventDispatcher.onHeatingConfigurationChange();
 		}
 		break;
 	}
@@ -474,7 +603,7 @@ void DisplayControler::refreshLightsPage()
 	compLightBathTapeRgbHue3.setValue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_3_IDX));
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshOtherPage()
+void DisplayControler::refreshTimePage()
 {
 	currentTimeComponent = SETUP_DATETIME_YEAR;
 	tYear.Set_font_color_pco(COLOR_RED);
@@ -490,12 +619,26 @@ void DisplayControler::refreshOtherPage()
 	tHour.setText(buf);
 	sprintf(buf, "%02d", curr.dateTime.minute);
 	tMinute.setText(buf);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshLightsAutoPage() {
 
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshNetworkPage() {
+	objWiFiSsid.setText(configuration.wifiSSID.c_str());
+	objWiFiPass.setText(configuration.wifiPassword.c_str());
+	objMqttServer.setText(configuration.mqttServer.c_str());
+	objMqttPort.setValue(configuration.mqttPort);
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshOtherPage() {
+	char buf[5];
 	dtostrf(configuration.getHisteresisTemp(), 1, 1, buf);
 	objHeatingHisteresisVal.setText(buf);
 }
 //----------------------------------------------------------------------------------------
-void onBtnbDateTimeNextPush(void *ptr)
+void DisplayControler::onDateTimeNextPush(void *ptr)
 {
 	NexButton *btn = (NexButton *)ptr;
 	Serial.printf("onBtnbDateTimeNextPush: %s\r\n", btn->getObjName());
@@ -779,7 +922,7 @@ void DisplayControler::refreshPreasure() {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::showWiFiStatus(int8_t status) {
+void DisplayControler::refreshWiFiStatus(int8_t status) {
 	switch (status) {
 	case WL_CONNECTED:
 		objWiFiStatus.setPic(PICTURE_WIFI_ON);
@@ -790,7 +933,7 @@ void DisplayControler::showWiFiStatus(int8_t status) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::showMQTTStatus(int status) {
+void DisplayControler::refreshMQTTStatus(int status) {
 	//TODO: docelowo zmienić na inną ikonkę na panelu   
 	if (status == MQTT_CONNECTED)
 		objWiFiStatus.setPic(PICTURE_WIFI_ON);
@@ -798,7 +941,7 @@ void DisplayControler::showMQTTStatus(int status) {
 		objWiFiStatus.setPic(PICTURE_WIFI_OFF);
 }
 //----------------------------------------------------------------------------------------
-void onSliderLightPop(void *ptr)
+void DisplayControler::onSliderLightPop(void *ptr)
 {
 	NexSlider *obj = (NexSlider *)ptr;
 	Serial.printf("onSliderLightPop() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
@@ -825,95 +968,10 @@ void onSliderLightPop(void *ptr)
 		default:
 			return;
 		}
-		eventsHandler.onLightValueChange(idx, value);
+		eventDispatcher.onLightValueChange(idx, value);
 	}
 }
-//----------------------------------------------------------------------------------------
-DisplayControler::DisplayControler()
-{
-	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
 
-	disp.outdoorTemperature = 99;
-	disp.outdoorHumidity = 0;
-	disp.pressure = 0;
-
-	curr.outdoorTemperature = 99;
-	curr.outdoorHumidity = 0;
-	curr.pressure = 0;
-
-	lastSw1State = SW_ON;
-	lastSw2State = SW_ON;
-	lastSw3State = SW_ON;
-
-	sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
-	sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
-	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
-
-	curr.heatingStatus = HEATING_STATUS_HEAT;
-	disp.heatingStatus = HEATING_STATUS_HEAT;
-}
-//----------------------------------------------------------------------------------------
-void DisplayControler::init() {
-	/* Set the baudrate which is for debug and communicate with Nextion screen. */
-	nexInit(115200, UART1_BAUND, SERIAL_8N1, UART1_RX, UART1_TX);
-
-	/* Register the pop event callback function of the current button component. */
-	pgMain.attachOnShow(onPageShow, &pgMain);
-	pgHeating.attachOnShow(onPageShow, &pgHeating);
-	pgLights.attachOnShow(onPageShow, &pgLights);
-	pgOther.attachOnShow(onPageShow, &pgOther);
-
-	objBathSw1.attachPush(onBathSwPush, &objBathSw1);
-	objBathSw2.attachPush(onBathSwPush, &objBathSw2);
-	objBathSw3.attachPush(onBathSwPush, &objBathSw3);
-
-	btnDayTempInc.attachPush(onBtnTempPush, &btnDayTempInc);
-	btnDayTempDec.attachPush(onBtnTempPush, &btnDayTempDec);
-
-	btnNightTempInc.attachPush(onBtnTempPush, &btnNightTempInc);
-	btnNightTempDec.attachPush(onBtnTempPush, &btnNightTempDec);
-
-	objHeatingWorkingDaysMorningOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnDec);
-	objHeatingWorkingDaysMorningOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOnInc);
-	objHeatingWorkingDaysMorningOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffDec);
-	objHeatingWorkingDaysMorningOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysMorningOffInc);
-	objHeatingWorkingDaysAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnDec);
-	objHeatingWorkingDaysAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOnInc);
-	objHeatingWorkingDaysAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffDec);
-	objHeatingWorkingDaysAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWorkingDaysAfternoonOffInc);
-	objHeatingWeekendMorningOnDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnDec);
-	objHeatingWeekendMorningOnInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOnInc);
-	objHeatingWeekendMorningOffDec.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffDec);
-	objHeatingWeekendMorningOffInc.attachPush(onBtnTempPush, &objHeatingWeekendMorningOffInc);
-	objHeatingWeekendAfternoonOnDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnDec);
-	objHeatingWeekendAfternoonOnInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOnInc);
-	objHeatingWeekendAfternoonOffDec.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffDec);
-	objHeatingWeekendAfternoonOffInc.attachPush(onBtnTempPush, &objHeatingWeekendAfternoonOffInc);
-
-	bDateTimeNext.attachPush(onBtnbDateTimeNextPush, &bDateTimeNext);
-	bDateTimeSet.attachPush(onBtnbDateTimeSetPush, &bDateTimeSet);
-	objHeatingHisteresisDec.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisDec);
-	objHeatingHisteresisInc.attachPush(onBtnTempHisteresisPush, &objHeatingHisteresisInc);
-
-	compLightBathMainVal1.attachPop(onSliderLightPop, &compLightBathMainVal1);
-	compLightBathHolderVal1.attachPop(onSliderLightPop, &compLightBathHolderVal1);
-	compLightBathTapeWhiteVal1.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal1);
-	compLightBathTapeRgbVal1.attachPop(onSliderLightPop, &compLightBathTapeRgbVal1);
-	compLightBathTapeRgbHue1.attachPop(onSliderLightPop, &compLightBathTapeRgbHue1);
-
-	compLightBathMainVal2.attachPop(onSliderLightPop, &compLightBathMainVal2);
-	compLightBathHolderVal2.attachPop(onSliderLightPop, &compLightBathHolderVal2);
-	compLightBathTapeWhiteVal2.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal2);
-	compLightBathTapeRgbVal2.attachPop(onSliderLightPop, &compLightBathTapeRgbVal2);
-	compLightBathTapeRgbHue2.attachPop(onSliderLightPop, &compLightBathTapeRgbHue2);
-
-	compLightBathMainVal3.attachPop(onSliderLightPop, &compLightBathMainVal3);
-	compLightBathHolderVal3.attachPop(onSliderLightPop, &compLightBathHolderVal3);
-	compLightBathTapeWhiteVal3.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal3);
-	compLightBathTapeRgbVal3.attachPop(onSliderLightPop, &compLightBathTapeRgbVal3);
-	compLightBathTapeRgbHue3.attachPop(onSliderLightPop, &compLightBathTapeRgbHue3);
-
-}
 //----------------------------------------------------------------------------------------
 uint8_t DisplayControler::dayOfWeekPic(uint8_t dayOfWeek) {
 	switch (dayOfWeek) {
@@ -988,6 +1046,9 @@ void DisplayControler::loop() {
 		refreshHeatingStatus(curr.heatingStatus);
 	if (disp.heatingPeriod != curr.heatingPeriod)
 		refreshHeatingPeriod(curr.heatingPeriod);
+	if (disp.heatingRequiredTemp != curr.heatingRequiredTemp)
+		refreshHeatingRequiredTemp(curr.heatingRequiredTemp);
+
 }
 
 DisplayControler displayControler;

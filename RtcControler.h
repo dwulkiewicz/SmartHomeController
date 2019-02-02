@@ -1,8 +1,6 @@
 #ifndef __RtcControler_H__
 #define __RtcControler_H__
 
-//#include <uRTCLib.h>
-
 #include <RTClib.h>
 #include "Types.h"
 
@@ -15,7 +13,6 @@ public:
 	void adjust(const DateTime& dateTime);
 	DateTime now();
 public:
-	static void dayOfWeekName(char* buf, uint8_t dayOfWeek);
 	static String dayOfWeekName(uint8_t dayOfWeek);
 	static String monthName(uint8_t month);
 private:
@@ -24,7 +21,3 @@ private:
 };
 extern RtcControler rtcControler;
 #endif /* #ifndef __RtcControler_H__ */
-
-
-
-//extern uRTCLib rtc;

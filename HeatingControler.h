@@ -18,11 +18,13 @@ private:
 	void refresh();
 	void setStatus(uint8_t status);
 	void setPeriod(uint8_t status);
+	void setRequiredTemp(float value);
 private:
 	uint8_t status;
 	uint8_t period;
 	DateTime currDateTime;
 	float currIndoorTemp;
+	float requiredTemp;
 };
 extern HeatingControler heatingControler;
 #endif /* #ifndef __HeatingControler_H__ */

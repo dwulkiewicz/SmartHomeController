@@ -3,7 +3,7 @@
 
 #include "RtcControler.h"
 #include "Constants.h"
-#include "EventsHandler.h"
+#include "EventDispatcher.h"
 
 //----------------------------------------------------------------------------------------
 RtcControler::RtcControler(){
@@ -11,11 +11,11 @@ RtcControler::RtcControler(){
 //----------------------------------------------------------------------------------------
 void RtcControler::init(){
 	if (!rtc.begin()) {
-		Serial.println("RtcControler::init() Couldn't find RTC");
+		Serial.print("RtcControler::init() Couldn't find RTC\r\n");
 	}
 
 	if (!rtc.isrunning()) {
-		Serial.println("RtcControler::init() RTC is NOT running!");
+		Serial.print("RtcControler::init() RTC is NOT running!\r\n");
 		// following line sets the RTC to the date & time this sketch was compiled
 		//rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 		// This line sets the RTC with an explicit date & time, for example to set
@@ -46,24 +46,11 @@ void RtcControler::loop(){
 	Serial.print(dateTime.second(), DEC);
 	Serial.println();
 	*/
-	eventsHandler.onRefreshDateTime(dateTime);
+	eventDispatcher.onRefreshDateTime(dateTime);
 }
 //----------------------------------------------------------------------------------------
 void RtcControler::adjust(const DateTime& dateTime) {
 	rtc.adjust(dateTime);
-}
-//----------------------------------------------------------------------------------------
-void RtcControler::dayOfWeekName(char* buf, uint8_t dayOfWeek) {
-	switch (dayOfWeek) {
-	case DAY_OF_WEEK_MO: buf[0] = 'P'; buf[1] = 'n'; buf[2] = NULL; break;
-	case DAY_OF_WEEK_TUE: buf[0] = 'W'; buf[1] = 't'; buf[2] = NULL; break;
-	case DAY_OF_WEEK_WE: buf[0] = 0xA6; buf[1] = 'r'; buf[2] = NULL; break;
-	case DAY_OF_WEEK_THU: buf[0] = 'C'; buf[1] = 'z'; buf[2] = 'w'; buf[3] = NULL; break;
-	case DAY_OF_WEEK_FRI: buf[0] = 'P'; buf[1] = 't'; buf[2] = NULL; break;
-	case DAY_OF_WEEK_SAT: buf[0] = 'S'; buf[1] = 'b'; buf[2] = NULL; break;
-	case DAY_OF_WEEK_SUN: buf[0] = 'N'; buf[1] = 'd'; buf[2] = NULL; break;
-	default: buf[0] = 'U'; buf[1] = 'n'; buf[2] = 'd'; buf[3] = 'e'; buf[4] = 'f'; buf[5] = NULL; break;
-	}
 }
 //----------------------------------------------------------------------------------------
 String RtcControler::dayOfWeekName(uint8_t dayOfWeek){

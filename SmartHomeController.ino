@@ -15,7 +15,7 @@
 
 #include "Constants.h"
 #include "Configuration.h"
-#include "EventsHandler.h"
+#include "EventDispatcher.h"
 #include "LightsControler.h"
 #include "DisplayControler.h"
 #include "NetworkControler.h"

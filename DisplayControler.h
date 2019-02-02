@@ -14,8 +14,6 @@
 #define SETUP_DATETIME_MINUTE       5
 
 
-
-
 class DisplayControler
 {
 public:
@@ -24,24 +22,25 @@ public:
 	void init();
 	void loop();
 public:
+	//DateTime
 	void onRefreshDateTime(const DateTime& dateTime);
+	//Indoor
 	void onRefreshIndoorTemperature(float indoorTemp);
 	void onRefresIndoorHumidity(float indoorHumidity);
 	void onRefreshIndoorPreasure(float indoorPressure);  
+	//Outdoor
 	void onRefreshOutdoorTemperature(float outdoorTemp);
 	void onRefreshOutdoorHumidity(float outdoorHumidity);
 	void onRefreshOutdoorPreasure(float outdoorPressure);
+	//Switches
 	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+	//Heating
 	void refreshHeatingStatus(uint8_t heatingStatus);
 	void refreshHeatingPeriod(uint8_t heatingPeriod);
-
-	void refresMainPage();
-	void refreshHeatingPage();
-	void refreshLightsPage();
-	void refreshOtherPage();
-
-	void showWiFiStatus(int8_t status);
-	void showMQTTStatus(int status);
+	void refreshHeatingRequiredTemp(float value);
+	//Network
+	void refreshWiFiStatus(int8_t status);
+	void refreshMQTTStatus(int status);
 public: 
 	uint8_t currentPage; //todo przenieść do private, obudować
 	uint8_t currentTimeComponent; //todo przenieść do private, obudować
@@ -53,11 +52,23 @@ private:
 	static uint8_t monthPic(uint8_t month);
 	static uint8_t dayOfMonthPic(uint8_t digit); 
 
+	static void onPageShow(void *ptr);
 	static void onBtnTempPush(void *ptr);
 	static void onBtnbDateTimeSetPush(void *ptr);
 	static void onBtnTempHisteresisPush(void *ptr);
-  
+	static void onSwitchPush(void *ptr);	
+	static void onDateTimeNextPush(void *ptr);
+	static void onSliderLightPop(void *ptr);  
 private:
+	void refresMainPage();
+	void refreshHeatingPage();
+	void refreshLightsPage();
+	void refreshLightsAutoPage();
+	void refreshTimePage();
+	void refreshNetworkPage();
+	void refreshOtherPage();
+
+
 	void refreshBathSw1();
 	void refreshBathSw2();
 	void refreshBathSw3();

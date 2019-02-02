@@ -114,7 +114,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DisplayBuffer.h" />
     <ClInclude Include="DisplayControler.h" />
-    <ClInclude Include="EventsHandler.h" />
+    <ClInclude Include="EventDispatcher.h" />
     <ClInclude Include="HeatingControler.h" />
     <ClInclude Include="LightDevice.h" />
     <ClInclude Include="LightsControler.h" />
@@ -133,7 +133,7 @@
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="DisplayBuffer.cpp" />
     <ClCompile Include="DisplayControler.cpp" />
-    <ClCompile Include="EventsHandler.cpp" />
+    <ClCompile Include="EventDispatcher.cpp" />
     <ClCompile Include="HeatingControler.cpp" />
     <ClCompile Include="LightDevice.cpp" />
     <ClCompile Include="LightsControler.cpp" />

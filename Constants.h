@@ -46,11 +46,14 @@
 #define SW_OFF 0
 #define SW_ON 1
 
-#define HEATING_STATUS_COOL 0
-#define HEATING_STATUS_HEAT 1
 
-#define HEATING_PERIOD_DAY 0
-#define HEATING_PERIOD_NIGHT 1
+#define HEATING_STATUS_UNDEF 0
+#define HEATING_STATUS_COOL 1
+#define HEATING_STATUS_HEAT 2
+
+#define HEATING_PERIOD_UNDEF 0
+#define HEATING_PERIOD_DAY 1
+#define HEATING_PERIOD_NIGHT 2
 
 #define DAY_OF_WEEK_SUN 0
 #define DAY_OF_WEEK_MO 1
@@ -70,7 +73,7 @@
 #define PICTURE_SWITCH_OFF 6
 
 #define PIC_HEATING_HEAT 12
-#define PIC_EMPTY        51 
+#define PIC_HEATING_COOL 51 
 
 #define PIC_HEATING_DAY		14
 #define PIC_HEATING_NIGHT   13 
@@ -111,60 +114,60 @@
 #define PG_MAIN_ID                       0
 #define PG_MAIN_NAME              "pgMain"
 
-#define OBJ_WIFI_STATUS_ID               4
+#define OBJ_WIFI_STATUS_ID               3
 #define OBJ_WIFI_STATUS_NAME     "picWiFi"
 
-#define OBJ_HEATING_STATUS_ID            7
+#define OBJ_HEATING_STATUS_ID            5
 #define OBJ_HEATING_STATUS_NAME       "p0"
-#define OBJ_HEATING_PERIOD_ID           15
+#define OBJ_HEATING_PERIOD_ID           13
 #define OBJ_HEATING_PERIOD_NAME       "p1"
-#define OBJ_HEATING_SET_TEMP_ID			11
+#define OBJ_HEATING_SET_TEMP_ID			 9
 #define OBJ_HEATING_SET_TEMP_NAME	  "t3"
 
-#define OBJ_BATH_SW_1_ID				         5
+#define OBJ_BATH_SW_1_ID				         4
 #define OBJ_BATH_SW_1_NAME	  			"pBathSw1"
-#define OBJ_BATH_SW_2_ID				        32
+#define OBJ_BATH_SW_2_ID				        29
 #define OBJ_BATH_SW_2_NAME				"pBathSw2"
-#define OBJ_BATH_SW_3_ID				        33
+#define OBJ_BATH_SW_3_ID				        30
 #define OBJ_BATH_SW_3_NAME				"pBathSw3"
 
-#define OBJ_DAY_OF_MONTH1_ID                     39
+#define OBJ_DAY_OF_MONTH1_ID                     27
 #define OBJ_DAY_OF_MONTH1_NAME				   "p4"
-#define OBJ_DAY_OF_MONTH2_ID                     40
+#define OBJ_DAY_OF_MONTH2_ID                     28
 #define OBJ_DAY_OF_MONTH2_NAME				   "p5"
 
-#define OBJ_MONTH_ID                             38
+#define OBJ_MONTH_ID                             26
 #define OBJ_MONTH_NAME                         "p3"
-#define OBJ_DAY_OF_WEEK_ID                       37
+#define OBJ_DAY_OF_WEEK_ID                       25
 #define OBJ_DAY_OF_WEEK_NAME                   "p2"
 
-#define OBJ_TIME1_ID                             33
+#define OBJ_TIME1_ID                             21
 #define OBJ_TIME1_NAME                        "t10"
-#define OBJ_TIME2_ID                             34
+#define OBJ_TIME2_ID                             22
 #define OBJ_TIME2_NAME                        "t11"
-#define OBJ_TIME3_ID                             35
+#define OBJ_TIME3_ID                             23
 #define OBJ_TIME3_NAME                        "t12"
-#define OBJ_TIME4_ID                             36
+#define OBJ_TIME4_ID                             24
 #define OBJ_TIME4_NAME                        "t13"
 
-#define OBJ_INDOOR_TEMP1_ID                      16
+#define OBJ_INDOOR_TEMP1_ID                      11
 #define OBJ_INDOOR_TEMP1_NAME            "tInTemp1"
-#define OBJ_INDOOR_TEMP2_ID                      17
+#define OBJ_INDOOR_TEMP2_ID                      12
 #define OBJ_INDOOR_TEMP2_NAME            "tInTemp2"
-#define OBJ_INDOOR_HUMIDITY_ID                   14
+#define OBJ_INDOOR_HUMIDITY_ID                   10
 #define OBJ_INDOOR_HUMIDITY_NAME               "t4"
 
-#define OBJ_OUTDOOR_TEMP1_ID                     19
+#define OBJ_OUTDOOR_TEMP1_ID                     14
 #define OBJ_OUTDOOR_TEMP1_NAME                 "t6"
-#define OBJ_OUTDOOR_TEMP2_ID                     20
+#define OBJ_OUTDOOR_TEMP2_ID                     15
 #define OBJ_OUTDOOR_TEMP2_NAME                 "t8"
-#define OBJ_OUTDOOR_TEMP_SYMBOL_ID               21
+#define OBJ_OUTDOOR_TEMP_SYMBOL_ID               16
 #define OBJ_OUTDOOR_TEMP_SYMBOL_NAME           "t0"
 
-#define OBJ_OUTDOOR_HUMIDITY_ID                 12
+#define OBJ_OUTDOOR_HUMIDITY_ID                  8
 #define OBJ_OUTDOOR_HUMIDITY_NAME              "t2"
 
-#define OBJ_OUTDOOR_PREASURE_ID                 11
+#define OBJ_OUTDOOR_PREASURE_ID                  7
 #define OBJ_OUTDOOR_PREASURE_NAME              "t1"
 
 //------------/*Ogrzewanie*/------------
@@ -279,30 +282,56 @@
 #define COMP_LIGHT_BATH_RGB_V_3_NAME   "h10"
 #define COMP_LIGHT_BATH_RGB_H_3_ID        15
 #define COMP_LIGHT_BATH_RGB_H_3_NAME   "h12"
-//------------/*Inne*/----------------
-#define PG_OTHER_ID							 3
-#define PG_OTHER_NAME				 "pgOther"
+//------------/*Data / Czas*/----------------
+#define PG_TIME_ID							 3
+#define PG_TIME_NAME				 "pgTime"
 /*Zegar*/
-#define OBJ_TIME_YEAR_ID			         7
+#define OBJ_TIME_YEAR_ID			         4
 #define OBJ_TIME_YEAR_NAME				  "t1"
-#define OBJ_TIME_MONTH_ID                    8
+#define OBJ_TIME_MONTH_ID                    5
 #define OBJ_TIME_MONTH_NAME				  "t2"
-#define OBJ_TIME_DAY_ID                      9
+#define OBJ_TIME_DAY_ID                      6
 #define OBJ_TIME_DAY_NAME				  "t3"
-#define OBJ_TIME_HOUR_ID				    10
+#define OBJ_TIME_HOUR_ID				     7
 #define OBJ_TIME_HOUR_NAME				  "t5"
-#define OBJ_TIME_MINUTE_ID			        11
+#define OBJ_TIME_MINUTE_ID			         8
 #define OBJ_TIME_MINUTE_NAME			  "t6"
-#define OBJ_TIME_SET_ID						12
+#define OBJ_TIME_SET_ID					  	 9
 #define OBJ_TIME_SET_NAME			      "b0"
 #define OBJ_TIME_NEXT_ID					 1
-#define OBJ_TIME_NEXT_NAME				  "b7" 
+#define OBJ_TIME_NEXT_NAME				  "b7"
+
+//------------/*Światło PIR*/----------------
+#define PG_LIGHT_AUTO_ID					 4
+#define PG_LIGHT_AUTO_NAME		 "pgLightsAuto"
+
+//------------/*Sieć*/----------------
+#define PG_NETWORK_ID				   		  5
+#define PG_NETWORK_NAME				"pgNetwork"
+//WiFi
+#define OBJ_NETWORK_WIFI_SSID_ID			 1
+#define OBJ_NETWORK_WIFI_SSID_NAME		  "t4"
+#define OBJ_NETWORK_WIFI_PASS_ID			 2
+#define OBJ_NETWORK_WIFI_PASS_NAME		  "t7"
+//MQTT
+#define OBJ_NETWORK_MQTT_SERVER_ID			 5
+#define OBJ_NETWORK_MQTT_SERVER_NAME	  "t0"
+#define OBJ_NETWORK_MQTT_PORT_ID		     6
+#define OBJ_NETWORK_MQTT_PORT_NAME		  "n0"
+
+
+//------------/*Pozostałe*/----------------
+#define PG_OTHER_ID							 6
+#define PG_OTHER_NAME				 "pgOther"
+
 /*Histereza ogrzewania*/
-#define OBJ_HEATING_HISTERESIS_VAL_ID         6
+#define OBJ_HEATING_HISTERESIS_VAL_ID         3
 #define OBJ_HEATING_HISTERESIS_VAL_NAME    "t0"
-#define OBJ_HEATING_HISTERESIS_DEC_ID         4
+#define OBJ_HEATING_HISTERESIS_DEC_ID         1
 #define OBJ_HEATING_HISTERESIS_DEC_NAME   "b18"
-#define OBJ_HEATING_HISTERESIS_INC_ID         5
+#define OBJ_HEATING_HISTERESIS_INC_ID         2
 #define OBJ_HEATING_HISTERESIS_INC_NAME   "b19"
+
+
 
 #endif /* #ifndef __CONSTANTS_H__ */

@@ -1,7 +1,7 @@
 
 #include "SensorsHelper.h"
 #include "Constants.h"
-#include "EventsHandler.h"
+#include "EventDispatcher.h"
 
 SensorsHelper::SensorsHelper(){
 }
@@ -16,9 +16,9 @@ void SensorsHelper::init() {
 }
 //----------------------------------------------------------------------------------------
 void SensorsHelper::loop(){
-  eventsHandler.onRefreshIndoorTemperature(getTemperature());  
-  eventsHandler.onRefreshIndoorHumidity(getHumidity());
-  eventsHandler.onRefreshIndoorPreasure(getPreasure());  
+	eventDispatcher.onRefreshIndoorTemperature(getTemperature());
+	eventDispatcher.onRefreshIndoorHumidity(getHumidity());
+	eventDispatcher.onRefreshIndoorPreasure(getPreasure());
 }
 //----------------------------------------------------------------------------------------
 float SensorsHelper::getTemperature(){

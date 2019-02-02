@@ -77,6 +77,7 @@ public: //TODO: do zmiany na get
 	String wifiSSID;
 	String wifiPassword;
 	String mqttServer;
+	uint32_t mqttPort;
 };
 extern Configuration configuration;
 #endif /* #ifndef __CONFIGURATION_H__ */

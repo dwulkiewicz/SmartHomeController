@@ -85,6 +85,10 @@ Configuration::Configuration(){
 	dayTemp = 130; //100 + 130 -> 23.0*C
 	nightTemp = 80; //100 + 80 -> 18.0*C
 	hysteresisTemp = 10; //1*C
+
+
+	//TODO: przenieść do konfiguracji
+	mqttPort = 1883;
 }
 //-----------------------------------------------------------------------------------------------------
 bool Configuration::init() {
