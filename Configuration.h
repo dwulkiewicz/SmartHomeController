@@ -13,20 +13,20 @@
 #define HEATING_WEEKEND_MORNING_OFF         5 
 #define HEATING_WEEKEND_AFTERNOON_ON        6 
 #define HEATING_WEEKEND_AFTERNOON_OFF       7   
-
 #define HEATING_TIMES_MAX_SAFEGUARD         8  
-
 
 #define LIGHT_BATH_MAIN_1_IDX         0
 #define LIGHT_BATH_HOLDER_1_IDX       1
 #define LIGHT_BATH_TAPE_1_IDX         2
 #define LIGHT_BATH_RGB_V_1_IDX        3
 #define LIGHT_BATH_RGB_H_1_IDX        4
+
 #define LIGHT_BATH_MAIN_2_IDX         5
 #define LIGHT_BATH_HOLDER_2_IDX       6
 #define LIGHT_BATH_TAPE_2_IDX         7
 #define LIGHT_BATH_RGB_V_2_IDX        8
 #define LIGHT_BATH_RGB_H_2_IDX        9
+
 #define LIGHT_BATH_MAIN_3_IDX        10
 #define LIGHT_BATH_HOLDER_3_IDX      11
 #define LIGHT_BATH_TAPE_3_IDX        12

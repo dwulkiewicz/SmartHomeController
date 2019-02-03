@@ -16,9 +16,9 @@ public:
 	static String periodToStr(uint8_t value);
 private:
 	void refresh();
-	void setStatus(uint8_t status);
-	void setPeriod(uint8_t status);
-	void setRequiredTemp(float value);
+	void updatePeriod();
+	void updateRequiredTemperature();
+	void updateStatus();
 private:
 	uint8_t status;
 	uint8_t period;

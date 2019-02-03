@@ -65,7 +65,7 @@ void TaskLightsControlerLoop(void * pvParameters) {
 		xSemaphoreTake(xMutex, portMAX_DELAY);
 		lightsControler.loop();
 		xSemaphoreGive(xMutex);
-		vTaskDelay(pdMS_TO_TICKS(200));
+		vTaskDelay(pdMS_TO_TICKS(TASK_LIGHTS_LOOP));
 	}
 }
 //-----------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void TaskNextionLoop(void * pvParameters) {
 		xSemaphoreTake(xMutex, portMAX_DELAY);
 		displayControler.loop();
 		xSemaphoreGive(xMutex);
-		vTaskDelay(pdMS_TO_TICKS(50));
+		vTaskDelay(pdMS_TO_TICKS(TASK_NEXTION_LOOP));
 	}
 }
 //-----------------------------------------------------------------------------------------

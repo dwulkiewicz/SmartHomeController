@@ -122,7 +122,7 @@
     <ClInclude Include="NetworkControler.h" />
     <ClInclude Include="SwitchDevice.h" />
     <ClInclude Include="RGBdriver.h" />
-    <ClInclude Include="RGBLightDevice.h" />
+    <ClInclude Include="LightDeviceRgbEntity.h" />
     <ClInclude Include="RtcControler.h" />
     <ClInclude Include="SensorsHelper.h" />
     <ClInclude Include="Types.h" />
@@ -135,13 +135,13 @@
     <ClCompile Include="DisplayControler.cpp" />
     <ClCompile Include="EventDispatcher.cpp" />
     <ClCompile Include="HeatingControler.cpp" />
-    <ClCompile Include="LightDevice.cpp" />
+    <ClCompile Include="LightDeviceEntity.cpp" />
     <ClCompile Include="LightsControler.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="NetworkControler.cpp" />
     <ClCompile Include="SwitchDevice.cpp" />
     <ClCompile Include="RGBdriver.cpp" />
-    <ClCompile Include="RGBLightDevice.cpp" />
+    <ClCompile Include="LightDeviceRgbEntity.cpp" />
     <ClCompile Include="RtcControler.cpp" />
     <ClCompile Include="SensorsHelper.cpp" />
   </ItemGroup>

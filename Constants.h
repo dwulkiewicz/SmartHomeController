@@ -38,27 +38,30 @@
 
 #define TASK_INDOOR_TEMP_SENSOR_LOOP 5000 //ms
 #define TASK_DATATIME_LOOP            500 //ms
+#define TASK_NEXTION_LOOP             30 //ms
+#define TASK_LIGHTS_LOOP              10 //ms
 
-#define SWITCH_BATH_1_ID	1
+#define LIGHTS_DIMING_TIME           200 //ms czas zjaśniania / zciemniania świateł
+
+#define SWITCH_BATH_1_ID  1
 #define SWITCH_BATH_2_ID  2
 #define SWITCH_BATH_3_ID  3
 
 #define SW_OFF 0
 #define SW_ON 1
 
-
 #define HEATING_STATUS_UNDEF 0
-#define HEATING_STATUS_COOL 1
-#define HEATING_STATUS_HEAT 2
+#define HEATING_STATUS_COOL  1
+#define HEATING_STATUS_HEAT  2
 
 #define HEATING_PERIOD_UNDEF 0
-#define HEATING_PERIOD_DAY 1
+#define HEATING_PERIOD_DAY   1
 #define HEATING_PERIOD_NIGHT 2
 
 #define DAY_OF_WEEK_SUN 0
-#define DAY_OF_WEEK_MO 1
+#define DAY_OF_WEEK_MO  1
 #define DAY_OF_WEEK_TUE 2
-#define DAY_OF_WEEK_WE 3
+#define DAY_OF_WEEK_WE  3
 #define DAY_OF_WEEK_THU 4
 #define DAY_OF_WEEK_FRI 5
 #define DAY_OF_WEEK_SAT 6
@@ -332,6 +335,14 @@
 #define OBJ_HEATING_HISTERESIS_INC_ID         2
 #define OBJ_HEATING_HISTERESIS_INC_NAME   "b19"
 
-
+//------------/*Ustawienia*/------------
+#define PG_SETTINGS_ID						7
+#define PG_SETTINGS_NAME		 "pgSettings"
+//------------/*Klawiatura A*/------------
+#define PG_KEYBOARD_A_ID					8
+#define PG_KEYBOARD_A_NAME			 "keybdA"
+//------------/*Klawiatura B*/------------
+#define PG_KEYBOARD_B_ID					9
+#define PG_KEYBOARD_B_NAME			 "keybdB"
 
 #endif /* #ifndef __CONSTANTS_H__ */

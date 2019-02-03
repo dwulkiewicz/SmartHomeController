@@ -48,9 +48,6 @@
     <ClInclude Include="LightDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RGBLightDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ColorUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EventDispatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightDeviceRgbEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,12 +95,6 @@
     <ClCompile Include="LightsControler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LightDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RGBLightDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ColorUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,6 +111,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EventDispatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LightDeviceRgbEntity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LightDeviceEntity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

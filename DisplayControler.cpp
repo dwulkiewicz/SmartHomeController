@@ -145,6 +145,14 @@ NexText objHeatingHisteresisVal(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_VAL_ID, OBJ_
 NexButton objHeatingHisteresisDec(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_DEC_ID, OBJ_HEATING_HISTERESIS_DEC_NAME);
 NexButton objHeatingHisteresisInc(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_INC_ID, OBJ_HEATING_HISTERESIS_INC_NAME);
 
+//------------/*Ustawienia*/------------
+NexPage pgSettings(PG_SETTINGS_ID, 0, PG_SETTINGS_NAME);
+//------------/*Klawiatura A*/------------
+NexPage pgKeybdA(PG_KEYBOARD_A_ID, 0, PG_KEYBOARD_A_NAME);
+//------------/*Klawiatura B*/------------
+NexPage pgKeybdB(PG_KEYBOARD_B_ID, 0, PG_KEYBOARD_B_NAME);
+
+
 /*
   Register a button object to the touch event list.
 */
@@ -157,6 +165,9 @@ NexTouch *nex_listen_list[] =
   &pgTime,
   &pgNetwork,
   &pgOther,
+  &pgSettings,
+  &pgKeybdA,
+  &pgKeybdB,
   &objBathSw1,
   &objBathSw2,
   &objBathSw3,
@@ -239,6 +250,9 @@ void DisplayControler::init() {
 	pgTime.attachOnShow(onPageShow, &pgTime);
 	pgNetwork.attachOnShow(onPageShow, &pgNetwork);
 	pgOther.attachOnShow(onPageShow, &pgOther);
+	pgSettings.attachOnShow(onPageShow, &pgSettings);
+	pgKeybdA.attachOnShow(onPageShow, &pgKeybdA);
+	pgKeybdB.attachOnShow(onPageShow, &pgKeybdB);
 
 	objBathSw1.attachPush(onSwitchPush, &objBathSw1);
 	objBathSw2.attachPush(onSwitchPush, &objBathSw2);
@@ -384,7 +398,7 @@ void DisplayControler::refreshHeatingRequiredTemp(float value) {
 	if (disp.heatingRequiredTemp != curr.heatingRequiredTemp) {
 		char buf[10];
 		sprintf(buf, "%02.1fC", curr.heatingRequiredTemp);
-		logger.log(debug, "DisplayControler::refreshHeatingRequiredTemp() period: %.1f\r\n", curr.heatingRequiredTemp);
+		logger.log(debug, "DisplayControler::refreshHeatingRequiredTemp() temp: %.1f\r\n", curr.heatingRequiredTemp);
 		if (currentPage == PG_MAIN_ID
 			&& objHeatingSetTemp.setText(buf)) {
 			disp.heatingRequiredTemp = curr.heatingRequiredTemp;

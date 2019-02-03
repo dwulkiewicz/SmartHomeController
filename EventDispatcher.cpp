@@ -45,7 +45,7 @@ void EventDispatcher::onRefreshDateTime(const DateTime& dateTime){
 void EventDispatcher::onSwitchChange(uint8_t switchId, uint8_t switchState) {
 	networkControler.onSwitchChanged(switchId, switchState);
 	displayControler.onSwitchChanged(switchId, switchState);
-	lightsControler.onSwitchChanged(switchId, switchState);
+	lightsControler.onSwitchStateChanged(switchId, switchState);
 }
 //----------------------------------------------------------------------------------------
 void EventDispatcher::onRefreshOutdoorTemperature(float value) {
@@ -70,6 +70,6 @@ void EventDispatcher::onMQTTStatusChange(int status){
 }
 //----------------------------------------------------------------------------------------
 void EventDispatcher::onLightValueChange(uint8_t idx, uint8_t value) {
-	lightsControler.onLightValueChange(idx, value);
+	lightsControler.onLightValueChanged(idx, value);
 }
 EventDispatcher eventDispatcher;

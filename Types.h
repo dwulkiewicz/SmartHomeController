@@ -2,6 +2,9 @@
 #define __Types_H__
 #include <Arduino.h>
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 typedef struct {
 	uint8_t second;
 	uint8_t minute;
