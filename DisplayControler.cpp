@@ -20,6 +20,11 @@
 #include "SensorsHelper.h"
 #include "EventDispatcher.h"
 
+
+NexWaveform sPreassure(PG_MAIN_ID, 32, "s1");
+NexWaveform sIndoorTemp(PG_MAIN_ID, 31, "s0");
+
+
 //------------/*Strona główna*/------------//
 NexPage pgMain = NexPage(PG_MAIN_ID, 0, PG_MAIN_NAME);
 //Status WiFI
@@ -934,6 +939,11 @@ void DisplayControler::refreshPreasure() {
 		if (tOutdoorPreasure.setText(buf))
 			disp.pressure = curr.pressure;
 	}
+
+	//uint16_t p = round((float(curr.pressure - 960) / 60.0) * 40.0);
+	sPreassure.addValue(0, curr.pressure-970);
+
+
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshWiFiStatus(int8_t status) {

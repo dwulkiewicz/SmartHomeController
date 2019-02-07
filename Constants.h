@@ -72,8 +72,9 @@
 
 #define PICTURE_WIFI_ON  5
 #define PICTURE_WIFI_OFF 4
-#define PICTURE_SWITCH_ON  7
-#define PICTURE_SWITCH_OFF 6
+
+#define PICTURE_SWITCH_ON  62//7
+#define PICTURE_SWITCH_OFF 61//6
 
 #define PIC_HEATING_HEAT 12
 #define PIC_HEATING_COOL 51 
@@ -127,12 +128,12 @@
 #define OBJ_HEATING_SET_TEMP_ID			 9
 #define OBJ_HEATING_SET_TEMP_NAME	  "t3"
 
-#define OBJ_BATH_SW_1_ID				         4
-#define OBJ_BATH_SW_1_NAME	  			"pBathSw1"
-#define OBJ_BATH_SW_2_ID				        29
-#define OBJ_BATH_SW_2_NAME				"pBathSw2"
-#define OBJ_BATH_SW_3_ID				        30
-#define OBJ_BATH_SW_3_NAME				"pBathSw3"
+#define OBJ_BATH_SW_1_ID				        39
+#define OBJ_BATH_SW_1_NAME	  			"p6"
+#define OBJ_BATH_SW_2_ID				        40
+#define OBJ_BATH_SW_2_NAME				"p7"
+#define OBJ_BATH_SW_3_ID				        41
+#define OBJ_BATH_SW_3_NAME				"p8"
 
 #define OBJ_DAY_OF_MONTH1_ID                     27
 #define OBJ_DAY_OF_MONTH1_NAME				   "p4"

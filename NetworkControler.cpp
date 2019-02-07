@@ -10,17 +10,20 @@
 /************************************************************************/
 
 #include <Arduino.h>
-#include <WiFi.h>
-#include <PubSubClient.h>
+
+extern "C" {
+#include "freertos/FreeRTOS.h"
+#include "freertos/timers.h"
+}
+
+#include "PubSubClient.h"
+
 #include <ArduinoOTA.h>
 #include "NetworkControler.h"
 #include "DisplayControler.h"
 #include "EventDispatcher.h"
 #include "Configuration.h"
 #include "Constants.h"
-
-WiFiClient espClient;
-PubSubClient client(espClient);
 
 //TODO: przenie nazwy kolejek do konfiguracji
 const char* switchesReqChannel01 = "switches/req/channel01";
@@ -35,6 +38,10 @@ const char* sensorsBME280TemperatureTopic = "sensors/bme280/temperature";
 const char* sensorsBME280HumidityTopic = "sensors/bme280/humidity";
 const char* sensorsBME280PressureTopic = "sensors/bme280/pressure";
 
+AsyncMqttClient mqttClient;
+TimerHandle_t mqttReconnectTimer;
+TimerHandle_t wifiReconnectTimer;
+char payload_buf[MQTT_PAYLOAD_BUF_SIZE];
 //----------------------------------------------------------------------------------------
 NetworkControler::NetworkControler() {
 }
@@ -48,32 +55,25 @@ String NetworkControler::getHostName() {
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::init() {
-	initWiFi();
-	initMQTT();
-	initOTA();
-}
-//----------------------------------------------------------------------------------------
-void NetworkControler::initWiFi() {
-	// We start by connecting to a WiFi network
-	logger.log(info, "\r\nConnecting to %s\r\n", configuration.wifiSSID.c_str());
-	String hostname = NetworkControler::getHostName();
-	WiFi.begin(configuration.wifiSSID.c_str(), configuration.wifiPassword.c_str());
-	WiFi.setHostname(hostname.c_str());
+	wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void*)0, reinterpret_cast<TimerCallbackFunction_t>(connectToWifi));
+	mqttReconnectTimer = xTimerCreate("mqttTimer", pdMS_TO_TICKS(2000), pdFALSE, (void*)0, reinterpret_cast<TimerCallbackFunction_t>(connectToMqtt));
 
-	// Wait for connection
-	//TODO: uwaga na wotchdoga, trzeba wyjść jak się nie uda połączyć i obsłużyć poprawnie brak połączenia z WiFi, do przerobienia połączenie do sieci WiFi   
-	while (WiFi.status() != WL_CONNECTED) {
-		eventDispatcher.onWiFiStatusChange(WiFi.status());
-		delay(500);
-		Serial.print(".");
-	}
-	eventDispatcher.onWiFiStatusChange(WiFi.status());
-	logger.log(info, "WiFi connected: IP: %s Host: %s\r\n", WiFi.localIP().toString().c_str(), hostname.c_str());
-}
-//----------------------------------------------------------------------------------------
-void NetworkControler::initMQTT() {
-	client.setServer(configuration.mqttServer.c_str(), configuration.mqttPort);
-	client.setCallback(NetworkControler::mqttCallback);
+	WiFi.onEvent(WiFiEvent);
+
+	mqttClient.onConnect(NetworkControler::onMqttConnect);
+	mqttClient.onDisconnect(NetworkControler::onMqttDisconnect);
+	mqttClient.onSubscribe(NetworkControler::onMqttSubscribe);
+	mqttClient.onUnsubscribe(NetworkControler::onMqttUnsubscribe);
+	mqttClient.onMessage(NetworkControler::onMqttMessage);
+	mqttClient.onPublish(NetworkControler::onMqttPublish);
+	mqttClient.setServer(configuration.mqttServer.c_str(), configuration.mqttPort);
+	//String hostname = NetworkControler::getHostName();
+	//logger.log(info, "NetworkControler::init() ClientId: %s\r\n", hostname.c_str());
+	//mqttClient.setClientId(hostname.c_str());
+
+	connectToWifi();
+
+	//initOTA();
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::initOTA() {
@@ -106,55 +106,81 @@ void NetworkControler::initOTA() {
 	ArduinoOTA.begin();
 }
 //----------------------------------------------------------------------------------------
-bool NetworkControler::reconnect() {
-	if (!client.connected()) {
-		logger.log(info, "MQTT state: %s, attempting connection...\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
-		eventDispatcher.onMQTTStatusChange(client.state());
-		// Attempt to connect
-		String hostname = NetworkControler::getHostName();
-		if (client.connect(hostname.c_str())) {
-			logger.log(info, "MQTT connected as %s\r\n", hostname.c_str());
-			eventDispatcher.onMQTTStatusChange(client.state());
-
-			//TODO: przerobić na oczyt stanu 
-			//Po ponownym podłączeniu wysyłam ostatni stan     
-			//client.publish(switchesRespChannel01, "off");
-			//client.publish(switchesRespChannel02, "off");
-			// ... and resubscribe (można subskrybować wiele topików)
-			client.subscribe(sensorsBME280TemperatureTopic);
-			client.subscribe(sensorsBME280HumidityTopic);
-			client.subscribe(sensorsBME280PressureTopic);
-			//client.subscribe(lightingCommandTopic);
-			client.subscribe(switchesReqChannel01);
-			client.subscribe(switchesReqChannel02);
-			return true;
-		}
-		else {
-			logger.log(warning, "MQTT reconnect failed, state: %s\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
-			eventDispatcher.onMQTTStatusChange(client.state());
-			return false;
-		}
-	}
-}
-//----------------------------------------------------------------------------------------
 void NetworkControler::loop() {
-	if (!client.connected() && !reconnect()) {
-		return;
-	}
+
 	//Handle OTA server.
 	//ArduinoOTA.handle();
-
-	client.loop();
 }
 //----------------------------------------------------------------------------------------
-void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int length) {
+void NetworkControler::connectToWifi() {
+	logger.log(info, "NetworkControler::connectToWifi() SSID: %s\r\n", configuration.wifiSSID.c_str());
+	String hostname = NetworkControler::getHostName();
+	WiFi.begin(configuration.wifiSSID.c_str(), configuration.wifiPassword.c_str());
+	WiFi.setHostname(hostname.c_str());
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::connectToMqtt() {
+	logger.log(info, "NetworkControler::connectToMqtt() Host: %s\r\n", configuration.mqttServer.c_str());
+	mqttClient.connect();
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::WiFiEvent(WiFiEvent_t event) {
+	logger.log(info, "NetworkControler::WiFiEvent() event: %d status: %s\r\n", event, wifiStatus(WiFi.status()).c_str());
+	eventDispatcher.onWiFiStatusChange(WiFi.status());
+	switch (event) {
+	case SYSTEM_EVENT_STA_GOT_IP:
+		logger.log(info, "NetworkControler::WiFiEvent() connected, IP: %s\r\n", WiFi.localIP().toString().c_str());
+		connectToMqtt();
+		break;
+	case SYSTEM_EVENT_STA_DISCONNECTED:
+		logger.log(info, "NetworkControler::WiFiEvent() lost connection");
+		xTimerStop(mqttReconnectTimer, 0); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
+		xTimerStart(wifiReconnectTimer, 0);
+		break;
+	}
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::onMqttConnect(bool sessionPresent) {
+	logger.log(info, "NetworkControler::onMqttConnect() Connected to MQTT, Session present: %d\r\n", sessionPresent);
+	eventDispatcher.onMQTTStatusChange(MQTT_CONNECTED);
 
-	// Conver the incoming byte array to a string
-	payload[length] = '\0'; // Null terminator used to terminate the char array
+	uint16_t packetIdSub = mqttClient.subscribe(sensorsBME280TemperatureTopic, 0);
+	logger.log(debug, "Subscribing ""%s"" at QoS 0, packetId: %d\r\n", sensorsBME280TemperatureTopic, packetIdSub);
+	packetIdSub = mqttClient.subscribe(sensorsBME280HumidityTopic, 0);
+	logger.log(debug, "Subscribing ""%s"" at QoS 0, packetId: %d\r\n", sensorsBME280HumidityTopic, packetIdSub);
+	packetIdSub = mqttClient.subscribe(sensorsBME280PressureTopic, 0);
+	logger.log(debug, "Subscribing ""%s"" at QoS 0, packetId: %d\r\n", sensorsBME280PressureTopic, packetIdSub);
+	packetIdSub = mqttClient.subscribe(switchesReqChannel01, 0);
+	logger.log(debug, "Subscribing ""%s"" at QoS 0, packetId: %d\r\n", switchesReqChannel01, packetIdSub);
+	packetIdSub = mqttClient.subscribe(switchesReqChannel02, 0);
+	logger.log(debug, "Subscribing ""%s"" at QoS 0, packetId: %d\r\n", switchesReqChannel02, packetIdSub);
+	packetIdSub = mqttClient.subscribe(switchesReqChannel03, 0);
+	logger.log(debug, "Subscribing ""%s"" at QoS 0, packetId: %d\r\n", switchesReqChannel03, packetIdSub);
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::onMqttDisconnect(AsyncMqttClientDisconnectReason reason) {
+	logger.log(info, "NetworkControler::onMqttDisconnect() reason: %d\r\n", reason);
+	eventDispatcher.onMQTTStatusChange(MQTT_DISCONNECTED);
+	if (WiFi.isConnected()) {
+		xTimerStart(mqttReconnectTimer, 0);
+	}
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::onMqttSubscribe(uint16_t packetId, uint8_t qos) {
+	logger.log(debug, "NetworkControler::onMqttSubscribe() packetId: %d qos: %d\r\n", packetId, qos);
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::onMqttUnsubscribe(uint16_t packetId) {
+	logger.log(debug, "NetworkControler::onMqttUnsubscribe() packetId: %d\r\n", packetId);
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
+	memcpy(payload_buf, payload, MIN(len, MQTT_PAYLOAD_BUF_SIZE));
+	payload_buf[MIN(len, MQTT_PAYLOAD_BUF_SIZE)] = '\0'; // Null terminator used to terminate the char array
 	String mqttTopic = topic;
-	String mqttMessage = (char*)payload;
+	String mqttMessage = payload_buf;
 
-	logger.log(info, "MQTT received topic:[%s], msg: %s\r\n", topic, mqttMessage.c_str());
+	logger.log(info, "NetworkControler::onMqttMessage() topic:[%s], qos: %d, dup %d, retain: %d, len %d, total: %d, index: %d,  msg: %s\r\n", topic, properties.qos, properties.dup, properties.retain, len, total, index, payload_buf);
 
 	if (mqttTopic.equals(switchesReqChannel01)) {
 		eventDispatcher.onSwitchChange(SWITCH_BATH_1_ID, mqttMessage.equals("on") ? SW_ON : SW_OFF);
@@ -179,6 +205,10 @@ void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int len
 	}
 }
 //----------------------------------------------------------------------------------------
+void NetworkControler::onMqttPublish(uint16_t packetId) {
+	logger.log(debug, "NetworkControler::onMqttPublish() packetId: %d\r\n", packetId);
+}
+//----------------------------------------------------------------------------------------
 void NetworkControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 	String msg = (switchState == SW_ON ? "on" : "off");
 	const char* topic = NULL;
@@ -194,22 +224,37 @@ void NetworkControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 		break;
 	}
 	logger.log(info, "NetworkControler::onSwitchChanged() MQTT send topic:[%s], msg: %s\r\n", topic, msg.c_str());
-	client.publish(topic, msg.c_str());
+
+	mqttClient.publish(topic, 0, true, msg.c_str());
+	//client.publish(topic, msg.c_str());
 }
 //----------------------------------------------------------------------------------------
-String NetworkControler::statusMqttToString(int status) {
+String NetworkControler::wifiStatus(uint8_t status) {
 	switch (status) {
-	case MQTT_CONNECTION_TIMEOUT:		  return "MQTT_CONNECTION_TIMEOUT";
-	case MQTT_CONNECTION_LOST:			  return "MQTT_CONNECTION_LOST";
-	case MQTT_CONNECT_FAILED:			    return "MQTT_CONNECT_FAILED";
-	case MQTT_DISCONNECTED:				    return "MQTT_DISCONNECTED";
-	case MQTT_CONNECTED:				      return "MQTT_CONNECTED";
-	case MQTT_CONNECT_BAD_PROTOCOL:		return "MQTT_CONNECT_BAD_PROTOCOL";
-	case MQTT_CONNECT_BAD_CLIENT_ID:	return "MQTT_CONNECT_BAD_CLIENT_ID";
-	case MQTT_CONNECT_UNAVAILABLE:		return "MQTT_CONNECT_UNAVAILABLE";
-	case MQTT_CONNECT_BAD_CREDENTIALS:return "MQTT_CONNECT_BAD_CREDENTIALS";
-	case MQTT_CONNECT_UNAUTHORIZED:		return "MQTT_CONNECT_UNAUTHORIZED";
+	case WL_IDLE_STATUS:		  return "WL_IDLE_STATUS";
+	case WL_NO_SSID_AVAIL:		  return "WL_NO_SSID_AVAIL";
+	case WL_SCAN_COMPLETED:		  return "WL_SCAN_COMPLETED";
+	case WL_CONNECTED:		  return "WL_CONNECTED";
+	case WL_CONNECT_FAILED:		  return "WL_CONNECT_FAILED";
+	case WL_CONNECTION_LOST:		  return "WL_CONNECTION_LOST";
+	case WL_DISCONNECTED:		  return "WL_DISCONNECTED";
 	default:                          return "UNKNOWN[" + String(status) + "]";
 	}
 }
+//----------------------------------------------------------------------------------------
+/*
+String NetworkControler::discMqttReasons(AsyncMqttClientDisconnectReason reason) {
+	switch (reason) {
+	case TCP_DISCONNECTED:		  return "TCP_DISCONNECTED";
+	case MQTT_UNACCEPTABLE_PROTOCOL_VERSION:			  return "MQTT_UNACCEPTABLE_PROTOCOL_VERSION";
+	case MQTT_IDENTIFIER_REJECTED:			    return "MQTT_IDENTIFIER_REJECTED";
+	case MQTT_SERVER_UNAVAILABLE:				    return "MQTT_SERVER_UNAVAILABLE";
+	case MQTT_MALFORMED_CREDENTIALS:				      return "MQTT_MALFORMED_CREDENTIALS";
+	case MQTT_NOT_AUTHORIZED:		return "MQTT_NOT_AUTHORIZED";
+	case ESP8266_NOT_ENOUGH_SPACE:	return "ESP8266_NOT_ENOUGH_SPACE";
+	case TLS_BAD_FINGERPRINT:		return "TLS_BAD_FINGERPRINT";
+	default:                          return "UNKNOWN[" + String(reason) + "]";
+	}
+}
+*/
 NetworkControler networkControler;
