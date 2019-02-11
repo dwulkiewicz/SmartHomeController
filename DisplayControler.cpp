@@ -435,7 +435,7 @@ void DisplayControler::refreshBathSw1(void) {
 	Serial.printf("DisplayControler::refreshBathSw1()\r\n");
 	if (lastSw1State != sw1State) {
 		if (currentPage == PG_MAIN_ID) {
-			objBathSw1.setPic(sw1State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+			objBathSw1.setPic(sw1State == SW_ON ? PICTURE_SWITCH_BATH_MAIN_ON : PICTURE_SWITCH_BATH_MAIN_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
 			lastSw1State = sw1State;
 		}
 	}
@@ -447,7 +447,7 @@ void DisplayControler::refreshBathSw2(void) {
 	Serial.printf("DisplayControler::refreshBathSw2()\r\n");
 	if (lastSw2State != sw2State) {
 		if (currentPage == PG_MAIN_ID) {
-			objBathSw2.setPic(sw2State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+			objBathSw2.setPic(sw2State == SW_ON ? PICTURE_SWITCH_BATH_HOLDER_ON : PICTURE_SWITCH_BATH_HOLDER_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
 			lastSw2State = sw2State;
 		}
 	}
@@ -459,7 +459,7 @@ void DisplayControler::refreshBathSw3(void) {
 	Serial.printf("DisplayControler::refreshBathSw3()\r\n");
 	if (lastSw3State != sw3State) {
 		if (currentPage == PG_MAIN_ID) {
-			objBathSw3.setPic(sw3State == SW_ON ? PICTURE_SWITCH_ON : PICTURE_SWITCH_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu 
+			objBathSw3.setPic(sw3State == SW_ON ? PICTURE_SWITCH_BATH_LED_ON : PICTURE_SWITCH_BATH_LED_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu 
 			lastSw3State = sw3State;
 		}
 	}

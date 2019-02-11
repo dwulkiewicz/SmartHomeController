@@ -73,7 +73,7 @@ void NetworkControler::init() {
 
 	connectToWifi();
 
-	//initOTA();
+	initOTA();
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::initOTA() {
@@ -109,7 +109,7 @@ void NetworkControler::initOTA() {
 void NetworkControler::loop() {
 
 	//Handle OTA server.
-	//ArduinoOTA.handle();
+	ArduinoOTA.handle();
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::connectToWifi() {
