@@ -47,6 +47,9 @@ public:
 	uint8_t sw1State;//TODO: do przerobienia
 	uint8_t sw2State;//TODO: do przerobienia
 	uint8_t sw3State;//TODO: do przerobienia
+
+	uint8_t sonOffSwitch01;//TODO: do przerobienia
+
 private:
 	static uint8_t dayOfWeekPic(uint8_t dayOfWeek);
 	static uint8_t monthPic(uint8_t month);
@@ -67,11 +70,12 @@ private:
 	void refreshTimePage();
 	void refreshNetworkPage();
 	void refreshOtherPage();
-
-
+	
 	void refreshBathSw1();
 	void refreshBathSw2();
 	void refreshBathSw3();
+	void refreshSonOffSwitch01();
+
 	void refreshIndoorTemperature();
 	void refreshIndoorHumidity();  
 	void refreshOutdoorTemperature();
@@ -89,6 +93,7 @@ private:
 	uint8_t lastSw1State;
 	uint8_t lastSw2State;
 	uint8_t lastSw3State;
+	uint8_t lastSonOffSwitch01;
  
 };
 extern DisplayControler displayControler;

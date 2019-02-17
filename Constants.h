@@ -38,14 +38,18 @@
 
 #define TASK_INDOOR_TEMP_SENSOR_LOOP 5000 //ms
 #define TASK_DATATIME_LOOP            500 //ms
-#define TASK_NEXTION_LOOP             30 //ms
+#define TASK_NEXTION_LOOP             50 //ms
 #define TASK_LIGHTS_LOOP              10 //ms
 
 #define LIGHTS_DIMING_TIME           200 //ms czas zjaśniania / zciemniania świateł
 
-#define SWITCH_BATH_1_ID  1
-#define SWITCH_BATH_2_ID  2
-#define SWITCH_BATH_3_ID  3
+#define SWITCH_BATH_1_IDX  1
+#define SWITCH_BATH_2_IDX  2
+#define SWITCH_BATH_3_IDX  3
+
+#define SWITCH_SONOFF_1_IDX  4
+
+
 
 #define SW_OFF 0
 #define SW_ON 1
@@ -81,6 +85,9 @@
 
 #define PICTURE_SWITCH_BATH_LED_ON  64
 #define PICTURE_SWITCH_BATH_LED_OFF 63
+
+#define PICTURE_SWITCH_SONOFF_ON  68
+#define PICTURE_SWITCH_SONOFF_OFF 67
 
 #define PIC_HEATING_HEAT 12
 #define PIC_HEATING_COOL 51 
@@ -140,6 +147,12 @@
 #define OBJ_BATH_SW_2_NAME				"p7"
 #define OBJ_BATH_SW_3_ID				        35
 #define OBJ_BATH_SW_3_NAME				"p9"
+
+
+#define OBJ_SONOFF_SW_1_ID				        37
+#define OBJ_SONOFF_SW_1_NAME				 "p10"
+
+
 
 #define OBJ_DAY_OF_MONTH1_ID                     27
 #define OBJ_DAY_OF_MONTH1_NAME				   "p4"

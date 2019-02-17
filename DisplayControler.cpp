@@ -46,7 +46,7 @@ NexText tTime4 = NexText(PG_MAIN_ID, OBJ_TIME4_ID, OBJ_TIME4_NAME);
 NexText tIndoorTemp1 = NexText(PG_MAIN_ID, OBJ_INDOOR_TEMP1_ID, OBJ_INDOOR_TEMP1_NAME);
 NexText tIndoorTemp2 = NexText(PG_MAIN_ID, OBJ_INDOOR_TEMP2_ID, OBJ_INDOOR_TEMP2_NAME);
 NexText tIndoorHumidity = NexText(PG_MAIN_ID, OBJ_INDOOR_HUMIDITY_ID, OBJ_INDOOR_HUMIDITY_NAME);
-//PArametry zewnętrzne
+//Temperatura i wilgotność na zewnątrz
 NexText tOutdoorTemp1 = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP1_ID, OBJ_OUTDOOR_TEMP1_NAME);
 NexText tOutdoorTemp2 = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP2_ID, OBJ_OUTDOOR_TEMP2_NAME);
 NexText tOutdoorTempSymbol = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP_SYMBOL_ID, OBJ_OUTDOOR_TEMP_SYMBOL_NAME);
@@ -56,6 +56,8 @@ NexText tOutdoorPreasure = NexText(PG_MAIN_ID, OBJ_OUTDOOR_PREASURE_ID, OBJ_OUTD
 NexPicture objBathSw1 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_1_ID, OBJ_BATH_SW_1_NAME);
 NexPicture objBathSw2 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_2_ID, OBJ_BATH_SW_2_NAME);
 NexPicture objBathSw3 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_3_ID, OBJ_BATH_SW_3_NAME);
+NexPicture compSonOffSwitch01 = NexPicture(PG_MAIN_ID, OBJ_SONOFF_SW_1_ID, OBJ_SONOFF_SW_1_NAME);
+
 
 //------------/*Ogrzewanie*/------------
 NexPage pgHeating = NexPage(PG_HEATING_ID, 0, PG_HEATING_NAME);
@@ -176,6 +178,7 @@ NexTouch *nex_listen_list[] =
   &objBathSw1,
   &objBathSw2,
   &objBathSw3,
+  &compSonOffSwitch01,
   &btnDayTempInc,
   &btnDayTempDec,
   &btnNightTempInc,
@@ -234,10 +237,13 @@ DisplayControler::DisplayControler()
 	lastSw1State = SW_ON;
 	lastSw2State = SW_ON;
 	lastSw3State = SW_ON;
+	lastSonOffSwitch01 = SW_ON;
 
 	sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 	sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
 	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+
+	sonOffSwitch01 = SW_OFF;
 
 	curr.heatingStatus = HEATING_STATUS_HEAT;
 	disp.heatingStatus = HEATING_STATUS_HEAT;
@@ -262,6 +268,7 @@ void DisplayControler::init() {
 	objBathSw1.attachPush(onSwitchPush, &objBathSw1);
 	objBathSw2.attachPush(onSwitchPush, &objBathSw2);
 	objBathSw3.attachPush(onSwitchPush, &objBathSw3);
+	compSonOffSwitch01.attachPush(onSwitchPush, &compSonOffSwitch01);
 
 	btnDayTempInc.attachPush(onBtnTempPush, &btnDayTempInc);
 	btnDayTempDec.attachPush(onBtnTempPush, &btnDayTempDec);
@@ -349,21 +356,25 @@ void DisplayControler::onSwitchPush(void *ptr)
 	uint8_t switchState;
 	switch (obj->getObjCid()) {
 	case OBJ_BATH_SW_1_ID:
-		switchId = SWITCH_BATH_1_ID;
+		switchId = SWITCH_BATH_1_IDX;
 		switchState = !displayControler.sw1State;
 		break;
 	case OBJ_BATH_SW_2_ID:
-		switchId = SWITCH_BATH_2_ID;
+		switchId = SWITCH_BATH_2_IDX;
 		switchState = !displayControler.sw2State;
 		break;
 	case OBJ_BATH_SW_3_ID:
-		switchId = SWITCH_BATH_3_ID;
+		switchId = SWITCH_BATH_3_IDX;
 		switchState = !displayControler.sw3State;
+		break;
+	case OBJ_SONOFF_SW_1_ID:
+		switchId = SWITCH_SONOFF_1_IDX;
+		switchState = !displayControler.sonOffSwitch01;
 		break;
 	default:
 		return; //nieznany komponent
 	}
-	eventDispatcher.onSwitchChange(switchId, switchState);
+	eventDispatcher.onScreenTouchSwitch(switchId, switchState);
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {
@@ -414,19 +425,23 @@ void DisplayControler::refreshHeatingRequiredTemp(float value) {
 void DisplayControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
 	Serial.printf("DisplayControler::onSwitchChanged() id: %d state: %d\r\n", switchId, switchState);
 	switch (switchId) {
-	case SWITCH_BATH_1_ID:
+	case SWITCH_BATH_1_IDX:
 		sw1State = switchState;
 		//refreshBathSw1();
 		break;
-	case SWITCH_BATH_2_ID:
+	case SWITCH_BATH_2_IDX:
 		sw2State = switchState;
 		//refreshBathSw2();
 		break;
-	case SWITCH_BATH_3_ID:
+	case SWITCH_BATH_3_IDX:
 		sw3State = switchState;
 		//refreshBathSw3();
 		break;
+	case SWITCH_SONOFF_1_IDX:
+		sonOffSwitch01 = switchState;  
+   		break;
 	}
+	Serial.printf("DisplayControler::onSwitchChanged() end\r\n", switchId, switchState);	
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshBathSw1(void) {
@@ -456,7 +471,7 @@ void DisplayControler::refreshBathSw2(void) {
 void DisplayControler::refreshBathSw3(void) {
 	if (currentPage != PG_MAIN_ID)
 		return;
-	Serial.printf("DisplayControler::refreshBathSw3()\r\n");
+	logger.log(info, "DisplayControler::refreshBathSw3()\r\n");
 	if (lastSw3State != sw3State) {
 		if (currentPage == PG_MAIN_ID) {
 			objBathSw3.setPic(sw3State == SW_ON ? PICTURE_SWITCH_BATH_LED_ON : PICTURE_SWITCH_BATH_LED_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu 
@@ -465,9 +480,21 @@ void DisplayControler::refreshBathSw3(void) {
 	}
 }
 //----------------------------------------------------------------------------------------
+void DisplayControler::refreshSonOffSwitch01(void) {
+	if (currentPage == PG_MAIN_ID && lastSonOffSwitch01 != sonOffSwitch01) {
+		logger.log(debug, "DisplayControler::refreshSonOffSwitch01() ...\r\n");
+		int8_t pic = sonOffSwitch01 == SW_ON ? PICTURE_SWITCH_SONOFF_ON : PICTURE_SWITCH_SONOFF_OFF;
+		bool ret = false;
+		ret = compSonOffSwitch01.setPic(pic); 
+		if(ret)
+			lastSonOffSwitch01 = sonOffSwitch01;
+		logger.log(info, "DisplayControler::refreshSonOffSwitch01() pic: %d ret: %d\r\n", pic, ret);
+	}
+}
+//----------------------------------------------------------------------------------------
 void DisplayControler::onBtnTempPush(void *ptr) {
 	NexButton *btn = (NexButton *)ptr;
-	Serial.printf("onBtnTempPush: pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
+	logger.log(debug, "onBtnTempPush: pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
 
 	switch (btn->getObjCid()) {
 	case OBJ_DAY_TEMP_INC_ID:
@@ -544,7 +571,7 @@ void DisplayControler::onBtnTempPush(void *ptr) {
 //----------------------------------------------------------------------------------------
 void DisplayControler::onBtnTempHisteresisPush(void *ptr) {
 	NexButton *btn = (NexButton *)ptr;
-	Serial.printf("onBtnTempHisteresisPush(): pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
+	logger.log(debug, "onBtnTempHisteresisPush(): pageId=%d cmponentId=%d name=%s\r\n", btn->getObjPid(), btn->getObjCid(), btn->getObjName());
 
 	char buf[8];
 	switch (btn->getObjCid()) {
@@ -660,7 +687,7 @@ void DisplayControler::refreshOtherPage() {
 void DisplayControler::onDateTimeNextPush(void *ptr)
 {
 	NexButton *btn = (NexButton *)ptr;
-	Serial.printf("onBtnbDateTimeNextPush: %s\r\n", btn->getObjName());
+	logger.log(debug, "onBtnbDateTimeNextPush: %s\r\n", btn->getObjName());
 
 	switch (displayControler.currentTimeComponent) {
 	case SETUP_DATETIME_YEAR:
@@ -698,7 +725,7 @@ void DisplayControler::onDateTimeNextPush(void *ptr)
 void DisplayControler::onBtnbDateTimeSetPush(void *ptr)
 {
 	NexButton *btn = (NexButton *)ptr;
-	Serial.printf("onBtnbDateTimeSetPush: %s\r\n", btn->getObjName());
+	logger.log(debug, "onBtnbDateTimeSetPush: %s\r\n", btn->getObjName());
 
 	char buf[10];
 	if (displayControler.currentTimeComponent == SETUP_DATETIME_YEAR) {
@@ -867,7 +894,7 @@ void DisplayControler::refreshIndoorTemperature() {
 		char buf2[3];
 		sprintf(buf1, "%02d", t1);
 		sprintf(buf2, "%01d", t2);
-		Serial.printf("DisplayControler::refreshIndoorTemperature() %s.%s*C\r\n", buf1, buf2);
+		logger.log(debug, "DisplayControler::refreshIndoorTemperature() %s.%s*C\r\n", buf1, buf2);
 		if (currentPage == PG_MAIN_ID && tIndoorTemp1.setText(buf1) && tIndoorTemp2.setText(buf2)) {
 			disp.indoorTemperature = curr.indoorTemperature;
 		}
@@ -876,7 +903,7 @@ void DisplayControler::refreshIndoorTemperature() {
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshIndoorHumidity() {
 	if (currentPage == PG_MAIN_ID && disp.indoorHumidity != curr.indoorHumidity) {
-		Serial.printf("DisplayControler::refreshIndoorHumidity() %2d%%\r\n", curr.indoorHumidity);
+		logger.log(debug, "DisplayControler::refreshIndoorHumidity() %2d%%\r\n", curr.indoorHumidity);
 		char buf[5];
 		sprintf(buf, "%02d%%", curr.indoorHumidity);
 		if (currentPage == PG_MAIN_ID && tIndoorHumidity.setText(buf))
@@ -886,7 +913,7 @@ void DisplayControler::refreshIndoorHumidity() {
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshOutdoorTemperature() {
 	if (currentPage == PG_MAIN_ID && disp.outdoorTemperature != curr.outdoorTemperature) {
-		Serial.printf("DisplayControler::refreshOutdoorTemperature() %.1f*C\r\n", (float)curr.outdoorTemperature / 10.0);
+		logger.log(debug, "DisplayControler::refreshOutdoorTemperature() %.1f*C\r\n", (float)curr.outdoorTemperature / 10.0);
 
 		bool ret1 = false;
 		bool ret2 = false;
@@ -923,7 +950,7 @@ void DisplayControler::refreshOutdoorTemperature() {
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshOutdoorHumidity() {
 	if (currentPage == PG_MAIN_ID && disp.outdoorHumidity != curr.outdoorHumidity) {
-		Serial.printf("DisplayControler::refreshOutdoorHumidity() %2d%%\r\n", curr.outdoorHumidity);
+		logger.log(debug, "DisplayControler::refreshOutdoorHumidity() %2d%%\r\n", curr.outdoorHumidity);
 		char buf[10];
 		sprintf(buf, "%02d%%", curr.outdoorHumidity);
 		if (tOutdoorHumidity.setText(buf))
@@ -933,7 +960,7 @@ void DisplayControler::refreshOutdoorHumidity() {
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshPreasure() {
 	if (currentPage == PG_MAIN_ID && disp.pressure != curr.pressure) {
-		Serial.printf("DisplayControler::refreshPreasure() %3dhPa\r\n", curr.pressure);
+		logger.log(debug, "DisplayControler::refreshPreasure() %3dhPa\r\n", curr.pressure);
 		char buf[10];
 		sprintf(buf, "%03dhPa", curr.pressure);
 		if (tOutdoorPreasure.setText(buf))
@@ -968,7 +995,7 @@ void DisplayControler::refreshMQTTStatus(int status) {
 void DisplayControler::onSliderLightPop(void *ptr)
 {
 	NexSlider *obj = (NexSlider *)ptr;
-	Serial.printf("onSliderLightPop() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
+	logger.log(debug, "onSliderLightPop() pageId: %d objId: %d objName: %s\r\n", obj->getObjPid(), obj->getObjCid(), obj->getObjName());
 	uint32_t value;
 	bool ret = obj->getValue(&value);
 	uint8_t idx;
@@ -1045,15 +1072,19 @@ uint8_t DisplayControler::dayOfMonthPic(uint8_t digit) {
 }
 //---------------------------------------------------------------------------------------- 
 void DisplayControler::loop() {
-	nexLoop(nex_listen_list);
+  nexLoop(nex_listen_list);
 
 	//TODO: do przeniesienia do innej pętli
+/*
 	if (sw1State != lastSw1State)
 		refreshBathSw1();
 	if (sw2State != lastSw2State)
 		refreshBathSw2();
 	if (sw3State != lastSw3State)
 		refreshBathSw3();
+*/
+	if (sonOffSwitch01 != lastSonOffSwitch01)
+		refreshSonOffSwitch01();
 
 	if (disp.indoorTemperature != curr.indoorTemperature)
 		refreshIndoorTemperature();
@@ -1065,14 +1096,12 @@ void DisplayControler::loop() {
 		refreshOutdoorHumidity();
 	if (disp.pressure != curr.pressure)
 		refreshPreasure();
-
 	if (disp.heatingStatus != curr.heatingStatus)
 		refreshHeatingStatus(curr.heatingStatus);
 	if (disp.heatingPeriod != curr.heatingPeriod)
 		refreshHeatingPeriod(curr.heatingPeriod);
 	if (disp.heatingRequiredTemp != curr.heatingRequiredTemp)
 		refreshHeatingRequiredTemp(curr.heatingRequiredTemp);
-
 }
 
 DisplayControler displayControler;

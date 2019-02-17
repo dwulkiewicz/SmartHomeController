@@ -14,6 +14,10 @@ public:
   void onRefreshDateTime(const DateTime& dateTime);
   //Switches
   void onSwitchChange(uint8_t switchId, uint8_t switchState); 
+
+  void onMqttReceiveSwitchState(uint8_t switchId, uint8_t switchState);
+  void onScreenTouchSwitch(uint8_t switchId, uint8_t switchState);
+
   //Heating
   void onHeatingStatusChange(uint8_t status);
   void onHeatingPeriodChange(uint8_t period);

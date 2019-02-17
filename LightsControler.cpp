@@ -58,11 +58,14 @@ void LightsControler::init() {
 	variants[LIGHTS_BATH_AUTO_DAY].tapeRgb.setHue(0);
 
 	curr = variants[LIGHTS_BATH_OFF];
-	//active = curr;
 	last = curr;
 }
 //----------------------------------------------------------------------------------------
 void LightsControler::loop() {
+	//do przeniesienia w inne miejsce
+	swBath1.setState(digitalRead(GPIO_SW_1) == HIGH ? SW_ON : SW_OFF);
+
+
 	uint8_t av = activeVariant;
 	if (swBath1.getState() == SW_ON && swBath2.getState() == SW_OFF)
 		av = LIGHTS_BATH_VARIANT_1;
@@ -85,13 +88,13 @@ void LightsControler::loop() {
 void LightsControler::onSwitchStateChanged(uint8_t idx, uint8_t state) {
 	logger.log(debug, "LightsControler::onSwitchChanged() idx: %d state: %d\r\n", idx, state);
 	switch (idx) {
-	case SWITCH_BATH_1_ID:
+	case SWITCH_BATH_1_IDX:
 		swBath1.setState(state);
 		break;
-	case SWITCH_BATH_2_ID:
+	case SWITCH_BATH_2_IDX:
 		swBath2.setState(state);
 		break;
-	case SWITCH_BATH_3_ID:
+	case SWITCH_BATH_3_IDX:
 		swBath3.setState(state);
 		break;
 	}
