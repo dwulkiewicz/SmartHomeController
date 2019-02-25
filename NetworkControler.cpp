@@ -27,17 +27,24 @@ const char* sensorsBME280TemperatureTopic = "sensors/bme280/temperature";
 const char* sensorsBME280HumidityTopic = "sensors/bme280/humidity";
 const char* sensorsBME280PressureTopic = "sensors/bme280/pressure";
 
+//const char* sonoffTele = "tele/#";
+const char* sonoffStat = "stat/#";
+
 const char* sonoffCmndBathroom01 = "cmnd/lights/bathroom/POWER1";
 const char* sonoffStatBathroom01 = "stat/lights/bathroom/POWER1";
-
 const char* sonoffCmndBathroom02 = "cmnd/lights/bathroom/POWER2";
 const char* sonoffStatBathroom02 = "stat/lights/bathroom/POWER2";
-
+const char* sonoffCmndBathroom03 = "cmnd/lights/bathroom/POWER3";
+const char* sonoffStatBathroom03 = "stat/lights/bathroom/POWER3";
+const char* sonoffCmndKitchen01 = "cmnd/lights/kitchen/POWER1";
+const char* sonoffStatKitchen01 = "stat/lights/kitchen/POWER1";
+const char* sonoffCmndKitchen02 = "cmnd/lights/kitchen/POWER2";
+const char* sonoffStatKitchen02 = "stat/lights/kitchen/POWER2";
 const char* switchesCmndSwitch01 = "cmnd/switch01/POWER";
 const char* switchesStatSwitch01 = "stat/switch01/POWER";
 
-#define MQTT_PAYLOAD_BUF_SIZE 100
-char payload_buf[MQTT_PAYLOAD_BUF_SIZE];
+#define MQTT_PAYLOAD_BUF_SIZE 200
+//char payload_buf[MQTT_PAYLOAD_BUF_SIZE];
 
 //----------------------------------------------------------------------------------------
 NetworkControler::NetworkControler() {
@@ -111,6 +118,7 @@ void NetworkControler::initOTA() {
 }
 //----------------------------------------------------------------------------------------
 bool NetworkControler::reconnect() {
+	logger.log(info, "NetworkControler::reconnect() enter\r\n");
 	if (!client.connected()) {
 		logger.log(info, "MQTT state: %s, attempting connection...\r\n", NetworkControler::statusMqttToString(client.state()).c_str());
 		eventDispatcher.onMQTTStatusChange(client.state());
@@ -122,9 +130,13 @@ bool NetworkControler::reconnect() {
 			client.subscribe(sensorsBME280TemperatureTopic);
 			client.subscribe(sensorsBME280HumidityTopic);
 			client.subscribe(sensorsBME280PressureTopic);
-			client.subscribe(sonoffStatBathroom01);
-			client.subscribe(sonoffStatBathroom02);
-			client.subscribe(switchesStatSwitch01);
+						
+			//client.subscribe(sonoffTele);
+			//client.subscribe(sonoffStat);
+
+			//client.subscribe(sonoffStatBathroom01);
+			//client.subscribe(sonoffStatBathroom02);
+			//client.subscribe(switchesStatSwitch01);
 			return true;
 		}
 		else {
@@ -140,145 +152,120 @@ void NetworkControler::loop() {
 		return;
 	}
 	//Handle OTA server.
-	ArduinoOTA.handle();
+	//ArduinoOTA.handle();
 
 	client.loop();
+
+	//mqttCallbackLoop();
 }
 
-SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
 typedef struct TaskParam
 {
-	String mqttTopic;
-	String mqttMessage;
+	char topic[MQTT_PAYLOAD_BUF_SIZE];
+	char msg[MQTT_PAYLOAD_BUF_SIZE];
 } TaskParam;
 
+QueueHandle_t mqttQueue = xQueueCreate(5, sizeof(TaskParam));
+
 //-----------------------------------------------------------------------------------------
-void TaskMqttCallback(void * pvParameters) {
+void NetworkControler::mqttCallbackLoop() {
+	while (uxQueueMessagesWaiting(mqttQueue) > 0){
+		TaskParam p;
+		xQueueReceive(mqttQueue, &p, 0);
 
-	TaskParam* p = (TaskParam*)pvParameters;
+		String topic = String((char*)p.topic);
+		String msg = String((char*)p.msg);
 
-	logger.log(debug, "TaskMqttCallback() running on core %d\r\n", xPortGetCoreID());
-	xSemaphoreTake(xMutex, portMAX_DELAY);
-	logger.log(debug, "TaskMqttCallback() enter\r\n");
+		logger.log(debug, "mqttCallbackLoop() topic: %s, msg: %s\r\n", topic.c_str(), msg.c_str());
 
-	if (p->mqttTopic.equals(sonoffStatBathroom01)) {
-		eventDispatcher.onMqttReceiveSwitchState(SWITCH_BATH_1_IDX, p->mqttMessage.equals("ON") ? SW_ON : SW_OFF);
+		if (topic.equals(sonoffStatBathroom01)) {
+			eventDispatcher.onSwitchChange(EVENT_SRC_MQTT, SW_BATHROOM_CH1, msg.equals("ON") ? SW_STATE_ON : SW_STATE_OFF);
+		}
+		else if (topic.equals(sonoffStatBathroom02)) {
+			eventDispatcher.onSwitchChange(EVENT_SRC_MQTT, SW_BATHROOM_CH2, msg.equals("ON") ? SW_STATE_ON : SW_STATE_OFF);
+		}
+		else if (topic.equals(sonoffCmndBathroom03)) {
+			eventDispatcher.onSwitchChange(EVENT_SRC_MQTT, SW_BATHROOM_CH3, msg.equals("ON") ? SW_STATE_ON : SW_STATE_OFF);
+		}
+		else if (topic.equals(sonoffStatKitchen01)) {
+			eventDispatcher.onSwitchChange(EVENT_SRC_MQTT, SW_KITCHEN_CH1, msg.equals("ON") ? SW_STATE_ON : SW_STATE_OFF);
+		}
+		else if (topic.equals(sonoffStatKitchen02)) {
+			eventDispatcher.onSwitchChange(EVENT_SRC_MQTT, SW_KITCHEN_CH2, msg.equals("ON") ? SW_STATE_ON : SW_STATE_OFF);
+		}
+		else if (topic.equals(switchesStatSwitch01)) {
+			eventDispatcher.onSwitchChange(EVENT_SRC_MQTT, SW_SOCKET_01, msg.equals("ON") ? SW_STATE_ON : SW_STATE_OFF);
+		}
+		else if (topic.equals(sensorsBME280TemperatureTopic)) {
+			float outdoorTemp = msg.toFloat();
+			eventDispatcher.onRefreshOutdoorTemperature(outdoorTemp);
+		}
+		else if (topic.equals(sensorsBME280HumidityTopic)) {
+			float outdoorHumidity = msg.toFloat();
+			eventDispatcher.onRefreshOutdoorHumidity(outdoorHumidity);
+		}
+		else if (topic.equals(sensorsBME280PressureTopic)) {
+			float outdoorPressure = msg.toFloat();
+			eventDispatcher.onRefreshOutdoorPressure(outdoorPressure);
+		}
+		logger.log(debug, "mqttCallbackLoop() leave\r\n");
 	}
-	else if (p->mqttTopic.equals(sonoffStatBathroom02)) {
-		eventDispatcher.onMqttReceiveSwitchState(SWITCH_BATH_2_IDX, p->mqttMessage.equals("ON") ? SW_ON : SW_OFF);
-	}
-	else if (p->mqttTopic.equals(switchesStatSwitch01)) {
-		eventDispatcher.onMqttReceiveSwitchState(SWITCH_SONOFF_1_IDX, p->mqttMessage.equals("ON") ? SW_ON : SW_OFF);
-	}
-	else if (p->mqttTopic.equals(sensorsBME280TemperatureTopic)) {
-		float outdoorTemp = p->mqttMessage.toFloat();
-		eventDispatcher.onRefreshOutdoorTemperature(outdoorTemp);
-	}
-	else if (p->mqttTopic.equals(sensorsBME280HumidityTopic)) {
-		float outdoorHumidity = p->mqttMessage.toFloat();
-		eventDispatcher.onRefreshOutdoorHumidity(outdoorHumidity);
-	}
-	else if (p->mqttTopic.equals(sensorsBME280PressureTopic)) {
-		float outdoorPressure = p->mqttMessage.toFloat();
-		eventDispatcher.onRefreshOutdoorPressure(outdoorPressure);
-	}
-
-	logger.log(debug, "TaskMqttCallback() leave\r\n");
-	delete p;
-	xSemaphoreGive(xMutex);
-	vTaskDelete(0);
 }
 
 //----------------------------------------------------------------------------------------
-void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int length) {
-	
-//	memcpy(payload_buf, payload, MIN(length, MQTT_PAYLOAD_BUF_SIZE));
-//	payload_buf[MIN(length, MQTT_PAYLOAD_BUF_SIZE)] = '\0'; // Null terminator used to terminate the char array
+void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int length) {	
 
-	// Conver the incoming byte array to a string
-	payload[length] = '\0'; // Null terminator used to terminate the char array
-	//String mqttTopic = topic;
-	//String mqttMessage = (char*)payload;
+	logger.log(info, "NetworkControler::mqttCallback() topic: %s, msg: %s\r\n", topic, payload);
 
-	TaskParam* p = new TaskParam();
-	p->mqttTopic = topic;
-	p->mqttMessage = (char*)payload;
-
-	logger.log(info, "NetworkControler::mqttCallback() topic: %s, msg: %s\r\n", p->mqttTopic.c_str(), p->mqttMessage.c_str());
-
-	xTaskCreatePinnedToCore(TaskMqttCallback, "TaskMqttCallback", 4096, (void*)p, 3, NULL, CORE_2);
-
-/*
-	if (mqttTopic.equals(switchesReqChannel01)) {
-		eventDispatcher.onMqttReceiveSwitchState(SWITCH_BATH_1_IDX, mqttMessage.equals("on") ? SW_ON : SW_OFF);
-	}
-	else if (mqttTopic.equals(switchesReqChannel02)) {
-		eventDispatcher.onMqttReceiveSwitchState(SWITCH_BATH_2_IDX, mqttMessage.equals("on") ? SW_ON : SW_OFF);
-	}
-	else if (mqttTopic.equals(switchesReqChannel03)) {
-		eventDispatcher.onMqttReceiveSwitchState(SWITCH_BATH_3_IDX, mqttMessage.equals("on") ? SW_ON : SW_OFF);
-	}
-	else if (mqttTopic.equals(switchesStatSwitch01)) {
-		eventDispatcher.onMqttReceiveSwitchState(SWITCH_SONOFF_1_IDX, mqttMessage.equals("ON") ? SW_ON : SW_OFF);
-	}
-	else if (mqttTopic.equals(sensorsBME280TemperatureTopic)) {
-		float outdoorTemp = mqttMessage.toFloat();
-		eventDispatcher.onRefreshOutdoorTemperature(outdoorTemp);
-	}
-	else if (mqttTopic.equals(sensorsBME280HumidityTopic)) {
-		float outdoorHumidity = mqttMessage.toFloat();
-		eventDispatcher.onRefreshOutdoorHumidity(outdoorHumidity);
-	}
-	else if (mqttTopic.equals(sensorsBME280PressureTopic)) {
-		float outdoorPressure = mqttMessage.toFloat();
-		eventDispatcher.onRefreshOutdoorPressure(outdoorPressure);
-	}
-*/
-	logger.log(info, "NetworkControler::mqttCallback() end\r\n");
-
-}
-
-//-----------------------------------------------------------------------------------------
-/*
-void TaskMqttPublish(void * pvParameters) {
-
-	TaskParam* p = (TaskParam*)pvParameters;
-
-	logger.log(debug, "TaskMqttPublish() running on core %d\r\n", xPortGetCoreID());
-	//xSemaphoreTake(xMutex, portMAX_DELAY);
-	logger.log(debug, "TaskMqttPublish() enter\r\n");
-
-	bool res = client.publish(p->mqttTopic.c_str(), p->mqttMessage.c_str());
-	vTaskDelay(pdMS_TO_TICKS(5));//szukanie rozwi¹zanania problemu
-	
-	logger.log(info, "TaskMqttPublish() MQTT send topic:[%s], msg: %s res: %d\r\n", p->mqttTopic.c_str(), p->mqttMessage.c_str(), res);
-
-
-	logger.log(debug, "TaskMqttPublish() leave\r\n");
-	delete p;
-	//xSemaphoreGive(xMutex);
-	vTaskDelete(0);
-}
-*/
-//----------------------------------------------------------------------------------------
-void NetworkControler::publishCmdSwitchChange(uint8_t switchId, uint8_t switchState) {
+	return;
 
 	TaskParam p;
-	p.mqttMessage = (switchState == SW_ON ? "ON" : "OFF");
-	switch (switchId) {
-	case SWITCH_BATH_1_IDX:
-		p.mqttTopic = sonoffCmndBathroom01;
-		break;
-	case SWITCH_BATH_2_IDX:
-		p.mqttTopic = sonoffCmndBathroom02;
-		break;
-	case SWITCH_SONOFF_1_IDX:
-		p.mqttTopic = switchesCmndSwitch01;
-		break;
+	for (uint8_t i = 0; i < MQTT_PAYLOAD_BUF_SIZE; i++) {		
+		if (i < MQTT_PAYLOAD_BUF_SIZE - 1)
+			p.topic[i] = topic[i];
+		else
+			p.topic[i] = '\0';		
+		if (topic[i] == '\0')
+			break;
 	}
-	bool res = client.publish(p.mqttTopic.c_str(), p.mqttMessage.c_str());
-	//vTaskDelay(pdMS_TO_TICKS(5));//szukanie rozwi¹zanania problemu
-	logger.log(info, "NetworkControler::publishCmdSwitchChange() MQTT send topic:[%s], msg: %s res: %d\r\n", p.mqttTopic.c_str(), p.mqttMessage.c_str(),res);
+	memcpy(p.msg, payload, MIN(length, MQTT_PAYLOAD_BUF_SIZE));
+	p.msg[MIN(length, MQTT_PAYLOAD_BUF_SIZE)] = '\0'; // Null terminator used to terminate the char array
+
+	logger.log(info, "NetworkControler::mqttCallback() topic: %s, msg: %s\r\n", p.topic, p.msg);
+	//if (xQueueSend(mqttQueue, &p, 0) != pdTRUE)
+	//	logger.log(info, "NetworkControler::mqttCallback() xQueueSend error\r\n");
+}
+//----------------------------------------------------------------------------------------
+void NetworkControler::onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState) {
+	if (src == EVENT_SRC_SCREEN) {
+		String topic;
+		String msg = (switchState == SW_STATE_ON ? "ON" : "OFF");
+		switch (switchId) {
+		case SW_BATHROOM_CH1:
+			topic = sonoffCmndBathroom01;
+			break;
+		case SW_BATHROOM_CH2:
+			topic = sonoffCmndBathroom02;
+			break;
+		case SW_BATHROOM_CH3:
+			topic = sonoffStatBathroom03;
+			break;
+		case SW_KITCHEN_CH1:
+			topic = sonoffCmndKitchen01;
+			break;
+		case SW_KITCHEN_CH2:
+			topic = sonoffCmndKitchen02;
+			break;
+		case SW_SOCKET_01:
+			topic = switchesCmndSwitch01;
+			break;
+		default:
+			return;
+		}
+		bool res = client.publish(topic.c_str(), msg.c_str());
+		vTaskDelay(pdMS_TO_TICKS(5));//szukanie rozwi¹zanania problemu
+		logger.log(info, "NetworkControler::onSwitchChange() MQTT send topic:[%s], msg: %s res: %d\r\n", topic.c_str(), msg.c_str(), res);
+	}
 }
 //----------------------------------------------------------------------------------------
 String NetworkControler::statusMqttToString(int status) {

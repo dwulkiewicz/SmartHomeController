@@ -3,7 +3,7 @@
 
 SwitchDevice::SwitchDevice()
 {
-	state = SW_OFF;
+	state = SW_STATE_OFF;
 }
 
 SwitchDevice::~SwitchDevice()
@@ -27,15 +27,15 @@ void SwitchDevice::invertState(){
 }
   
 bool SwitchDevice::switchOn() {
-	if (state == SW_ON)
+	if (state == SW_STATE_ON)
 		return false;
-	state = SW_ON;
+	state = SW_STATE_ON;
 	return true;
 }
 
 bool SwitchDevice::switchOff() {
-	if (state == SW_OFF)
+	if (state == SW_STATE_OFF)
 		return false;
-	state = SW_OFF;
+	state = SW_STATE_OFF;
 	return true;
 }

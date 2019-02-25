@@ -7,8 +7,8 @@
 #define LIGHTS_BATH_VARIANT_1  1
 #define LIGHTS_BATH_VARIANT_2  2
 #define LIGHTS_BATH_VARIANT_3  3
-#define LIGHTS_BATH_AUTO_NIGHT 4
-#define LIGHTS_BATH_AUTO_DAY   5
+#define LIGHTS_BATH_PIR_NIGHT 4
+#define LIGHTS_BATH_PIR_DAY   5
 #define LIGHTS_BATH_VARIANT_COUNT 6
 
 class LightDeviceSet {
@@ -17,11 +17,17 @@ public:
 	LightDeviceEntity holder;
 	LightDeviceEntity tapeWhite;
 	LightDeviceRgbEntity tapeRgb;
-	bool operator==(const LightDeviceSet &n) {
+	bool operator==(LightDeviceSet &n) {
 		return main == n.main &&
 			holder == n.holder &&
 			tapeWhite == n.tapeWhite &&
 			tapeRgb == n.tapeRgb;
+	}
+	void max(const LightDeviceSet &src) {
+		main.max(src.main);
+		holder.max(src.holder);
+		tapeWhite.max(src.tapeWhite);
+		tapeRgb.max(src.tapeRgb);
 	}
 };
 
@@ -32,12 +38,13 @@ public:
 public:
 	void init();
 	void loop();
-	void onSwitchStateChanged(uint8_t idx, uint8_t state);
+	void onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState);
 	void onLightValueChanged(uint8_t idx, uint8_t value);
 private:
 	SwitchDevice swBath1;
 	SwitchDevice swBath2;
 	SwitchDevice swBath3;
+	SwitchDevice swBathPIR;
 private:
 	LightDeviceSet curr;
 	LightDeviceSet last;

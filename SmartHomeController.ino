@@ -221,7 +221,7 @@ void setup() {
   //xTaskCreatePinnedToCore(TaskNextionLoop, "TaskNextionLoop", 10000, NULL, 1, NULL, CORE_2);
   //xTaskCreatePinnedToCore(TaskLightsControlerLoop, "TaskLightsControlerLoop", 10000, NULL, 1, NULL, CORE_2);
 
-  networkControler.init();
+  //networkControler.init();
   //xTaskCreatePinnedToCore(TaskNetworkControlerLoop, "TaskNetworkControlerLoop", 10000, NULL, 1, NULL, CORE_1);
 
   heatingControler.onConfigurationChange();
@@ -251,7 +251,7 @@ bool sonOffSwitch01 = false;
 
 void loop() {
   uint32_t loop_start = millis();
-  networkControler.loop();
+  //networkControler.loop();
   max_loop_net = MAX(millis() - loop_start, max_loop_net);
 
   if (millis() - loop_last_display > TASK_NEXTION_LOOP) {
@@ -281,10 +281,6 @@ void loop() {
   max_load = MAX(millis() - loop_start, max_load);
 
   if (millis() - loop_last_statistic > 4000) {
-
-    //eventDispatcher.onScreenTouchSwitch(SWITCH_SONOFF_1_IDX, sonOffSwitch01);
-    //sonOffSwitch01 = !sonOffSwitch01;
-
     loop_last_statistic = millis();
     logger.log(debug, "max_loop: %d, max_loop_net: %d, max_loop_time: %d, max_loop_light: %d, max_loop_sensor: %d, max_loop_display: %d\r\n", max_load, max_loop_net, max_loop_time, max_loop_light, max_loop_sensor, max_loop_display);
 

@@ -33,7 +33,7 @@ public:
 	void onRefreshOutdoorHumidity(float outdoorHumidity);
 	void onRefreshOutdoorPreasure(float outdoorPressure);
 	//Switches
-	void onSwitchChanged(uint8_t switchId, uint8_t switchState);
+	void onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState);
 	//Heating
 	void refreshHeatingStatus(uint8_t heatingStatus);
 	void refreshHeatingPeriod(uint8_t heatingPeriod);
@@ -47,7 +47,8 @@ public:
 	uint8_t sw1State;//TODO: do przerobienia
 	uint8_t sw2State;//TODO: do przerobienia
 	uint8_t sw3State;//TODO: do przerobienia
-
+	uint8_t kitchenSw1State;
+	uint8_t kitchenSw2State;
 	uint8_t sonOffSwitch01;//TODO: do przerobienia
 
 private:
@@ -71,10 +72,12 @@ private:
 	void refreshNetworkPage();
 	void refreshOtherPage();
 	
-	void refreshBathSw1();
-	void refreshBathSw2();
-	void refreshBathSw3();
-	void refreshSonOffSwitch01();
+	void refreshBathSw1();//TODO: do przerobienia na jedną funkcję
+	void refreshBathSw2();//TODO: do przerobienia na jedną funkcję
+	void refreshBathSw3();//TODO: do przerobienia na jedną funkcję
+	void refreshKitchenSw1();//TODO: do przerobienia na jedną funkcję
+	void refreshKitchenSw2();//TODO: do przerobienia na jedną funkcję
+	void refreshSonOffSwitch01();//TODO: do przerobienia na jedną funkcję
 
 	void refreshIndoorTemperature();
 	void refreshIndoorHumidity();  
@@ -88,12 +91,12 @@ private:
 	DisplayBuffer disp;
 	DisplayBuffer curr;
 
-  //TODO: zmienne przenieść do struktury
-  //Switch
-	uint8_t lastSw1State;
-	uint8_t lastSw2State;
-	uint8_t lastSw3State;
-	uint8_t lastSonOffSwitch01;
+	uint8_t lastKitchenSw1State; //TODO: do przerobienia tablicę
+	uint8_t lastKitchenSw2State; //TODO: do przerobienia tablicę
+	uint8_t lastSw1State; //TODO: do przerobienia tablicę
+	uint8_t lastSw2State; //TODO: do przerobienia tablicę
+	uint8_t lastSw3State; //TODO: do przerobienia tablicę
+	uint8_t lastSonOffSwitch01; //TODO: do przerobienia tablicę
  
 };
 extern DisplayControler displayControler;

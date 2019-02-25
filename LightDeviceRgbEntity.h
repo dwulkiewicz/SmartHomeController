@@ -13,6 +13,11 @@ public:
 			hue == n.hue &&
 			saturation == n.saturation;
 	}
+	void max(const LightDeviceRgbEntity &src) {
+		brightness = MAX(brightness, src.brightness);
+		saturation = MAX(saturation, src.saturation);
+		hue = MAX(hue, src.hue);
+	}
 	void setHuePercent(uint8_t hue);
 	uint8_t getHuePercent();
 	void setSaturationPercent(uint8_t saturation);

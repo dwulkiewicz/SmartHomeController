@@ -53,10 +53,13 @@ NexText tOutdoorTempSymbol = NexText(PG_MAIN_ID, OBJ_OUTDOOR_TEMP_SYMBOL_ID, OBJ
 NexText tOutdoorHumidity = NexText(PG_MAIN_ID, OBJ_OUTDOOR_HUMIDITY_ID, OBJ_OUTDOOR_HUMIDITY_NAME);
 NexText tOutdoorPreasure = NexText(PG_MAIN_ID, OBJ_OUTDOOR_PREASURE_ID, OBJ_OUTDOOR_PREASURE_NAME);
 //Zał/Wył
-NexPicture objBathSw1 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_1_ID, OBJ_BATH_SW_1_NAME);
-NexPicture objBathSw2 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_2_ID, OBJ_BATH_SW_2_NAME);
-NexPicture objBathSw3 = NexPicture(PG_MAIN_ID, OBJ_BATH_SW_3_ID, OBJ_BATH_SW_3_NAME);
-NexPicture compSonOffSwitch01 = NexPicture(PG_MAIN_ID, OBJ_SONOFF_SW_1_ID, OBJ_SONOFF_SW_1_NAME);
+NexPicture compLightBathroomSw1(PG_MAIN_ID, OBJ_BATH_SW_1_ID, OBJ_BATH_SW_1_NAME);
+NexPicture compLightBathroomSw2(PG_MAIN_ID, OBJ_BATH_SW_2_ID, OBJ_BATH_SW_2_NAME);
+NexPicture compLightBathroomSw3(PG_MAIN_ID, OBJ_BATH_SW_3_ID, OBJ_BATH_SW_3_NAME);
+NexPicture compLightsBathroomPir(PG_MAIN_ID, OBJ_BATH_PIR_ID, OBJ_BATH_PIR_NAME);
+NexPicture compLightKitchenSw1(PG_MAIN_ID, OBJ_KITCHEN_SW_1_ID, OBJ_KITCHEN_SW_1_NAME);
+NexPicture compLightKitchenSw2(PG_MAIN_ID, OBJ_KITCHEN_SW_2_ID, OBJ_KITCHEN_SW_2_NAME);
+NexPicture compSonOffSwitch01(PG_MAIN_ID, OBJ_SONOFF_SW_1_ID, OBJ_SONOFF_SW_1_NAME);
 
 
 //------------/*Ogrzewanie*/------------
@@ -165,6 +168,14 @@ NexPage pgKeybdB(PG_KEYBOARD_B_ID, 0, PG_KEYBOARD_B_NAME);
 */
 NexTouch *nex_listen_list[] =
 {
+  //Najczęściej występujące	
+  &compLightBathroomSw1,
+  &compLightBathroomSw2,
+  &compLightBathroomSw3,
+  &compLightKitchenSw1,
+  &compLightKitchenSw2,
+  &compSonOffSwitch01,
+  //Strony
   &pgMain,
   &pgHeating,
   &pgLightsBath,
@@ -175,10 +186,7 @@ NexTouch *nex_listen_list[] =
   &pgSettings,
   &pgKeybdA,
   &pgKeybdB,
-  &objBathSw1,
-  &objBathSw2,
-  &objBathSw3,
-  &compSonOffSwitch01,
+  //Reszta
   &btnDayTempInc,
   &btnDayTempDec,
   &btnNightTempInc,
@@ -234,16 +242,20 @@ DisplayControler::DisplayControler()
 	curr.outdoorHumidity = 0;
 	curr.pressure = 0;
 
-	lastSw1State = SW_ON;
-	lastSw2State = SW_ON;
-	lastSw3State = SW_ON;
-	lastSonOffSwitch01 = SW_ON;
+	lastSw1State = SW_STATE_ON;
+	lastSw2State = SW_STATE_ON;
+	lastSw3State = SW_STATE_ON;
+	lastSonOffSwitch01 = SW_STATE_ON;
+	lastKitchenSw1State = SW_STATE_ON;
+	lastKitchenSw2State = SW_STATE_ON;
 
-	sw1State = SW_OFF;//dzięki temu po restarcie wyłączy switch
-	sw2State = SW_OFF;//dzięki temu po restarcie wyłączy switch
-	sw3State = SW_OFF;//dzięki temu po restarcie wyłączy switch
+	sw1State = SW_STATE_OFF;//dzięki temu po restarcie wyłączy switch
+	sw2State = SW_STATE_OFF;//dzięki temu po restarcie wyłączy switch
+	sw3State = SW_STATE_OFF;//dzięki temu po restarcie wyłączy switch
+	kitchenSw1State = SW_STATE_OFF;
+	kitchenSw2State = SW_STATE_OFF;
 
-	sonOffSwitch01 = SW_OFF;
+	sonOffSwitch01 = SW_STATE_OFF;
 
 	curr.heatingStatus = HEATING_STATUS_HEAT;
 	disp.heatingStatus = HEATING_STATUS_HEAT;
@@ -265,9 +277,12 @@ void DisplayControler::init() {
 	pgKeybdA.attachOnShow(onPageShow, &pgKeybdA);
 	pgKeybdB.attachOnShow(onPageShow, &pgKeybdB);
 
-	objBathSw1.attachPush(onSwitchPush, &objBathSw1);
-	objBathSw2.attachPush(onSwitchPush, &objBathSw2);
-	objBathSw3.attachPush(onSwitchPush, &objBathSw3);
+	compLightBathroomSw1.attachPush(onSwitchPush, &compLightBathroomSw1);
+	compLightBathroomSw2.attachPush(onSwitchPush, &compLightBathroomSw2);
+	compLightBathroomSw3.attachPush(onSwitchPush, &compLightBathroomSw3);
+	compLightKitchenSw1.attachPush(onSwitchPush, &compLightKitchenSw1);
+	compLightKitchenSw2.attachPush(onSwitchPush, &compLightKitchenSw2);
+
 	compSonOffSwitch01.attachPush(onSwitchPush, &compSonOffSwitch01);
 
 	btnDayTempInc.attachPush(onBtnTempPush, &btnDayTempInc);
@@ -356,25 +371,33 @@ void DisplayControler::onSwitchPush(void *ptr)
 	uint8_t switchState;
 	switch (obj->getObjCid()) {
 	case OBJ_BATH_SW_1_ID:
-		switchId = SWITCH_BATH_1_IDX;
+		switchId = SW_BATHROOM_CH1;
 		switchState = !displayControler.sw1State;
 		break;
 	case OBJ_BATH_SW_2_ID:
-		switchId = SWITCH_BATH_2_IDX;
+		switchId = SW_BATHROOM_CH2;
 		switchState = !displayControler.sw2State;
 		break;
 	case OBJ_BATH_SW_3_ID:
-		switchId = SWITCH_BATH_3_IDX;
+		switchId = SW_BATHROOM_CH3;
 		switchState = !displayControler.sw3State;
 		break;
+	case OBJ_KITCHEN_SW_1_ID:
+		switchId = SW_KITCHEN_CH1;
+		switchState = !displayControler.kitchenSw1State;
+		break;
+	case OBJ_KITCHEN_SW_2_ID:
+		switchId = SW_KITCHEN_CH2;
+		switchState = !displayControler.kitchenSw2State;
+		break;
 	case OBJ_SONOFF_SW_1_ID:
-		switchId = SWITCH_SONOFF_1_IDX;
+		switchId = SW_SOCKET_01;
 		switchState = !displayControler.sonOffSwitch01;
 		break;
 	default:
 		return; //nieznany komponent
 	}
-	eventDispatcher.onScreenTouchSwitch(switchId, switchState);
+	eventDispatcher.onSwitchChange(EVENT_SRC_SCREEN, switchId, switchState);
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshHeatingStatus(uint8_t heatingStatus) {
@@ -422,26 +445,30 @@ void DisplayControler::refreshHeatingRequiredTemp(float value) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::onSwitchChanged(uint8_t switchId, uint8_t switchState) {
-	Serial.printf("DisplayControler::onSwitchChanged() id: %d state: %d\r\n", switchId, switchState);
-	switch (switchId) {
-	case SWITCH_BATH_1_IDX:
-		sw1State = switchState;
-		//refreshBathSw1();
-		break;
-	case SWITCH_BATH_2_IDX:
-		sw2State = switchState;
-		//refreshBathSw2();
-		break;
-	case SWITCH_BATH_3_IDX:
-		sw3State = switchState;
-		//refreshBathSw3();
-		break;
-	case SWITCH_SONOFF_1_IDX:
-		sonOffSwitch01 = switchState;  
-   		break;
+void DisplayControler::onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState) {
+	Serial.printf("DisplayControler::onSwitchChanged() src: %d id: %d state: %d\r\n", src, switchId, switchState);
+	if (src == EVENT_SRC_MQTT || src == EVENT_SRC_GPIO) {
+		switch (switchId) {
+		case SW_BATHROOM_CH1:
+			sw1State = switchState;
+			break;
+		case SW_BATHROOM_CH2:
+			sw2State = switchState;
+			break;
+		case SW_BATHROOM_CH3:
+			sw3State = switchState;
+			break;
+		case SW_KITCHEN_CH1:
+			kitchenSw1State = switchState;
+			break;
+		case SW_KITCHEN_CH2:
+			kitchenSw2State = switchState;
+			break;
+		case SW_SOCKET_01:
+			sonOffSwitch01 = switchState;
+			break;
+		}
 	}
-	Serial.printf("DisplayControler::onSwitchChanged() end\r\n", switchId, switchState);	
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshBathSw1(void) {
@@ -450,7 +477,7 @@ void DisplayControler::refreshBathSw1(void) {
 	Serial.printf("DisplayControler::refreshBathSw1()\r\n");
 	if (lastSw1State != sw1State) {
 		if (currentPage == PG_MAIN_ID) {
-			objBathSw1.setPic(sw1State == SW_ON ? PICTURE_SWITCH_BATH_MAIN_ON : PICTURE_SWITCH_BATH_MAIN_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+			compLightBathroomSw1.setPic(sw1State == SW_STATE_ON ? PICTURE_SWITCH_BATH_MAIN_ON : PICTURE_SWITCH_BATH_MAIN_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
 			lastSw1State = sw1State;
 		}
 	}
@@ -462,7 +489,7 @@ void DisplayControler::refreshBathSw2(void) {
 	Serial.printf("DisplayControler::refreshBathSw2()\r\n");
 	if (lastSw2State != sw2State) {
 		if (currentPage == PG_MAIN_ID) {
-			objBathSw2.setPic(sw2State == SW_ON ? PICTURE_SWITCH_BATH_HOLDER_ON : PICTURE_SWITCH_BATH_HOLDER_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
+			compLightBathroomSw2.setPic(sw2State == SW_STATE_ON ? PICTURE_SWITCH_BATH_HOLDER_ON : PICTURE_SWITCH_BATH_HOLDER_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu    
 			lastSw2State = sw2State;
 		}
 	}
@@ -473,17 +500,38 @@ void DisplayControler::refreshBathSw3(void) {
 		return;
 	logger.log(info, "DisplayControler::refreshBathSw3()\r\n");
 	if (lastSw3State != sw3State) {
-		if (currentPage == PG_MAIN_ID) {
-			objBathSw3.setPic(sw3State == SW_ON ? PICTURE_SWITCH_BATH_LED_ON : PICTURE_SWITCH_BATH_LED_OFF);//sprawdzić czy ta operacja zwraca coś po poprawnym wykonaniu 
+		if (currentPage == PG_MAIN_ID && compLightBathroomSw3.setPic(sw3State == SW_STATE_ON ? PICTURE_SWITCH_BATH_LED_ON : PICTURE_SWITCH_BATH_LED_OFF)){
 			lastSw3State = sw3State;
 		}
 	}
 }
+
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshKitchenSw1(void) {
+	if (lastKitchenSw1State != kitchenSw1State) {
+		Serial.printf("DisplayControler::refreshKitchenSw1()\r\n");
+		if (currentPage == PG_MAIN_ID &&
+			compLightKitchenSw1.setPic(kitchenSw1State == SW_STATE_ON ? PICTURE_SWITCH_KITCHEN_MAIN_ON : PICTURE_SWITCH_KITCHEN_MAIN_OFF)) {
+			lastKitchenSw1State = kitchenSw1State;
+		}
+	}
+}
+//----------------------------------------------------------------------------------------
+void DisplayControler::refreshKitchenSw2(void) {
+	if (lastKitchenSw2State != kitchenSw2State) {
+		Serial.printf("DisplayControler::refreshKitchenSw2()\r\n");
+		if (currentPage == PG_MAIN_ID &&
+			compLightKitchenSw2.setPic(kitchenSw2State == SW_STATE_ON ? PICTURE_SWITCH_KITCHEN_CUPBOARD_ON : PICTURE_SWITCH_KITCHEN_CUPBOARD_OFF)) {
+			lastKitchenSw2State = kitchenSw2State;
+		}
+	}
+}
+
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshSonOffSwitch01(void) {
 	if (currentPage == PG_MAIN_ID && lastSonOffSwitch01 != sonOffSwitch01) {
 		logger.log(debug, "DisplayControler::refreshSonOffSwitch01() ...\r\n");
-		int8_t pic = sonOffSwitch01 == SW_ON ? PICTURE_SWITCH_SONOFF_ON : PICTURE_SWITCH_SONOFF_OFF;
+		int8_t pic = sonOffSwitch01 == SW_STATE_ON ? PICTURE_SWITCH_SONOFF_ON : PICTURE_SWITCH_SONOFF_OFF;
 		bool ret = false;
 		ret = compSonOffSwitch01.setPic(pic); 
 		if(ret)
@@ -1075,14 +1123,17 @@ void DisplayControler::loop() {
   nexLoop(nex_listen_list);
 
 	//TODO: do przeniesienia do innej pętli
-/*
+
 	if (sw1State != lastSw1State)
 		refreshBathSw1();
 	if (sw2State != lastSw2State)
 		refreshBathSw2();
 	if (sw3State != lastSw3State)
 		refreshBathSw3();
-*/
+	if (lastKitchenSw1State != kitchenSw1State)
+		refreshKitchenSw1();
+	if (lastKitchenSw2State != kitchenSw2State)
+		refreshKitchenSw2();
 	if (sonOffSwitch01 != lastSonOffSwitch01)
 		refreshSonOffSwitch01();
 

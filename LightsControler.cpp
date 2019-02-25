@@ -8,17 +8,16 @@
 RGBdriver Driver(GPIO_CLK, GPIO_DIO);
 
 LightsControler::LightsControler() {
-	pinMode(GPIO_SW_1, INPUT);
-	pinMode(GPIO_SW_2, INPUT);
-	pinMode(GPIO_SW_3, INPUT);
-	pinMode(GPIO_SW_4, INPUT);
+	pinMode(GPIO_SW_BATHROOM_CH1, INPUT);
+	pinMode(GPIO_SW_BATHROOM_CH2, INPUT);
+	pinMode(GPIO_SW_BATHROOM_PIR, INPUT);
 }
 //----------------------------------------------------------------------------------------
 void LightsControler::init() {
-	//TODO: w zadzie to jest sta³e wiêc trzeba przenieœæ do konfiguracji
+	//TODO: w zasadzie to jest staÅ‚e wiÄ™c trzeba przenieÅ›Ä‡ do konfiguracji
 	stepCount = ceil(LIGHTS_DIMING_TIME / TASK_LIGHTS_LOOP);
 
-	//wy³¹czam wszystko, bo po za³¹czeniu zawsze tam s¹ jakieœ œmieci
+	//wyÅ‚Ä…czam wszystko, bo po zaÅ‚Ä…czeniu zawsze tam sÄ… jakieÅ› Å›mieci
 	setLights(0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 
 	variants[LIGHTS_BATH_OFF].main.setBrightness(0);
@@ -45,61 +44,105 @@ void LightsControler::init() {
 	variants[LIGHTS_BATH_VARIANT_3].tapeRgb.setBrightness(configuration.getLightsBathValue(LIGHT_BATH_RGB_V_3_IDX));
 	variants[LIGHTS_BATH_VARIANT_3].tapeRgb.setHue(configuration.getLightsBathValue(LIGHT_BATH_RGB_H_3_IDX));
 
-	variants[LIGHTS_BATH_AUTO_NIGHT].main.setBrightness(0);
-	variants[LIGHTS_BATH_AUTO_NIGHT].holder.setBrightness(3);
-	variants[LIGHTS_BATH_AUTO_NIGHT].tapeWhite.setBrightness(0);
-	variants[LIGHTS_BATH_AUTO_NIGHT].tapeRgb.setBrightness(0);
-	variants[LIGHTS_BATH_AUTO_NIGHT].tapeRgb.setHue(0);
+	variants[LIGHTS_BATH_PIR_NIGHT].main.setBrightness(0);
+	variants[LIGHTS_BATH_PIR_NIGHT].holder.setBrightness(3);
+	variants[LIGHTS_BATH_PIR_NIGHT].tapeWhite.setBrightness(0);
+	variants[LIGHTS_BATH_PIR_NIGHT].tapeRgb.setBrightness(0);
+	variants[LIGHTS_BATH_PIR_NIGHT].tapeRgb.setHue(0);
 
-	variants[LIGHTS_BATH_AUTO_DAY].main.setBrightness(255);
-	variants[LIGHTS_BATH_AUTO_DAY].holder.setBrightness(0);
-	variants[LIGHTS_BATH_AUTO_DAY].tapeWhite.setBrightness(0);
-	variants[LIGHTS_BATH_AUTO_DAY].tapeRgb.setBrightness(0);
-	variants[LIGHTS_BATH_AUTO_DAY].tapeRgb.setHue(0);
+	variants[LIGHTS_BATH_PIR_DAY].main.setBrightness(255);
+	variants[LIGHTS_BATH_PIR_DAY].holder.setBrightness(0);
+	variants[LIGHTS_BATH_PIR_DAY].tapeWhite.setBrightness(0);
+	variants[LIGHTS_BATH_PIR_DAY].tapeRgb.setBrightness(0);
+	variants[LIGHTS_BATH_PIR_DAY].tapeRgb.setHue(0);
 
 	curr = variants[LIGHTS_BATH_OFF];
+	active = variants[LIGHTS_BATH_OFF];
+  activeVariant = LIGHTS_BATH_OFF;
 	last = curr;
 }
 //----------------------------------------------------------------------------------------
 void LightsControler::loop() {
-	//do przeniesienia w inne miejsce
-	swBath1.setState(digitalRead(GPIO_SW_1) == HIGH ? SW_ON : SW_OFF);
+	
+	//chyba do przeniesienia w inne miejsce
+	if (swBath1.setState(digitalRead(GPIO_SW_BATHROOM_CH1) == HIGH ? SW_STATE_ON : SW_STATE_OFF))
+		eventDispatcher.onSwitchChange(EVENT_SRC_GPIO, SW_BATHROOM_CH1, swBath1.getState());
+	if(swBath2.setState(digitalRead(GPIO_SW_BATHROOM_CH2) == HIGH ? SW_STATE_ON : SW_STATE_OFF))
+		eventDispatcher.onSwitchChange(EVENT_SRC_GPIO, SW_BATHROOM_CH2, swBath2.getState());
+	if(swBathPIR.setState(digitalRead(GPIO_SW_BATHROOM_PIR) == HIGH ? SW_STATE_ON : SW_STATE_OFF))
+		eventDispatcher.onSwitchChange(EVENT_SRC_GPIO, SW_BATHROOM_PIR, swBathPIR.getState());
 
+  uint8_t av = activeVariant;
+  if (swBath1.getState() == SW_STATE_ON && swBath2.getState() == SW_STATE_OFF)
+    av = LIGHTS_BATH_VARIANT_1;
+  else if (swBath1.getState() == SW_STATE_OFF && swBath2.getState() == SW_STATE_ON)
+    av = LIGHTS_BATH_VARIANT_2;
+  else if (swBath1.getState() == SW_STATE_ON && swBath2.getState() == SW_STATE_ON)
+    av = LIGHTS_BATH_VARIANT_3;
+  else
+    av = LIGHTS_BATH_OFF;
 
-	uint8_t av = activeVariant;
-	if (swBath1.getState() == SW_ON && swBath2.getState() == SW_OFF)
-		av = LIGHTS_BATH_VARIANT_1;
-	else if (swBath1.getState() == SW_OFF && swBath2.getState() == SW_ON)
-		av = LIGHTS_BATH_VARIANT_2;
-	else if (swBath1.getState() == SW_ON && swBath2.getState() == SW_ON)
-		av = LIGHTS_BATH_VARIANT_3;
-	else
-		av = LIGHTS_BATH_OFF;
+  if (av != activeVariant) {
+    logger.log(debug, "LightsControler::loop() variant: %d -> %d\r\n", activeVariant, av);
+    activeVariant = av;
+    last = curr;
+    lastLoopTime = millis();
+  }
+    
+/*
+	LightDeviceSet c = variants[LIGHTS_BATH_OFF];
+	if (swBath1.getState() == SW_STATE_ON)
+		c.max(variants[LIGHTS_BATH_VARIANT_1]);
+	if (swBath2.getState() == SW_STATE_ON)
+		c.max(variants[LIGHTS_BATH_VARIANT_2]);
+	if (swBath3.getState() == SW_STATE_ON)
+		c.max(variants[LIGHTS_BATH_VARIANT_3]);
 
-	if (av != activeVariant) {
-		logger.log(debug, "LightsControler::loop() variant: %d -> %d\r\n", activeVariant, av);
-		activeVariant = av;
+	//PIR tylko wtedy gdy pozostale sÄ… wyÅ‚Ä…czone
+	if (swBath1.getState() == SW_STATE_OFF && swBath2.getState() == SW_STATE_OFF && swBath3.getState() == SW_STATE_OFF) {
+		//dodaÄ‡ obsugÄ™ pory dnia LIGHTS_BATH_PIR_DAY 
+		if (swBathPIR.getState() == SW_STATE_ON)
+			c.max(variants[LIGHTS_BATH_PIR_NIGHT]);
+	}
+
+	if (!(c == active)) {
+		logger.log(debug, "LightsControler::loop() change\r\n");
+		active = c;
 		last = curr;
 		lastLoopTime = millis();
 	}
+*/
+ 
 	updateLights();
 }
 //----------------------------------------------------------------------------------------
-void LightsControler::onSwitchStateChanged(uint8_t idx, uint8_t state) {
-	logger.log(debug, "LightsControler::onSwitchChanged() idx: %d state: %d\r\n", idx, state);
-	switch (idx) {
-	case SWITCH_BATH_1_IDX:
-		swBath1.setState(state);
-		break;
-	case SWITCH_BATH_2_IDX:
-		swBath2.setState(state);
-		break;
-	case SWITCH_BATH_3_IDX:
-		swBath3.setState(state);
-		break;
+void LightsControler::onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState){	
+	if (src == EVENT_SRC_MQTT || src == EVENT_SRC_SCREEN) {
+		logger.log(debug, "LightsControler::onSwitchChange() id: %d state: %d\r\n", switchId, switchState);
+		switch (switchId) {
+		case SW_BATHROOM_CH1:			
+			//czekam na GPIO_SW_BATHROOM_CH1
+			break;
+		case SW_BATHROOM_CH2:
+			//czekam na GPIO_SW_BATHROOM_CH2
+			break;
+		case SW_BATHROOM_CH3:
+			//nie wiem, czy tego nie trzeba przenieÅ›Ä‡ do pÄ™tli
+			if(swBath3.setState(switchState))
+				eventDispatcher.onSwitchChange(EVENT_SRC_GPIO, SW_BATHROOM_CH3, swBath3.getState());
+			break;
+		case SW_KITCHEN_CH1:
+			break;
+		case SW_KITCHEN_CH2:
+			break;
+		case SW_BATHROOM_PIR:
+			//czekam na GPIO
+			break;
+		}
 	}
 }
 //----------------------------------------------------------------------------------------
+//zmiana konfiguracji
 void LightsControler::onLightValueChanged(uint8_t idx, uint8_t value) {
 	logger.log(debug, "LightsControler::onLightValueChange() idx: %d val: %d\r\n", idx, value);
 	configuration.setLightsBathValue(idx, value);
@@ -121,47 +164,30 @@ void LightsControler::onLightValueChanged(uint8_t idx, uint8_t value) {
 	case LIGHT_BATH_TAPE_3_IDX: variants[LIGHTS_BATH_VARIANT_3].tapeWhite.setBrightness(value); break;
 	case LIGHT_BATH_RGB_V_3_IDX: variants[LIGHTS_BATH_VARIANT_3].tapeRgb.setBrightness(value); break;
 	case LIGHT_BATH_RGB_H_3_IDX: variants[LIGHTS_BATH_VARIANT_3].tapeRgb.setHue(value); break;
+
+	//uzupeï¿½niï¿½ dla PIR
 	}
 }
 //----------------------------------------------------------------------------------------
 void LightsControler::updateLights() {
-	if (!(curr == variants[activeVariant])) {
-		curr.main.setBrightness(calculateStep(last.main.getBrightness(), curr.main.getBrightness(), variants[activeVariant].main.getBrightness()));
-		curr.holder.setBrightness(calculateStep(last.holder.getBrightness(), curr.holder.getBrightness(), variants[activeVariant].holder.getBrightness()));
-		curr.tapeWhite.setBrightness(calculateStep(last.tapeWhite.getBrightness(), curr.tapeWhite.getBrightness(), variants[activeVariant].tapeWhite.getBrightness()));
-		curr.tapeRgb.setBrightness(calculateStep(last.tapeRgb.getBrightness(), curr.tapeRgb.getBrightness(), variants[activeVariant].tapeRgb.getBrightness()));
-		//je¿eli œciemniamy i wy³¹czamy RGB to na ten czas utrzymujemy stary kolor
-		if (variants[activeVariant].tapeRgb.getBrightness() == 0 && curr.tapeRgb.getBrightness() > 0)
-			curr.tapeRgb.setHue(last.tapeRgb.getHue());
-		else
-			curr.tapeRgb.setHue(variants[activeVariant].tapeRgb.getHue());
-		/*
-		uint32_t t = millis() - lastLoopTime;
-		lastLoopTime = millis();
+  if (!(curr == variants[activeVariant])) {
+    curr.main.setBrightness(calculateStep(last.main.getBrightness(), curr.main.getBrightness(), variants[activeVariant].main.getBrightness()));
+    curr.holder.setBrightness(calculateStep(last.holder.getBrightness(), curr.holder.getBrightness(), variants[activeVariant].holder.getBrightness()));
+    curr.tapeWhite.setBrightness(calculateStep(last.tapeWhite.getBrightness(), curr.tapeWhite.getBrightness(), variants[activeVariant].tapeWhite.getBrightness()));
+    curr.tapeRgb.setBrightness(calculateStep(last.tapeRgb.getBrightness(), curr.tapeRgb.getBrightness(), variants[activeVariant].tapeRgb.getBrightness()));
+    //jeÅ¼eli Å›ciemniamy i wyÅ‚Ä…czamy RGB to na ten czas utrzymujemy stary kolor
+    if (variants[activeVariant].tapeRgb.getBrightness() == 0 && curr.tapeRgb.getBrightness() > 0)
+      curr.tapeRgb.setHue(last.tapeRgb.getHue());
+    else
+      curr.tapeRgb.setHue(variants[activeVariant].tapeRgb.getHue());
 
-		logger.log(debug, "LightsControler::updateLights(): curr time %d, main %d, holder %d, tapeWhite %d, tapeRgb %d, tapeRgbH %d\r\n",
-			t,
-			curr.main.getBrightness(),
-			curr.holder.getBrightness(),
-			curr.tapeWhite.getBrightness(),
-			curr.tapeRgb.getBrightness(),
-			curr.tapeRgb.getHue()
-		);
-
-		logger.log(debug, "LightsControler::updateLights(): active tome %d, main %d, holder %d, tapeWhite %d, tapeRgb, tapeRgbH %d %d\r\n",
-			t,
-			variants[activeVariant].main.getBrightness(),
-			variants[activeVariant].holder.getBrightness(),
-			variants[activeVariant].tapeWhite.getBrightness(),
-			variants[activeVariant].tapeRgb.getBrightness(),
-			variants[activeVariant].tapeRgb.getHue()
-		);
-		*/
-		RgbColor color = curr.tapeRgb.getColorRgb();
-		setLights(curr.main.getBrightness(),
-			curr.holder.getBrightness(),
-			curr.tapeWhite.getBrightness(), color.r, color.g, color.b);
 	}
+
+    RgbColor color = curr.tapeRgb.getColorRgb();
+    setLights(curr.main.getBrightness(),
+      curr.holder.getBrightness(),
+      curr.tapeWhite.getBrightness(), color.r, color.g, color.b);
+       
 }
 //----------------------------------------------------------------------------------------
 uint8_t LightsControler::calculateStep(uint8_t from, uint8_t curr, uint8_t to) {
@@ -181,11 +207,11 @@ uint8_t LightsControler::calculateStep(uint8_t from, uint8_t curr, uint8_t to) {
 }
 //----------------------------------------------------------------------------------------
 void LightsControler::setLights(uint8_t mainVal, uint8_t holderVal, uint8_t tapeWhiteVal, uint8_t tapeRed, uint8_t tapeGreen, uint8_t tapeBlue) {
-	logger.log(debug, "LightsControler::setLights(): main %d, holder %d, tapeW %d, tapeR %d, tapeG %d, tapeB %d\r\n", mainVal, holderVal, tapeWhiteVal, tapeRed, tapeGreen, tapeBlue);
+	//logger.log(debug, "LightsControler::setLights(): main %d, holder %d, tapeW %d, tapeR %d, tapeG %d, tapeB %d\r\n", mainVal, holderVal, tapeWhiteVal, tapeRed, tapeGreen, tapeBlue);
 
 	Driver.begin();
 	Driver.SetColor(tapeRed, tapeGreen, tapeBlue); //first node data    
-	Driver.SetColor(mainVal, tapeWhiteVal, holderVal); //second node data 
+	Driver.SetColor(holderVal, tapeWhiteVal, mainVal); //second node data 
 	Driver.end();
 }
 LightsControler lightsControler;

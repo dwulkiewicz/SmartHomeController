@@ -45,9 +45,6 @@
     <ClInclude Include="LightsControler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LightDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ColorUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LightDeviceRgbEntity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightDeviceEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

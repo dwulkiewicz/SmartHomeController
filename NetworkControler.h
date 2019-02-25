@@ -14,13 +14,14 @@ public:
 	void init();
 	void loop();
 	static String getHostName();
-	void publishCmdSwitchChange(uint8_t switchId, uint8_t switchState);
+	void onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState);
 private:
 	void initWiFi();
 	void initMQTT();
 	void initOTA();
 	bool reconnect();
 	static void mqttCallback(char* topic, byte* payload, unsigned int length);
+	void mqttCallbackLoop();
 	static String statusMqttToString(int status);
 };
 extern NetworkControler networkControler;

@@ -8,6 +8,9 @@ public:
 	bool operator==(const LightDeviceEntity &n) {
 		return brightness == n.brightness;
 	}
+	void max(const LightDeviceEntity &src) {
+		brightness = MAX(brightness, src.brightness);
+	}
 public:
 	void setBrightnessPercent(uint8_t brightness); //0-100
 	uint8_t getBrightnessPercent(); //0-100

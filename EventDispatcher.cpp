@@ -42,16 +42,10 @@ void EventDispatcher::onRefreshDateTime(const DateTime& dateTime){
 	heatingControler.onRefreshDateTime(dateTime);
 }
 //----------------------------------------------------------------------------------------
-void EventDispatcher::onMqttReceiveSwitchState(uint8_t switchId, uint8_t switchState) {
-	//networkControler.onSwitchChanged(switchId, switchState);
-	displayControler.onSwitchChanged(switchId, switchState);
-	lightsControler.onSwitchStateChanged(switchId, switchState);
-}
-//----------------------------------------------------------------------------------------
-void EventDispatcher::onScreenTouchSwitch(uint8_t switchId, uint8_t switchState) {
-	networkControler.publishCmdSwitchChange(switchId, switchState);
-	//displayControler.onSwitchChanged(switchId, switchState);
-	//lightsControler.onSwitchStateChanged(switchId, switchState);
+void EventDispatcher::onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState) {
+	networkControler.onSwitchChange(src, switchId, switchState);
+	displayControler.onSwitchChange(src, switchId, switchState);
+	lightsControler.onSwitchChange(src, switchId, switchState);
 }
 //----------------------------------------------------------------------------------------
 void EventDispatcher::onRefreshOutdoorTemperature(float value) {
