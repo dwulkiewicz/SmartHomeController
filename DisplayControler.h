@@ -37,7 +37,7 @@ public:
 	//Heating
 	void refreshHeatingStatus(uint8_t heatingStatus);
 	void refreshHeatingPeriod(uint8_t heatingPeriod);
-	void refreshHeatingRequiredTemp(float value);
+	void refreshHeatingTargetTemp(float value);
 	//Network
 	void refreshWiFiStatus(int8_t status);
 	void refreshMQTTStatus(int status);

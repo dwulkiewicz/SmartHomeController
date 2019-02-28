@@ -17,7 +17,7 @@ public:
   //Heating
   void onHeatingStatusChange(uint8_t status);
   void onHeatingPeriodChange(uint8_t period);
-  void onHeatingRequiredTempChange(float value);
+  void onHeatingTargetTempChange(float value);
   void onHeatingConfigurationChange(void);  
   //Indoor
   void onRefreshIndoorTemperature(float value);

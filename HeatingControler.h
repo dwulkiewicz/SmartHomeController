@@ -17,14 +17,14 @@ public:
 private:
 	void refresh();
 	void updatePeriod();
-	void updateRequiredTemperature();
+	void updateTargetTemperature();
 	void updateStatus();
 private:
 	uint8_t status;
 	uint8_t period;
 	DateTime currDateTime;
 	float currIndoorTemp;
-	float requiredTemp;
+	float targetTemp;
 };
 extern HeatingControler heatingControler;
 #endif /* #ifndef __HeatingControler_H__ */

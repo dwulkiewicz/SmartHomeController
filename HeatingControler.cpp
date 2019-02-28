@@ -6,7 +6,7 @@
 HeatingControler::HeatingControler() {
 	status = HEATING_STATUS_UNDEF;
 	period = HEATING_PERIOD_UNDEF;
-	requiredTemp = 0;
+	targetTemp = 0;
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::init(const DateTime& dateTime, float indoorTemp) {
@@ -40,10 +40,10 @@ void HeatingControler::onConfigurationChange() {
 //----------------------------------------------------------------------------------------
 void HeatingControler::refresh() {
 	updatePeriod();
-	updateRequiredTemperature();
+	updateTargetTemperature();
 	updateStatus();
 	String dayOfWeekStr = RtcControler::dayOfWeekName(currDateTime.dayOfTheWeek());
-	logger.log(info, "HeatingControler::refresh() time: %s %02d:%02d period: %s status: %s requiredTemp: %.1f currTemp: %.1f \r\n", dayOfWeekStr.c_str(), currDateTime.hour(), currDateTime.minute(), periodToStr(period).c_str(), statusToStr(status).c_str(), requiredTemp, currIndoorTemp);
+	logger.log(info, "HeatingControler::refresh() time: %s %02d:%02d period: %s status: %s targetTemp: %.1f currTemp: %.1f \r\n", dayOfWeekStr.c_str(), currDateTime.hour(), currDateTime.minute(), periodToStr(period).c_str(), statusToStr(status).c_str(), targetTemp, currIndoorTemp);
 }
 //----------------------------------------------------------------------------------------
 void HeatingControler::updatePeriod() {
@@ -72,11 +72,11 @@ void HeatingControler::updatePeriod() {
 	}
 }
 //----------------------------------------------------------------------------------------
-void HeatingControler::updateRequiredTemperature() {
-	float currRequiredTemp = (period == HEATING_PERIOD_DAY) ? configuration.getDayTemperature() : configuration.getNightTemperature();
-	if (requiredTemp != currRequiredTemp) {
-		requiredTemp = currRequiredTemp;
-		eventDispatcher.onHeatingRequiredTempChange(requiredTemp);
+void HeatingControler::updateTargetTemperature() {
+	float currTargetTemp = (period == HEATING_PERIOD_DAY) ? configuration.getDayTemperature() : configuration.getNightTemperature();
+	if (targetTemp != currTargetTemp) {
+		targetTemp = currTargetTemp;
+		eventDispatcher.onHeatingTargetTempChange(targetTemp);
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void HeatingControler::updateStatus() {
 	//grzeje ...
 	if (status == HEATING_STATUS_HEAT) {
 		//i osiągnęło wymaganą temperaturę to wyłącz ....
-		if (currIndoorTemp >= requiredTemp + configuration.getHisteresisTemp() / 2.0) {
+		if (currIndoorTemp >= targetTemp + configuration.getHisteresisTemp() / 2.0) {
 			currStatus = HEATING_STATUS_COOL;
 		}
 		//jeszcze nie nagrzało, ma grzać dalej
@@ -96,7 +96,7 @@ void HeatingControler::updateStatus() {
 	//chłodzi
 	else if (status == HEATING_STATUS_COOL) {
 		//i osiągnęło minimalną temperaturę to włącz ....
-		if (currIndoorTemp <= requiredTemp - configuration.getHisteresisTemp() / 2.0) {
+		if (currIndoorTemp <= targetTemp - configuration.getHisteresisTemp() / 2.0) {
 			currStatus = HEATING_STATUS_HEAT;
 		}
 		//jeszcze nie słodziło, ma schładzać dalej
@@ -106,7 +106,7 @@ void HeatingControler::updateStatus() {
 	}
 	//startuje, w tym przypadku zaczynamy od grzania jeżeli trzeba
 	else {
-		if (currIndoorTemp < requiredTemp + configuration.getHisteresisTemp() / 2.0) {
+		if (currIndoorTemp < targetTemp + configuration.getHisteresisTemp() / 2.0) {
 			currStatus = HEATING_STATUS_HEAT;
 		}
 		else {

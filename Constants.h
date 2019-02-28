@@ -3,6 +3,58 @@
 
 #include "Logger.h"
 
+
+#define TEST_BOARD
+//#define FINALL_BOARD	
+
+
+
+#if defined(TEST_BOARD)
+	//I2C
+	#define I2C_SDA			 4
+	#define I2C_SCL			15
+
+	#define I2C_SCL_1		38
+	#define I2C_SDA_1		39
+	//UART1
+	#define UART1_TX		21
+	#define UART1_RX		13
+	//PT9813
+	#define GPIO_CLK		36       
+	#define GPIO_DIO		37
+	//SWITCH
+	#define GPIO_SW_BATHROOM_CH1		34
+	#define GPIO_SW_BATHROOM_CH2		35
+	#define GPIO_SW_BATHROOM_PIR		32
+	//OTHER
+	#define GPIO_BUZZER		 2
+	#define GPIO_RELAY		15
+#endif
+#if defined(FINALL_BOARD)
+	//I2C
+	#define I2C_SCL			13
+	#define I2C_SDA			14
+	#define I2C_SCL_1		22
+	#define I2C_SDA_1		21
+	//UART1
+	#define UART1_TX		16
+	#define UART1_RX		17
+	//PT9813
+	#define GPIO_CLK		26       
+	#define GPIO_DIO		27
+	//SWITCH
+	#define GPIO_SW_BATHROOM_CH1		36
+	#define GPIO_SW_BATHROOM_CH2		39
+	#define GPIO_SW_BATHROOM_PIR		34
+	//#define GPIO_NC					32
+	//OTHER
+	#define GPIO_BUZZER		 2
+	#define GPIO_RELAY		15
+#endif
+
+
+#define UART1_BAUND 57600
+
 #define CORE_1 0
 #define CORE_2 1
 
@@ -10,31 +62,6 @@
 #define I2C_ADDRESS_SSD1306 0x3C //OLED
 #define I2C_ADDRESS_D1307   0x68 //RTC
 #define I2C_ADDRESS_AT24C32 0x50 //EEPROM
-
-//ESP32 I2C
-//#define I2C_SDA 4
-//#define I2C_SCL 15
-#define I2C_SCL 13
-#define I2C_SDA 14
-#define I2C_SCL_1 22
-#define I2C_SDA_1 21
-
-//ESP32 UART1
-#define UART1_BAUND 57600
-//#define UART1_TX 21
-//#define UART1_RX 13
-#define UART1_TX		16
-#define UART1_RX		17
-#define GPIO_CLK		26       
-#define GPIO_DIO		27
-
-#define GPIO_SW_BATHROOM_CH1		36
-#define GPIO_SW_BATHROOM_CH2		39
-#define GPIO_SW_BATHROOM_PIR		34
-//#define GPIO_NC					32
-
-#define GPIO_BUZZER		 2
-#define GPIO_RELAY		15
 
 #define HOSTNAME_PREFIX "SmartHomeControler-" ///< Hostename. The setup function adds the Chip ID at the end.
 
@@ -142,6 +169,8 @@
 #define PIC_DIGIT_8  45
 #define PIC_DIGIT_9  46
 
+
+#define	PG_NULL_ID                     255 //z pewnością tyle stron nie będęmiał
 //------------/*Strona główna*/------------
 #define PG_MAIN_ID                       0
 #define PG_MAIN_NAME              "pgMain"

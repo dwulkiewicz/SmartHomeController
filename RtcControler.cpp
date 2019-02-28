@@ -1,9 +1,18 @@
 
 #include <Wire.h>
+#include <TimeLib.h>
+#include <NtpClientLib.h>
 
 #include "RtcControler.h"
 #include "Constants.h"
 #include "EventDispatcher.h"
+
+#define SHOW_TIME_PERIOD 5000
+
+int8_t timeZone = 1;
+int8_t minutesTimeZone = 0;
+const PROGMEM char *ntpServer = "pool.ntp.org";
+bool wifiFirstConnected = false;
 
 //----------------------------------------------------------------------------------------
 RtcControler::RtcControler(){
@@ -17,11 +26,17 @@ void RtcControler::init(){
 	if (!rtc.isrunning()) {
 		Serial.print("RtcControler::init() RTC is NOT running!\r\n");
 		// following line sets the RTC to the date & time this sketch was compiled
-		//rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+		rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 		// This line sets the RTC with an explicit date & time, for example to set
 		// January 21, 2014 at 3am you would call:
-		// rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+		//rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
 	}
+/*
+	NTP.onNTPSyncEvent([](NTPSyncEvent_t event) {
+		ntpEvent = event;
+		syncEventTriggered = true;
+	});
+*/
 }
 //----------------------------------------------------------------------------------------
 DateTime RtcControler::now() {

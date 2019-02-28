@@ -132,7 +132,7 @@ bool NetworkControler::reconnect() {
 			client.subscribe(sensorsBME280PressureTopic);
 						
 			//client.subscribe(sonoffTele);
-			//client.subscribe(sonoffStat);
+			client.subscribe(sonoffStat);
 
 			//client.subscribe(sonoffStatBathroom01);
 			//client.subscribe(sonoffStatBathroom02);
@@ -152,12 +152,13 @@ void NetworkControler::loop() {
 		return;
 	}
 	//Handle OTA server.
-	//ArduinoOTA.handle();
+	ArduinoOTA.handle();
 
 	client.loop();
 
-	//mqttCallbackLoop();
+	mqttCallbackLoop();
 }
+//-----------------------------------------------------------------------------------------
 
 typedef struct TaskParam
 {
@@ -214,11 +215,6 @@ void NetworkControler::mqttCallbackLoop() {
 
 //----------------------------------------------------------------------------------------
 void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int length) {	
-
-	logger.log(info, "NetworkControler::mqttCallback() topic: %s, msg: %s\r\n", topic, payload);
-
-	return;
-
 	TaskParam p;
 	for (uint8_t i = 0; i < MQTT_PAYLOAD_BUF_SIZE; i++) {		
 		if (i < MQTT_PAYLOAD_BUF_SIZE - 1)
@@ -232,8 +228,8 @@ void NetworkControler::mqttCallback(char* topic, byte* payload, unsigned int len
 	p.msg[MIN(length, MQTT_PAYLOAD_BUF_SIZE)] = '\0'; // Null terminator used to terminate the char array
 
 	logger.log(info, "NetworkControler::mqttCallback() topic: %s, msg: %s\r\n", p.topic, p.msg);
-	//if (xQueueSend(mqttQueue, &p, 0) != pdTRUE)
-	//	logger.log(info, "NetworkControler::mqttCallback() xQueueSend error\r\n");
+	if (xQueueSend(mqttQueue, &p, 0) != pdTRUE)
+		logger.log(info, "NetworkControler::mqttCallback() xQueueSend error\r\n");
 }
 //----------------------------------------------------------------------------------------
 void NetworkControler::onSwitchChange(uint8_t src, uint8_t switchId, uint8_t switchState) {

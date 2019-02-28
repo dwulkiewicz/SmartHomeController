@@ -29,8 +29,8 @@ void EventDispatcher::onHeatingPeriodChange(uint8_t period) {
 	displayControler.refreshHeatingPeriod(period);
 }
 //----------------------------------------------------------------------------------------
-void EventDispatcher::onHeatingRequiredTempChange(float value) {
-	displayControler.refreshHeatingRequiredTemp(value);
+void EventDispatcher::onHeatingTargetTempChange(float value) {
+	displayControler.refreshHeatingTargetTemp(value);
 }
 //----------------------------------------------------------------------------------------
 void EventDispatcher::onHeatingConfigurationChange(void){

@@ -10,7 +10,7 @@ DisplayBuffer::DisplayBuffer(){
 	dateTime.hour = 0;
 	dateTime.minute = 0;
 	dateTime.second = 0;
-	heatingRequiredTemp = 0;
+	heatingTargetTemp = 0;
 }
 
 void DisplayBuffer::set(const DateTime& dateTime) {

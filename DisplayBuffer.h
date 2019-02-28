@@ -24,7 +24,7 @@ public:
     //Heating
 	uint8_t heatingStatus;
 	uint8_t heatingPeriod;
-	float heatingRequiredTemp;
+	float heatingTargetTemp;
 	//Network
 	uint8_t wifiStatus;
 	uint8_t mqttStatus;

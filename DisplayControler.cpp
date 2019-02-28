@@ -21,8 +21,8 @@
 #include "EventDispatcher.h"
 
 
-NexWaveform sPreassure(PG_MAIN_ID, 32, "s1");
-NexWaveform sIndoorTemp(PG_MAIN_ID, 31, "s0");
+//NexWaveform sPreassure(PG_MAIN_ID, 32, "s1");
+//NexWaveform sIndoorTemp(PG_MAIN_ID, 31, "s0");
 
 
 //------------/*Strona główna*/------------//
@@ -232,6 +232,7 @@ NexTouch *nex_listen_list[] =
 //----------------------------------------------------------------------------------------
 DisplayControler::DisplayControler()
 {
+	//PG_NULL_ID;
 	currentPage = PG_MAIN_ID; //zakładam, że po restarcie systemu aktywna jest główna strona, w razie czego można dodać komendę oczytująca bieżącą stronę
 
 	disp.outdoorTemperature = 99;
@@ -430,17 +431,17 @@ void DisplayControler::refreshHeatingPeriod(uint8_t heatingPeriod) {
 	}
 }
 //----------------------------------------------------------------------------------------
-void DisplayControler::refreshHeatingRequiredTemp(float value) {
-	curr.heatingRequiredTemp = value;
+void DisplayControler::refreshHeatingTargetTemp(float value) {
+	curr.heatingTargetTemp = value;
 	if (currentPage != PG_MAIN_ID)
 		return;
-	if (disp.heatingRequiredTemp != curr.heatingRequiredTemp) {
+	if (disp.heatingTargetTemp != curr.heatingTargetTemp) {
 		char buf[10];
-		sprintf(buf, "%02.1fC", curr.heatingRequiredTemp);
-		logger.log(debug, "DisplayControler::refreshHeatingRequiredTemp() temp: %.1f\r\n", curr.heatingRequiredTemp);
+		sprintf(buf, "%02.1fC", curr.heatingTargetTemp);
+		logger.log(debug, "DisplayControler::refreshHeatingTargetTemp() temp: %.1f\r\n", curr.heatingTargetTemp);
 		if (currentPage == PG_MAIN_ID
 			&& objHeatingSetTemp.setText(buf)) {
-			disp.heatingRequiredTemp = curr.heatingRequiredTemp;
+			disp.heatingTargetTemp = curr.heatingTargetTemp;
 		}
 	}
 }
@@ -508,7 +509,7 @@ void DisplayControler::refreshBathSw3(void) {
 
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshKitchenSw1(void) {
-	if (lastKitchenSw1State != kitchenSw1State) {
+	if (currentPage == PG_MAIN_ID && lastKitchenSw1State != kitchenSw1State) {
 		Serial.printf("DisplayControler::refreshKitchenSw1()\r\n");
 		if (currentPage == PG_MAIN_ID &&
 			compLightKitchenSw1.setPic(kitchenSw1State == SW_STATE_ON ? PICTURE_SWITCH_KITCHEN_MAIN_ON : PICTURE_SWITCH_KITCHEN_MAIN_OFF)) {
@@ -518,7 +519,7 @@ void DisplayControler::refreshKitchenSw1(void) {
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::refreshKitchenSw2(void) {
-	if (lastKitchenSw2State != kitchenSw2State) {
+	if (currentPage == PG_MAIN_ID && lastKitchenSw2State != kitchenSw2State) {
 		Serial.printf("DisplayControler::refreshKitchenSw2()\r\n");
 		if (currentPage == PG_MAIN_ID &&
 			compLightKitchenSw2.setPic(kitchenSw2State == SW_STATE_ON ? PICTURE_SWITCH_KITCHEN_CUPBOARD_ON : PICTURE_SWITCH_KITCHEN_CUPBOARD_OFF)) {
@@ -1016,7 +1017,7 @@ void DisplayControler::refreshPreasure() {
 	}
 
 	//uint16_t p = round((float(curr.pressure - 960) / 60.0) * 40.0);
-	sPreassure.addValue(0, curr.pressure-970);
+	//sPreassure.addValue(0, curr.pressure-970);
 
 
 }
@@ -1151,8 +1152,8 @@ void DisplayControler::loop() {
 		refreshHeatingStatus(curr.heatingStatus);
 	if (disp.heatingPeriod != curr.heatingPeriod)
 		refreshHeatingPeriod(curr.heatingPeriod);
-	if (disp.heatingRequiredTemp != curr.heatingRequiredTemp)
-		refreshHeatingRequiredTemp(curr.heatingRequiredTemp);
+	if (disp.heatingTargetTemp != curr.heatingTargetTemp)
+		refreshHeatingTargetTemp(curr.heatingTargetTemp);
 }
 
 DisplayControler displayControler;
