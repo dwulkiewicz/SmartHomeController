@@ -154,6 +154,8 @@ NexPage pgOther(PG_OTHER_ID, 0, PG_OTHER_NAME);
 NexText objHeatingHisteresisVal(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_VAL_ID, OBJ_HEATING_HISTERESIS_VAL_NAME);
 NexButton objHeatingHisteresisDec(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_DEC_ID, OBJ_HEATING_HISTERESIS_DEC_NAME);
 NexButton objHeatingHisteresisInc(PG_OTHER_ID, OBJ_HEATING_HISTERESIS_INC_ID, OBJ_HEATING_HISTERESIS_INC_NAME);
+/*Reboot*/
+NexButton compRebootEsp(PG_OTHER_ID, OBJ_REBOOT_ESP_INC_ID, OBJ_REBOOT_ESP_INC_NAME);
 
 //------------/*Ustawienia*/------------
 NexPage pgSettings(PG_SETTINGS_ID, 0, PG_SETTINGS_NAME);
@@ -226,6 +228,7 @@ NexTouch *nex_listen_list[] =
   &objHeatingWeekendAfternoonOffInc,
   &objHeatingHisteresisDec,
   &objHeatingHisteresisInc,
+  &compRebootEsp,
   NULL
 };
 
@@ -331,6 +334,9 @@ void DisplayControler::init() {
 	compLightBathTapeWhiteVal3.attachPop(onSliderLightPop, &compLightBathTapeWhiteVal3);
 	compLightBathTapeRgbVal3.attachPop(onSliderLightPop, &compLightBathTapeRgbVal3);
 	compLightBathTapeRgbHue3.attachPop(onSliderLightPop, &compLightBathTapeRgbHue3);
+
+	compRebootEsp.attachPush(onRebootEsp, &compRebootEsp);
+
 }
 //----------------------------------------------------------------------------------------
 void DisplayControler::onPageShow(void *ptr)
@@ -1071,7 +1077,13 @@ void DisplayControler::onSliderLightPop(void *ptr)
 		eventDispatcher.onLightValueChange(idx, value);
 	}
 }
-
+//----------------------------------------------------------------------------------------
+void DisplayControler::onRebootEsp(void *ptr)
+{
+	NexSlider *obj = (NexSlider *)ptr;
+	logger.log(debug, "onRebootEsp()\r\n");
+	ESP.restart();
+}
 //----------------------------------------------------------------------------------------
 uint8_t DisplayControler::dayOfWeekPic(uint8_t dayOfWeek) {
 	switch (dayOfWeek) {

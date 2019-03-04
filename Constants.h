@@ -4,8 +4,8 @@
 #include "Logger.h"
 
 
-#define TEST_BOARD
-//#define FINALL_BOARD	
+//#define TEST_BOARD
+#define FINALL_BOARD	
 
 
 
@@ -68,7 +68,7 @@
 #define TASK_INDOOR_TEMP_SENSOR_LOOP 5000 //ms
 #define TASK_DATATIME_LOOP            500 //ms
 #define TASK_NEXTION_LOOP             50 //ms
-#define TASK_LIGHTS_LOOP              10 //ms
+#define TASK_LIGHTS_LOOP              100 //10 //ms
 
 #define LIGHTS_DIMING_TIME           200 //ms czas zjaśniania / zciemniania świateł
 
@@ -193,9 +193,9 @@
 #define OBJ_BATH_SW_3_NAME					  "p9"
 #define OBJ_BATH_PIR_ID							31
 #define OBJ_BATH_PIR_NAME					  "p8"
-#define OBJ_KITCHEN_SW_1_ID						32
+#define OBJ_KITCHEN_SW_1_ID						32  //szafki
 #define OBJ_KITCHEN_SW_1_NAME				 "p10"
-#define OBJ_KITCHEN_SW_2_ID						33
+#define OBJ_KITCHEN_SW_2_ID						33  //głóne
 #define OBJ_KITCHEN_SW_2_NAME				 "p11"	
 
 #define OBJ_SONOFF_SW_1_ID				         35
@@ -401,6 +401,9 @@
 #define OBJ_HEATING_HISTERESIS_DEC_NAME   "b18"
 #define OBJ_HEATING_HISTERESIS_INC_ID         2
 #define OBJ_HEATING_HISTERESIS_INC_NAME   "b19"
+/*Reboot*/
+#define OBJ_REBOOT_ESP_INC_ID				  7
+#define OBJ_REBOOT_ESP_INC_NAME			   "b0"
 
 //------------/*Ustawienia*/------------
 #define PG_SETTINGS_ID						7

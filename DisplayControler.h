@@ -63,6 +63,7 @@ private:
 	static void onSwitchPush(void *ptr);	
 	static void onDateTimeNextPush(void *ptr);
 	static void onSliderLightPop(void *ptr);  
+	static void onRebootEsp(void *ptr);
 private:
 	void refresMainPage();
 	void refreshHeatingPage();

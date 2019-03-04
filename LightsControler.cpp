@@ -170,6 +170,7 @@ void LightsControler::onLightValueChanged(uint8_t idx, uint8_t value) {
 }
 //----------------------------------------------------------------------------------------
 void LightsControler::updateLights() {
+/*
   if (!(curr == variants[activeVariant])) {
     curr.main.setBrightness(calculateStep(last.main.getBrightness(), curr.main.getBrightness(), variants[activeVariant].main.getBrightness()));
     curr.holder.setBrightness(calculateStep(last.holder.getBrightness(), curr.holder.getBrightness(), variants[activeVariant].holder.getBrightness()));
@@ -187,7 +188,14 @@ void LightsControler::updateLights() {
     setLights(curr.main.getBrightness(),
       curr.holder.getBrightness(),
       curr.tapeWhite.getBrightness(), color.r, color.g, color.b);
-       
+*/
+
+    RgbColor color = variants[activeVariant].tapeRgb.getColorRgb();
+    setLights(variants[activeVariant].main.getBrightness(),
+      variants[activeVariant].holder.getBrightness(),
+      variants[activeVariant].tapeWhite.getBrightness(), color.r, color.g, color.b);
+
+      
 }
 //----------------------------------------------------------------------------------------
 uint8_t LightsControler::calculateStep(uint8_t from, uint8_t curr, uint8_t to) {
